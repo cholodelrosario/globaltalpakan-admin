@@ -29,7 +29,7 @@
             </q-input>
         </q-card-section>
         <q-card-actions align="center">
-            <q-btn color="primary" class="text-black full-width" label="Login Account" @click="$router.push('/agent')"/>
+            <q-btn color="primary" class="text-black full-width" label="Login Account" @click="$router.push('/dashboard')"/>
         </q-card-actions>
             
     </q-card> 

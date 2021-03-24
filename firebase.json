@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "agent", 
+    "target": "admin", 
     "public": "dist/spa",
     "ignore": [
       "firebase.json",
