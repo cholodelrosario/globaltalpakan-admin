@@ -1,22 +1,17 @@
 
 const routes = [
   {
-    path: '/player',
+    path: '/agent',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Index.vue') },
-      { path: '/event', component: () => import('pages/GameEventPage.vue') },
-      { path: '/withdraw', component: () => import('pages/Withdraw.vue') },
-      { path: '/buycredits', component: () => import('pages/AddCredits.vue') },
+      { path: '', component: () => import('pages/Index.vue') },,
     ]
   },
   {
     path: '/',
     component: () => import('layouts/NoLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Index.vue') },
-      { path: '/enter', component: () => import('pages/LoginRegister.vue') },
-      { path: '/events', component: () => import('pages/Events.vue') }
+      { path: '', component: () => import('pages/Login.vue') }
     ]
   },
   // Always leave this as last one,
