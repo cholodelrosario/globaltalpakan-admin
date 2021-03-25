@@ -15,7 +15,7 @@
           
         </q-toolbar-title>
 
-        <div class="text-white">₱ 0.00 <q-icon name="account_balance_wallet"  size="sm"/></div>
+        <!-- <div class="text-white">₱ 0.00 <q-icon name="account_balance_wallet"  size="sm"/></div> -->
       </q-toolbar>
     </q-header>
 
@@ -32,20 +32,28 @@
             <q-item-label overline class="text-white">09654767706</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/event" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/dashboard" active-class="text-black bg-primary">
           <q-item-section avatar>
-            <q-avatar color="grey-1" text-color="dark" icon="play_arrow" />
+            <q-avatar color="grey-1" text-color="dark" icon="dashboard" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Play</q-item-label>
+            <q-item-label class="text-weight-bold">Dashboard</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/help" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/events" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="help" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Help</q-item-label>
+            <q-item-label class="text-weight-bold">Event Management</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/bets" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="help" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Bets Management</q-item-label>
           </q-item-section>
         </q-item>
         <q-separator inset  />
@@ -53,22 +61,53 @@
           header
           class="text-grey-8"
         >
-          Wallet
+          Agents
         </q-item-label>
-        <q-item clickable v-ripple to="/buycredits" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/agents" active-class="text-black bg-primary">
           <q-item-section avatar>
-            <q-avatar color="grey-1" text-color="dark" icon="add_box" />
+            <q-avatar color="grey-1" text-color="dark" icon="people" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Add Credits</q-item-label>
+            <q-item-label class="text-weight-bold">Agent Management</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/withdraw" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/agents-ranking" active-class="text-black bg-primary">
           <q-item-section avatar>
-            <q-avatar color="grey-1" text-color="dark" icon="credit_card" />
+            <q-avatar color="grey-1" text-color="dark" icon="assessment" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Withdraw</q-item-label>
+            <q-item-label class="text-weight-bold">Agent Ranking</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-separator inset  />
+        <q-item-label
+          header
+          class="text-grey-8"
+        >
+          Reports
+        </q-item-label>
+        <q-item clickable v-ripple to="/commisions" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="money" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Commisions</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/transactions" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="payment" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Transactions</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/total-sales" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="request_page" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Total Sales</q-item-label>
           </q-item-section>
         </q-item>
         <q-separator inset  />
