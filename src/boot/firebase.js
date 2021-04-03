@@ -35,7 +35,7 @@ let firebaseStorage = firebaseApp.storage();
 let secondaryApp = firebase.initializeApp(firebaseConfig, "secondary");
 let Auth2 = secondaryApp.auth();
 
-export {firebase, firebaseAuth, firebaseDb, firebaseStorage}
+export {firebase, firebaseAuth, firebaseDb, firebaseStorage, Auth2}
 
 export default async ({ Vue }) => {
 

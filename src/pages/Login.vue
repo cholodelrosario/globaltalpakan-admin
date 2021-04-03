@@ -16,7 +16,7 @@
         v-show="logRegTab"
     >
 
-        <q-card-section class="q-gutter-md">
+        <!-- <q-card-section class="q-gutter-md">
             <q-input v-model="mobile" type="text" color="white" label="Mobile Number" standout/>
             <q-input v-model="password" :type="isPwd ? 'password' : 'text'" color="white" label="Password" standout>
                 <template v-slot:append>
@@ -27,9 +27,18 @@
                 />
                 </template>
             </q-input>
-        </q-card-section>
+        </q-card-section> -->
         <q-card-actions align="center">
-            <q-btn color="primary" class="text-black full-width" label="Login Account" @click="$router.push('/dashboard')"/>
+            <q-btn color="dark" class="full-width" label="Login Account" @click="signInGoogle">
+                    <q-avatar size="40px" font-size="52px" text-color="white" ><q-img
+        :style="$q.platform.is.desktop ? 'width:20vw;' : 'width:90vw'"
+        src="~assets/google-logo.png"
+        spinner-color="primary"
+        spinner-size="82px"
+        contain
+        class="col-12"
+    /></q-avatar>
+            </q-btn>
         </q-card-actions>
             
     </q-card> 
@@ -41,6 +50,7 @@
 </template>
 
 <script>
+import { firebase } from 'boot/firebase'
 export default {
     data(){
         return {
@@ -56,7 +66,8 @@ export default {
     },
     firestore(){
       return {
-        DashboardUsers: this.$db.collection('DashboardUsers'),
+        // DashboardUsers: this.$db.collection('DashboardUsers'),
+        Accounts: this.$db.collection('Accounts'),
       }
     }, 
     methods:{
@@ -79,7 +90,58 @@ export default {
                 })                   
             }
             
-        }
+        },
+        signInGoogle(){
+        let self = this
+        var provider = new firebase.auth.GoogleAuthProvider();
+        // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+        firebase.auth().signInWithPopup(provider).then(function(result) { 
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          // var token = result.credential.accessToken;
+          // The signed-in user info.
+
+          console.table(result,'result');
+          let user = {...result.user};
+          let email = user.email;
+
+          if(self.$lodash.findIndex(self.Accounts,a=> {return a.accountEmailAdd == email}) == -1){
+            self.$dialog.error({
+              text: 'You have no access in this system. Please contact risk management team to have access.',
+              title: 'User unauthorized'
+            })           
+            firebaseAuth.signOut()
+            return
+          }
+          console.log(user,'user');
+          let userdetails = self.$lodash.filter(self.Accounts,a=> {return a.accountEmailAdd == email})[0]
+          let store = {
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            uid: user.uid,
+            refreshToken: user.refreshToken,
+            userDBKey: userdetails['.key'],
+            accountPosition: userdetails.accountPosition
+          }
+
+          console.log(store)
+
+2
+          self.$store.commit('useraccount/setDashboardUser', store)
+          self.$router.push('/dashboard')
+          // ...
+        }).catch(function(error) {
+          console.log(error,'error')
+          // Handle Errors here.
+          // var errorCode = error.code;
+          // var errorMessage = error.message;
+          // // The email of the user's account used.
+          // var email = error.email;
+          // // The firebase.auth.AuthCredential type that was used.
+          // var credential = error.credential;
+          // ...
+        });
+      },
     }  
 }
 </script>
