@@ -130,15 +130,15 @@
             <q-avatar color="grey-1" text-color="dark" icon="money" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">ADD GAMES (SUGALAN)</q-item-label>
+            <q-item-label class="text-weight-bold">Add Games (SUGALAN)</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/transactions" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/maccount" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="payment" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Transactions</q-item-label>
+            <q-item-label class="text-weight-bold">Create M/A Account</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/total-sales" active-class="text-black bg-primary">
