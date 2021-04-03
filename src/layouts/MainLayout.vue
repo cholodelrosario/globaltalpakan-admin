@@ -63,12 +63,12 @@
         >
           Agents
         </q-item-label>
-        <q-item clickable v-ripple to="/create-agent" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/create-masteragent" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="account_box" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Create Agent Accounts</q-item-label>
+            <q-item-label class="text-weight-bold">Master Agent Accounts</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/commisions" active-class="text-black bg-primary">
@@ -125,6 +125,7 @@
         >
           File Maintenance
         </q-item-label>
+        
         <q-item clickable v-ripple to="/games" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="money" />
@@ -133,12 +134,12 @@
             <q-item-label class="text-weight-bold">Add Games (SUGALAN)</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/maccount" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/useraccounts" active-class="text-black bg-primary">
           <q-item-section avatar>
-            <q-avatar color="grey-1" text-color="dark" icon="payment" />
+            <q-avatar color="grey-1" text-color="dark" icon="account_circle" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Create M/A Account</q-item-label>
+            <q-item-label class="text-weight-bold">User Accounts</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/total-sales" active-class="text-black bg-primary">

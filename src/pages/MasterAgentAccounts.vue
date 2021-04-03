@@ -1,7 +1,7 @@
 <template>
     <q-page>
         <div class="q-pa-md">
-            <q-table title="CREATE ADMIN ACCOUNT" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
+            <q-table title="CREATE MASTER AGENT ACCOUNTS" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
                 <template v-slot:body="props">
                     <q-tr :props="props">
                         <q-td key="accountFirstName" :props="props">{{props.row.accountFirstName}}&nbsp;{{props.row.accountLastName}}</q-td>
@@ -46,22 +46,15 @@
                         <q-input class="q-ma-sm col" outlined v-model="newUser.accountLastName" label="Last Name"/>
                     </div>
                     <div class="q-pa-md row"  dense>
-                        <q-input class="q-ma-sm col"  outlined v-model="newUser.accountPhone" label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
-                        <q-select class="q-ma-sm col"  outlined v-model="newUser.accountPosition" :options="options" emit-value map-options label="Position"/>
-                    </div>
-                    <div>
-                        <q-input class="q-ma-md" outlined v-model="newUser.accountEmailAdd" type="email" prefix="Email:" suffix="@gmail.com">
-                        </q-input>
-                    </div>
-                    <div>
-
+                        <q-input class="q-ma-sm col" :disable="isEdit"  outlined v-model="newUser.accountPhone" label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
+                        <!-- <q-select class="q-ma-sm col"  outlined v-model="newUser.accountPosition" :options="options" emit-value map-options label="Position"/> -->
                     </div>
                     
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
                     <q-btn flat color="grey" label="Cancel" @click="clear()" v-close-popup />
-                    <q-btn color="primary" class="text-black" label="Add Account" v-if="!isEdit" v-close-popup @click="addNewUser" />
+                    <q-btn color="primary" class="text-black" label="Add Account" v-if="!isEdit" v-close-popup @click="createAgentAccount" />
                     <q-btn v-if="isEdit" flat v-close-popup @click="updateUser" label="Update"/>
                 </q-card-actions>
                 <q-inner-loading :visible="loading">
@@ -72,48 +65,44 @@
     </q-page>
 </template>
 <script>
+import { firebaseAuth,firebaseApp,firebaseDb,Auth2 } from 'boot/firebase'
+var sri = require('simple-random-id');
 export default {
     data() {
         return {
                 isPwd: true,
-                options: ['Admin','Secretary','Developer'],
+                options: ['Agent','Master Agent'],
     			isEdit: false,
-                Accounts: [],
+                MasterAgents: [],
                 loading: false,
                 addAccountDialog: false,
                 newUser: {
                     accountFirstName: '',
                     accountLastName: '',
                     accountPhone: '',
-                    accountPosition: '',
-                    accountEmailAdd: '',
                     activated: false,
                 },
                 filter: '',
                 columns: [
                     { name: 'accountFirstName', required: true, label: 'Full Name', align: 'center', field: 'accountFirstName', sortable: true },
-                    { name: 'accountEmailAdd', required: true, label: 'Email Address', align: 'center', field: 'accountEmailAdd', sortable: true },
+                    // { name: 'accountEmailAdd', required: true, label: 'Email Address', align: 'center', field: 'accountEmailAdd', sortable: true },
                     { name: 'accountPhone', required: true, label: 'Phone Number', align: 'center', field: 'accountPhone', sortable: true },
                     { name: 'activated', required: true, label: 'Account Status', align: 'center', field: 'activated', sortable: true },
-                    { name: 'accountPosition', required: true, label: 'Account Position', align: 'center', field: 'accountPosition', sortable: true },
+                    // { name: 'accountPosition', required: true, label: 'Account Position', align: 'center', field: 'accountPosition', sortable: true },
                     { name: 'action', align: 'center', label: 'Action' }
                 ]
         }
     },
     mounted() {
-        this.$binding('Accounts', this.$db.collection('Accounts'))
-            .then(Accounts => {
-            console.log(Accounts, 'Accounts')
+        this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
+            .then(MasterAgents => {
+            console.log(MasterAgents, 'MasterAgents')
         })
     },
     computed: {
         getUsers () {
 			try {
-				let filterUsers = this.$lodash.filter(this.Accounts, u => {
-					return u.accountPosition !== 'Admin'
-                })
-                console.log(filterUsers, 'users')
-				return filterUsers
+				return this.MasterAgents
 			} catch {
 				return []
 			}
@@ -139,34 +128,34 @@ export default {
                 icon: 'info',
                 ok: 'Ok',
                 cancel: 'Cancel'
-            }).onOk(()=>{
+            }).onOk(async ()=>{
 			console.log('p', p)
 			let lName = p.row.accountLastName
             let userKey = p.row['.key']
-            this.$db.collection('Accounts').doc(userKey).delete()
-			//this.$database.ref(`users`).child(userKey).remove()
-				.then(() => {
-					this.$q.notify({
-                    message: `${lName} has been deleted`,
-                    type: 'info',
-                    color: 'info',
-                    textColor: 'white',
-                    icon: 'info'
+            await this.deleteAccountAPICALL(userKey).then(()=>{
+                this.$db.collection('MasterAgents').doc(userKey).delete()
+                //this.$database.ref(`users`).child(userKey).remove()
+                    .then(() => {
+                        this.$q.notify({
+                            message: `${lName} has been deleted`,
+                            type: 'info',
+                            color: 'info',
+                            textColor: 'white',
+                            icon: 'info'
+                        })
+                    }).catch(err => {
+					    this.$q.notify({
+                            message: `An error occur ${err}`,
+                            type: 'negative',
+                            color: 'negative',
+                            textColor: 'white',
+                            icon: 'info'
+                        })
+				    })
                 })
           }).onCancel(()=>{
               addAccountDialog = true
           })
-          this.$forceUpdate()
-				})
-				.catch(err => {
-					this.$q.notify({
-            message: `An error occur ${err}`,
-            type: 'negative',
-            color: 'negative',
-            textColor: 'white',
-            icon: 'info'
-          })
-				})
 		},
         updateUser () {
 			this.$q.dialog({
@@ -189,7 +178,7 @@ export default {
 			delete data.__index
 			delete data['.key']
             console.log('user', data)
-            this.$db.collection('Accounts').doc(key).set(data)
+            this.$db.collection('MasterAgents').doc(key).set(data)
 			// this.$database.ref(`users/${key}`).set(data)
 			.onOk(() => {
 		    this.$q.notify({
@@ -225,7 +214,7 @@ export default {
 			let key = data['.key']
             let update = {...data}
             delete update['.key']
-            this.$db.collection(`Accounts`).doc(key).set(update)
+            this.$db.collection(`MasterAgents`).doc(key).set(update)
 				.then(() => {
 			this.$q.notify({
             message: status ? `${data.accountLastName} has been activated`: `${data.accountLastName} has been deactivated`,
@@ -247,49 +236,84 @@ export default {
                 })
             })
 		},
-        addNewUser () {
-			this.$q.dialog({
+        async createAgentAccount(){
+            this.$q.dialog({
 			  title: 'Confirm',
-			  message: 'Do you want to save user?',
+			  message: 'Do you want to save this master agent account?',
 			  ok: 'Save',
 			  cancel: 'Cancel' 
 			})
-			  .onOk(() => {
-					let data = this.newUser
-		            let self = this
-					this.loading = true
-		            console.log('create data', data)
-		              self.$db.collection('Accounts').add(data)
-			          	.then(u => {
-				            this.$q.notify({
-				              message: `User has been successfully added`,
-				              type: 'positive',
-				              color: 'positive',
-				              textColor: 'white',
-				              icon: 'info'
-                            })
-                            this.loading = false
-                            this.newUser.accountFirstName = '',
-                            this.newUser.accountLastName = '',
-                            this.newUser.accountPhone = '',
-                            this.newUser.accountPassword = '',
-                            this.newUser.accountEmailAdd = '',
-                            this.newUser.activated = false,
-				            this.addAccountDialog = false
-				          })
-			            .catch(error => {
-			              this.$q.notify({
-			                message: `An error occured in adding to database${error}`,
-			                type: 'negative',
-			                color: 'negative',
-			                textColor: 'white',
-			                icon: 'warning'
-			              })
-                          this.loading = false
-			            })	
-		        	}, 3000)
-			  .catch(() => {})
-		}
+            .onOk(async () => {
+                let data = this.newUser
+                const password = sri(6);
+                const mobile = this.newUser.accountPhone.replace(/[^A-Z0-9]+/ig, "")
+                let email = `${mobile}@gtmasteragent.com`
+                await this.createLoginUser(email, mobile ,password, data);
+            })
+        },
+        createLoginUser (email, mobile, password, dbData) {
+        return new Promise(async (resolve) => {
+            await this.sendAccountMessage(mobile,password)
+            // console.log('sent message')
+            Auth2.createUserWithEmailAndPassword(email, password)
+                .then(async (data) => {
+                // console.log(data, 'data')
+                const userID = data.uid
+                await firebaseDb.collection('MasterAgents').doc(data.user.uid).set({
+                    ...dbData,
+                    inviteLink: sri(6),
+                    changePass: true,
+                    dateCreated: new Date()
+                }).then(async (doc) => {
+                    this.mobile = ''
+                    this.agentName = ''
+                    resolve(doc)
+                }).catch((err) => {
+                    console.log(err)
+                })
+                
+                })
+                .catch(err => {
+                console.log(err)
+                })          
+        })
+        },
+        async sendAccountMessage(mobile,password){
+
+        let message = `Welcome GT Partner, login to https://globaltalpakan-agent.web.app/#/ with your mobile number and temporary password = ${password}. You can change your password once you logged in. Thanks. -globaltalpakan.admin`
+
+        await this.$store.dispatch('sms/sendSMS',{number: mobile, message: message})
+        .then(()=>{
+            this.$q.dialog({
+                title: `Account Details Sent`,
+                persistent: true,
+            })
+        }).catch(err=>{
+            this.$q.dialog({
+                title: `Account Creation Error`,
+                message: err,
+                persistent: true,
+            })
+        })
+        },
+        async deleteAccountAPICALL(uid){
+            await this.$axios({
+                method: 'post',
+                // url: 'https://www.itexmo.com/php_api/api.php',
+                headers: {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                url: 'https://global-talpakan-backend.herokuapp.com/users/deleteUser',
+                data: {uid: uid}
+            })
+            .then(function (response) {
+                console.log(response)
+                console.log(response.data,'- Delete User Response')
+            })
+            .catch(function (error) {
+                console.log(error,'- Delete User Error')
+            })            
+        }
     }
 }
 </script>

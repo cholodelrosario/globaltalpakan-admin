@@ -8,7 +8,7 @@ const routes = [
       { path: '/events', component: () => import('pages/Events.vue') },
       { path: '/bets', component: () => import('pages/Bets.vue') },
       { path: '/agents', component: () => import('pages/Agents.vue') },
-      { path: '/create-agent', component: () => import('pages/CreateAgentAccounts.vue') },
+      { path: '/create-masteragent', component: () => import('pages/MasterAgentAccounts') },
       { path: '/agent-ranking', component: () => import('pages/AgentRanking.vue') },
       { path: '/commisions', component: () => import('pages/Commisions.vue') },
       { path: '/transactions', component: () => import('pages/Transactions.vue') },
@@ -16,7 +16,7 @@ const routes = [
       { path: '/settings', component: () => import('pages/Settings.vue') },
       { path: '/logs', component: () => import('pages/Logs.vue') },
       { path: '/games', component: () => import('pages/Games.vue') },
-      { path: '/maccount', component: () => import('pages/Maccount.vue') },
+      { path: '/useraccounts', component: () => import('pages/UserAccounts.vue') },
     ]
   },
   {
