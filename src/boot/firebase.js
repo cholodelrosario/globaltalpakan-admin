@@ -6,15 +6,15 @@ require("firebase/firestore");
 require("firebase/storage");
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAhs7ndb6l74OAZcIjDkgVtxzfht7kO5KU",
-    authDomain: "supernova-powdercoating.firebaseapp.com",
-    databaseURL: "https://supernova-powdercoating.firebaseio.com",
-    projectId: "supernova-powdercoating",
-    storageBucket: "supernova-powdercoating.appspot.com",
-    messagingSenderId: "648341644915",
-    appId: "1:648341644915:web:36ec3a032ac9f7bb7b2c06",
-    measurementId: "G-J1GG7TNM29"
-};
+    apiKey: "AIzaSyDUxy7GU-yH2_f5CGhPE751uECZSDtDEf4",
+    authDomain: "globaltalpakan.firebaseapp.com",
+    databaseURL: "https://globaltalpakan.firebaseio.com",
+    projectId: "globaltalpakan",
+    storageBucket: "globaltalpakan.appspot.com",
+    messagingSenderId: "841354857952",
+    appId: "1:841354857952:web:d4df6f207dabd8d630af85",
+    measurementId: "G-45QMR498D7"
+  };
 
 const firebaseConfig2 = {
     apiKey: "AIzaSyC09drLNNL0l_gdcX7betbiQOBtoTNtIX4",

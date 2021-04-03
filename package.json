@@ -10,12 +10,15 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "apexcharts": "^3.26.0",
     "axios": "^0.21.1",
     "core-js": "^3.9.1",
     "firebase": "^8.3.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "quasar": "^1.0.0",
+    "vue-apexcharts": "^1.6.0",
+    "vue-chart-js": "^1.4.1",
     "vue-firestore": "^0.3.30"
   },
   "devDependencies": {
