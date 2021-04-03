@@ -16,13 +16,16 @@
     "firebase": "^8.3.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
+    "qs": "^6.10.1",
     "quasar": "^1.0.0",
+    "simple-random-id": "^1.0.1",
     "vue-apexcharts": "^1.6.0",
     "vue-chart-js": "^1.4.1",
     "vue-firestore": "^0.3.30"
   },
   "devDependencies": {
-    "@quasar/app": "^2.0.0"
+    "@quasar/app": "^2.0.0",
+    "dotenv": "^8.2.0"
   },
   "browserslist": [
     "last 10 Chrome versions",
