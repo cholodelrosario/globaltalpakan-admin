@@ -15,6 +15,7 @@ const routes = [
       { path: '/settings', component: () => import('pages/Settings.vue') },
       { path: '/logs', component: () => import('pages/Logs.vue') },
       { path: '/games', component: () => import('pages/Games.vue') },
+      { path: '/maccount', component: () => import('pages/Maccount.vue') },
     ]
   },
   {

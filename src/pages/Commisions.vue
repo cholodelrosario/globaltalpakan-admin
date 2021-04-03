@@ -4,6 +4,7 @@
             <div class="q-pa-md row q-gutter-md">
                 <strong>From:</strong><q-input v-model="fromdate" mask="YYYY/MM/DD" filled type="date"/>
                 <strong>To:</strong><q-input v-model="todate" mask="YYYY/MM/DD" filled type="date"/>
+                <q-btn class="col column" color="accent" label="Create MA Account" @click="$router.push('/maccount')"/>
             </div>
         </div>
         <div class="q-pa-md">

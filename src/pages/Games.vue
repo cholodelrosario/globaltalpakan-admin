@@ -1,23 +1,39 @@
 <template>
     <q-page padding>
-        <q-table title="" :data="Games" :columns="columns" :filter="filter" row-key="name">
-            <template v-slot:body="props">
-                <q-tr :props="props">
-                    <q-td key="games" :props="props">{{props.row.games}}</q-td>
-                    <q-td key="action" :props="props">
-                        <q-btn no-caps dense color="primary" icon="mdi-pencil" @click="openEditDialog(props.row)"></q-btn>
-                        <q-btn no-caps icon="delete" dense color="negative" @click="openDeleteDialog(props.row)"></q-btn>
-                    </q-td>  
-                </q-tr>
+        <q-table grid :data="Games" :columns="columns" :filter="filter" class="q-px-sm q-pt-xl full-width align-center " row-key=".key">
+            <template v-slot:item="props">
+                
+                <div class="q-pa-xs col-xs-12 col-sm-6 col-md-3 col-lg-3 grid-style-transition q-ma-sm">
+                    <q-card class="my-card" >
+                        <div >
+                            <q-card-section>
+                                <div>
+                                    <q-avatar size="200px">
+                                        <img :src="props.row.link">
+                                    </q-avatar>    
+                                </div>
+                                <div class="q-pa-md text-center">
+                                    <b>{{props.row.games}}</b>
+                                </div>
+                                <div class="row q-gutter-md">
+                                    <div>
+                                        <q-btn style="width: 99px" color="accent" icon="mdi-pencil" @click="openEditDialog(props.row)">
+                                            <q-tooltip> Edit Games </q-tooltip>  
+                                        </q-btn>
+                                    </div>
+                                    <div>
+                                        <q-btn style="width: 99px" icon="delete" color="negative" @click="openDeleteDialog(props.row)">
+                                            <q-tooltip> Delete Games </q-tooltip>
+                                        </q-btn>
+                                    </div>
+                                </div>
+                            </q-card-section>
+                        </div>
+                    </q-card>
+                </div>
             </template>
-            <template v-slot:top-right>
-                <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
-                    <template v-slot:append>
-                        <q-icon name="search" />
-                    </template>
-                </q-input>
-            </template>  
         </q-table>
+
         <!--FLOATING BUTTON-->
         <q-page-sticky position="top-left" :offset="[18, 18]">
                 <q-btn fab icon="add" color="accent" @click="addGamesDialog = true" />
@@ -33,7 +49,9 @@
                 </q-card-section>
 
                 <q-card-section>
-                    <q-input class="q-ma-sm" v-model="gamesName" label="Games."/>
+                    <q-input class="q-ma-sm" v-model="gamesName" label="Games"/>
+                    <q-img :src="siteUrl" :ratio="4/3" />
+                    <q-input class="q-ma-sm" v-model="siteUrl" label="Enter Img Url."/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -51,6 +69,8 @@
 
                 <q-card-section>
                     <q-input  class="q-ma-sm" v-model="updateGames" label="Games"/>
+                    <q-img :src="updateLink" :ratio="4/3" />
+                    <q-input class="q-ma-sm" v-model="updateLink" label="Enter Img Url."/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -65,14 +85,17 @@
 export default {
     data(){
         return {
+            siteUrl: '',
             gamesName: '',
             updateGames: '',
+            updateLink: '',
             addGamesDialog: false,
             editDialog: false,
             Games: [],
             filter: '',
             columns: [
                 { name: 'games', required: true, label: 'Games', align: 'left', field: 'games', sortable: true },
+                { name: 'image', required: true, label: 'Image', align: 'left', field: 'image', sortable: true },
                 { name: 'action', label: 'Action' }
             ]
         }
@@ -90,8 +113,9 @@ export default {
         addGames(){
             var newGames = {
                 games: this.gamesName,
+                link: this.siteUrl
             }
-            if(this.gamesName === '') {
+            if(this.gamesName === '' || this.siteUrl === '') {
               this.$q.dialog({
               title: 'Field Required!',
               message: 'Fill all Requirements?',
@@ -112,6 +136,7 @@ export default {
                         position: 'center'
                     })
                     this.gamesName = ''
+                    this.siteUrl = ''
             })
         },
         openDeleteDialog (task) {
@@ -135,13 +160,15 @@ export default {
         openEditDialog (task) {
             this.gamseId = task['.key']
             this.updateGames = task.games
+            this.updateLink = task.link
             this.editDialog = true
         },
         setTask(){
             var gamesBago = {
                 games: this.updateGames,
+                link: this.updateLink
             }
-            if(this.updateGames === ''){
+            if(this.updateGames === '' || this.updateLink === ''){
                 this.$q.dialog({
                 title: 'Field Required!',
                 message: 'Fill all Requirements?',
@@ -155,7 +182,7 @@ export default {
                 ok: 'Yes',
                 cancel: 'Cancel'
             }).onOk(() => { 
-                this.$db.collection('Games').doc(this.gamesId).set(gamesBago)
+                this.$db.collection('Games').doc(this.gamseId).set(gamesBago)
                 this.$q.notify({
                         message: 'Games Updated!',
                         icon: 'mdi-update',
