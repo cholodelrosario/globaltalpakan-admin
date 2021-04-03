@@ -63,12 +63,20 @@
         >
           Agents
         </q-item-label>
+        <q-item clickable v-ripple to="/commisions" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="money" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">MA Comms.</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item clickable v-ripple to="/agents" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="people" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Agent Management</q-item-label>
+            <q-item-label class="text-weight-bold">Agent Comms.</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/agents-ranking" active-class="text-black bg-primary">
@@ -76,7 +84,7 @@
             <q-avatar color="grey-1" text-color="dark" icon="assessment" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Agent Ranking</q-item-label>
+            <q-item-label class="text-weight-bold">MA/Agent Ranking</q-item-label>
           </q-item-section>
         </q-item>
         <q-separator inset  />
@@ -86,12 +94,35 @@
         >
           Reports
         </q-item-label>
-        <q-item clickable v-ripple to="/commisions" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/transactions" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="payment" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Transactions</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/total-sales" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="request_page" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Total Sales</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-separator inset  />
+        <q-item-label
+          header
+          class="text-grey-8"
+        >
+          File Maintenance
+        </q-item-label>
+        <q-item clickable v-ripple to="/games" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="money" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Commisions</q-item-label>
+            <q-item-label class="text-weight-bold">ADD GAMES (SUGALAN)</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/transactions" active-class="text-black bg-primary">
@@ -128,7 +159,7 @@
         <q-item clickable v-ripple to="/enter" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="logout" />
-          </q-item-section>
+          </q-item-section>  
           <q-item-section>
             <q-item-label class="text-weight-bold">Logout</q-item-label>
           </q-item-section>
@@ -164,7 +195,7 @@
               </q-img>
               </q-card> -->
               <q-btn round  @click="$router.push('/event')">
-                <q-avatar :size="$q.platform.is.desktop ? '15vw' : '30vw'">
+                <q-avatar :size="$q.platform.is.desktop ? '15vw' : '      '">
                   <img src="https://picsum.photos/200/300">
                 </q-avatar>
               </q-btn>
