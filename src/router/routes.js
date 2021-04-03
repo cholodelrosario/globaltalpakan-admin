@@ -8,6 +8,7 @@ const routes = [
       { path: '/events', component: () => import('pages/Events.vue') },
       { path: '/bets', component: () => import('pages/Bets.vue') },
       { path: '/agents', component: () => import('pages/Agents.vue') },
+      { path: '/create-agent', component: () => import('pages/CreateAgentAccounts.vue') },
       { path: '/agent-ranking', component: () => import('pages/AgentRanking.vue') },
       { path: '/commisions', component: () => import('pages/Commisions.vue') },
       { path: '/transactions', component: () => import('pages/Transactions.vue') },

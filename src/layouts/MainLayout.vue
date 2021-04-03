@@ -63,6 +63,14 @@
         >
           Agents
         </q-item-label>
+        <q-item clickable v-ripple to="/create-agent" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="account_box" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Create Agent Accounts</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item clickable v-ripple to="/commisions" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="money" />
