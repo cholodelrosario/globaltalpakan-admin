@@ -134,6 +134,14 @@
             <q-item-label class="text-weight-bold">Add Games (SUGALAN)</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable v-ripple to="/team" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="money" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Add Team</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item clickable v-ripple to="/useraccounts" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="account_circle" />
