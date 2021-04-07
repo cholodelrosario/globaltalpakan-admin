@@ -245,6 +245,7 @@ export default {
 			})
             .onOk(async () => {
                 let data = this.newUser
+                data.accountPhone = this.newUser.accountPhone.replace(/[^A-Z0-9]+/ig, "")
                 const password = sri(6);
                 const mobile = this.newUser.accountPhone.replace(/[^A-Z0-9]+/ig, "")
                 let email = `${mobile}@gtmasteragent.com`
@@ -265,9 +266,14 @@ export default {
                     changePass: true,
                     dateCreated: new Date()
                 }).then(async (doc) => {
+                    await this.createWallet(data.user.uid, function(walletError,walletResponse){
+                        if(walletError){
+                            console.log(walletError,'walletError')
+                        }
+                        resolve(doc)
+                    })
                     this.mobile = ''
                     this.agentName = ''
-                    resolve(doc)
                 }).catch((err) => {
                     console.log(err)
                 })
@@ -280,8 +286,8 @@ export default {
         },
         async sendAccountMessage(mobile,password){
 
-        let message = `Welcome GT Partner, login to https://globaltalpakan-agent.web.app/#/ with your mobile number and temporary password = ${password}. You can change your password once you logged in. Thanks. -globaltalpakan.admin`
-
+        let message = `Welcome GT Partner, login to https://globaltalpakan-masteragent.web.app/#/ with your mobile number and temporary password = ${password}. You can change your password once you logged in. Thanks. -globaltalpakan.admin`
+        console.log(message,'message');
         await this.$store.dispatch('sms/sendSMS',{number: mobile, message: message})
         .then(()=>{
             this.$q.dialog({
@@ -313,6 +319,19 @@ export default {
             .catch(function (error) {
                 console.log(error,'- Delete User Error')
             })            
+        },
+        async createWallet(uid,done){
+            let wallet = {
+                creditsAmount: 0
+            }
+            console.log('code pass thru')
+            await firebaseDb.collection('Wallet').doc(uid).set(wallet).then((doc)=>{
+                console.log(doc,'if meron')
+                done(null,doc)
+            }).catch((err) => {
+                console.log('wallet ERR',err)
+                done(err)
+            })
         }
     }
 }
