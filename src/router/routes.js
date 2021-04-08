@@ -17,6 +17,7 @@ const routes = [
       { path: '/logs', component: () => import('pages/Logs.vue') },
       { path: '/games', component: () => import('pages/Games.vue') },
       { path: '/useraccounts', component: () => import('pages/UserAccounts.vue') },
+      // { path: '/backup', component: () => import('pages/Backup.vue') },
     ]
   },
   {
