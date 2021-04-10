@@ -1,27 +1,34 @@
 <template>
     <q-page padding>
-        <q-table grid :data="Games" :columns="columns" :filter="filter" class="q-px-sm q-pt-xl full-width align-center " row-key=".key">
+        <q-table grid :data="GamesCategory" :columns="columns" :filter="filter" class="full-width align-center " row-key=".key">
+            <template v-slot:top-right>
+                <q-input bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
+                <template v-slot:append>
+                    <q-icon name="search" />
+                </template>
+                </q-input>
+            </template>
             <template v-slot:item="props">
                 
-                <div class="q-pa-xs col-xs-12 col-sm-6 col-md-3 col-lg-3 grid-style-transition q-ma-sm">
+                <div class="q-pa-xs col-sm-6 col-md-4 grid-style-transition">
                     <q-card class="my-card" >
-                        <div >
+                        <div class="col-12">
                             <q-card-section>
-                                <div>
+                                <div class="col-6 flex flex-center">
                                     <q-avatar size="200px">
                                         <img :src="props.row.link">
                                     </q-avatar>    
                                 </div>
-                                <div class="q-pa-md text-center">
+                                <div class="flex flex-center">
                                     <b>{{props.row.games}}</b>
                                 </div>
-                                <div class="row q-gutter-md">
-                                    <div>
+                                <div class="q-pa-md row col-12 q-gutter-md flex flex-center">
+                                    <div class="col-5">
                                         <q-btn style="width: 99px" color="accent" icon="mdi-pencil" @click="openEditDialog(props.row)">
                                             <q-tooltip> Edit Games </q-tooltip>  
                                         </q-btn>
                                     </div>
-                                    <div>
+                                    <div class="col-5">
                                         <q-btn style="width: 99px" icon="delete" color="negative" @click="openDeleteDialog(props.row)">
                                             <q-tooltip> Delete Games </q-tooltip>
                                         </q-btn>
@@ -49,9 +56,9 @@
                 </q-card-section>
 
                 <q-card-section>
-                    <q-input class="q-ma-sm" v-model="gamesName" label="Games"/>
-                    <q-img :src="siteUrl" :ratio="4/3" />
-                    <q-input class="q-ma-sm" v-model="siteUrl" label="Enter Img Url."/>
+                    <q-input class="q-ma-sm" outlined v-model="gamesName" label="Games"/>
+                    <q-img class="q-pa-sm" style="border: 2px solid;border-color: #ffc400;" :src="siteUrl" :ratio="4/3" />
+                    <q-input class="q-ma-sm" outlined v-model="siteUrl" label="Enter Img Url."/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -68,9 +75,9 @@
                 </q-card-section>
 
                 <q-card-section>
-                    <q-input  class="q-ma-sm" v-model="updateGames" label="Games"/>
-                    <q-img :src="updateLink" :ratio="4/3" />
-                    <q-input class="q-ma-sm" v-model="updateLink" label="Enter Img Url."/>
+                    <q-input class="q-ma-sm" outlined v-model="updateGames" label="Games"/>
+                    <q-img class="q-pa-sm" style="border: 2px solid;border-color: #ffc400;" :src="updateLink" :ratio="4/3" />
+                    <q-input class="q-ma-sm" outlined v-model="updateLink" label="Enter Img Url."/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -82,6 +89,7 @@
     </q-page>
 </template>
 <script>
+import { date } from 'quasar'
 export default {
     data(){
         return {
@@ -91,7 +99,7 @@ export default {
             updateLink: '',
             addGamesDialog: false,
             editDialog: false,
-            Games: [],
+            GamesCategory: [],
             filter: '',
             columns: [
                 { name: 'games', required: true, label: 'Games', align: 'left', field: 'games', sortable: true },
@@ -101,9 +109,9 @@ export default {
         }
     }, 
     mounted () {
-       this.$binding('Games', this.$db.collection('Games'))
-        .then(Games => {
-          console.log(Games, 'Games')
+       this.$binding('GamesCategory', this.$db.collection('GamesCategory'))
+        .then(GamesCategory => {
+          console.log(GamesCategory, 'GamesCategory')
         })
     },
     computed:{
@@ -113,7 +121,8 @@ export default {
         addGames(){
             var newGames = {
                 games: this.gamesName,
-                link: this.siteUrl
+                link: this.siteUrl,
+                dateCreated: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             }
             if(this.gamesName === '' || this.siteUrl === '') {
               this.$q.dialog({
@@ -127,7 +136,7 @@ export default {
                 message: 'Add This Games?',
                 ok: 'Yes',
             }).onOk(() => { 
-                this.$db.collection('Games').add(newGames)
+                this.$db.collection('GamesCategory').add(newGames)
                 this.$q.notify({
                         message: 'Games Added!',
                         icon: 'mdi-folder-plus-outline',
@@ -147,7 +156,7 @@ export default {
             ok: 'Yes',
             cancel: 'Cancel'
             }).onOk(() => { 
-                this.$db.collection('Games').doc(id).delete()
+                this.$db.collection('GamesCategory').doc(id).delete()
                 this.$q.notify({
                         message: 'Games Deleted!',
                         icon: 'mdi-delete',
@@ -166,7 +175,8 @@ export default {
         setTask(){
             var gamesBago = {
                 games: this.updateGames,
-                link: this.updateLink
+                link: this.updateLink,
+                dateCreated: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             }
             if(this.updateGames === '' || this.updateLink === ''){
                 this.$q.dialog({
@@ -182,7 +192,7 @@ export default {
                 ok: 'Yes',
                 cancel: 'Cancel'
             }).onOk(() => { 
-                this.$db.collection('Games').doc(this.gamseId).set(gamesBago)
+                this.$db.collection('GamesCategory').doc(this.gamseId).set(gamesBago)
                 this.$q.notify({
                         message: 'Games Updated!',
                         icon: 'mdi-update',

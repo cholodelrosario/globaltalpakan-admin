@@ -20,6 +20,8 @@ const routes = [
       { path: '/betsopt', component: () => import('pages/Betsopt.vue') },
       { path: '/schedule', component: () => import('pages/Schedule.vue') },
       { path: '/credits', component: () => import('pages/Credits.vue') },
+      { path: '/gcashbank', component: () => import('pages/GcashBank.vue') },
+      { path: '/withdrawal', component: () => import('pages/Withdrawal.vue') },
       { path: '/team', component: () => import('pages/Team.vue') },
     ]
   },

@@ -7,10 +7,9 @@
             inline-label
             class="bg-yellow shadow-2 col-12"
         >
-            <q-tab class="col-3" name="players" label="Players" icon="mdi-human-greeting" />
-            <q-tab class="col-3" name="agents" label="Agents" icon="mdi-face-agent" />
-            <q-tab class="col-3" name="magents" label="Master Agents" icon="mdi-account-multiple" />
-            <q-tab class="col-3" name="withdraw" label="Withdrawal" icon="mdi-cash-register" />
+            <q-tab class="col-4" name="players" label="Players" icon="mdi-human-greeting" />
+            <q-tab class="col-4" name="agents" label="Agents" icon="mdi-face-agent" />
+            <q-tab class="col-4" name="magents" label="Master Agents" icon="mdi-account-multiple" />
             
         </q-tabs>
         <q-tab-panels v-model="tab" animated>
@@ -26,7 +25,7 @@
                         </q-tr>
                     </template>
                     <template v-slot:top-right>
-                        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                        <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
                             <template v-slot:append>
                                 <q-icon name="search" />
                             </template>
@@ -47,7 +46,7 @@
                         </q-tr>
                     </template>
                     <template v-slot:top-right>
-                        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                        <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
                             <template v-slot:append>
                                 <q-icon name="search" />
                             </template>
@@ -57,16 +56,6 @@
           </q-tab-panel>
 
           <q-tab-panel name="magents">
-                <!-- <div class="q-pa-md my-card" flat bordered>
-                    <div class="row item-start q-gutter-md col-6" >
-                        <q-btn class="col-3 q-pa-xs" color="accent" icon="send">
-                            <q-tooltip> Send Coins </q-tooltip>
-                        </q-btn>
-                        <q-btn class="col-3 q-pa-xs" color="green" icon="mdi-cash-multiple" >
-                            <q-tooltip> View Withdrawals </q-tooltip>
-                        </q-btn>
-                    </div>
-                </div> -->
                 <q-table title="Send Credits to Master Agents" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
                     <template v-slot:body="props">
                         <q-tr :props="props">
@@ -78,50 +67,13 @@
                         </q-tr>
                     </template>
                     <template v-slot:top-right>
-                        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                        <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
                             <template v-slot:append>
                                 <q-icon name="search" />
                             </template>
                         </q-input>
                     </template>  
                 </q-table>
-          </q-tab-panel>
-
-          <q-tab-panel name="withdraw">
-                <q-splitter reverse v-model="splitterModel" style="height: 1000px" >
-
-                <template v-slot:after>
-                    <q-tabs v-model="withdrawTab" vertical class="text-black" >
-                    <q-tab name="mails" icon="mdi-human-greeting" label="Players" />
-                    <q-tab name="alarms" icon="mdi-face-agent" label="Agents" />
-                    <q-tab name="movies" icon="mdi-account-multiple" label="Master Agent" />
-                    </q-tabs>
-                </template>
-
-                <template v-slot:before>
-                    <q-tab-panels v-model="withdrawTab" animated swipeable vertical transition-prev="jump-up" transition-next="jump-up" >
-                    <q-tab-panel name="mails">
-                        <div class="text-h4 q-mb-md">Mails</div>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                    </q-tab-panel>
-
-                    <q-tab-panel name="alarms">
-                        <div class="text-h4 q-mb-md">Alarms</div>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                    </q-tab-panel>
-
-                    <q-tab-panel name="movies">
-                        <div class="text-h4 q-mb-md">Movies</div>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                    </q-tab-panel>
-                    </q-tab-panels>
-                </template>
-
-                </q-splitter>
           </q-tab-panel>
         </q-tab-panels>
         </div>

@@ -4,7 +4,7 @@
             <template v-slot:item="props">
                 <div class="q-pa-xs col-md-6 grid-style-transition">
                     <q-card class="my-card" flat bordered>
-                        <q-card-section class="col-6" horizontal>
+                        <q-card-section class="col-6 flex flex-center" horizontal>
                             <q-card-section class="q-pt-xs">
                             <div class="text-overline">{{props.row.game}}</div>
                             <div class="row">
@@ -41,7 +41,7 @@
                             </div>
                             </q-card-section>
 
-                            <q-card-section class="q-ml-xl col-5 flex flex-center">
+                            <q-card-section class="q-ml-xl q-pa-xs col-4 flex flex-center">
                             <q-img
                                 :ratio="4/3"
                                 class="rounded-borders"
@@ -94,7 +94,7 @@
                         </div>
                         <q-separator vertical inset />
                         <div class="col column">
-                            <q-select class="q-pa-xs" v-model="gametype" dense outlined :options="gamesOption" label="Select Game" />
+                            <q-select class="q-pa-xs" v-model="gametype" dense outlined emit-value map-options :options="gamesOption" label="Select Game" />
                             <q-input class="q-pa-xs" v-model="teamName" dense outlined label="Team"/>
                             <div class="q-pa-xs row q-gutter-md">
                                 <b style="margin-top: 30px">Standing:</b>
@@ -207,7 +207,7 @@
                         </div>
                         <q-separator vertical inset />
                         <div class="col column">
-                            <q-select class="q-pa-xs" v-model="updateGame" dense outlined :options="gamesOption" label="Select Game" />
+                            <q-select class="q-pa-xs" disable v-model="updateGame" dense outlined emit-value map-options :options="gamesOption" label="Select Game" />
                             <q-input class="q-pa-xs" v-model="updateTeam" dense outlined label="Team"/>
                             <div class="q-pa-xs row q-gutter-md">
                                 <b style="margin-top: 30px">Standing:</b>
@@ -268,6 +268,7 @@
     </q-page>
 </template>
 <script>
+import { date } from 'quasar'
 export default {
     data(){
         return {
@@ -281,8 +282,8 @@ export default {
             wr: 0,
             lose: 0,
             win: 0,
-            gametype: null,
-            updateGame: null,
+            gametype: '',
+            updateGame: '',
             updatePlayers: [],
             updateWin: 0,
             updateLose: 0,
@@ -293,7 +294,7 @@ export default {
             addTeamDialog: false,
             editDialog: false,
             Team: [],
-            Games: [],
+            GamesCategory: [],
             Player: [],
             filter: '',
             columns: [
@@ -308,17 +309,17 @@ export default {
         .then(Team => {
           console.log(Team, 'Team')
         }),
-        this.$binding('Games', this.$db.collection('Games'))
-        .then(Games => {
-          console.log(Games, 'Games')
+        this.$binding('GamesCategory', this.$db.collection('GamesCategory'))
+        .then(GamesCategory => {
+          console.log(GamesCategory, 'GamesCategory')
         })
     },
     computed:{
         gamesOption(){
-                let optionss = this.Games.map(Games => {
+                let optionss = this.GamesCategory.map(GamesCategory => {
                     return {
-                        label: Games.games,
-                        value: Games.games
+                        label: GamesCategory.games,
+                        value: GamesCategory
                     }
                 })
                 return optionss
@@ -387,11 +388,13 @@ export default {
             var newTeam = {
                 team: this.teamName,
                 link: this.siteUrl,
-                game: this.gametype.value,
+                gameKey: this.gametype['.key'],
+                game: this.gametype.games,
                 win: this.win,
                 lose: this.lose,
                 winrate: this.winrate,
-                player: this.Player
+                player: this.Player,
+                dateCreated: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             }
             console.log(newTeam,'team')
             if(this.teamName === '' && this.siteUrl === '' && this.win === 0) {
@@ -440,6 +443,7 @@ export default {
             console.log(task, 'task')
             this.teamId = task['.key']
             this.updateTeam = task.team
+            this.keykey = task.gameKey
             this.updateGame = task.game
             this.updateLink = task.link
             this.updateWin = task.win
@@ -463,11 +467,13 @@ export default {
             var teamBago = {
                 team: this.updateTeam,
                 link: this.updateLink,
+                gameKey: this.keykey,
                 game: this.updateGame,
                 win: this.updateWin,
                 lose: this.updateLose,
                 winrate: this.updateWinrate,
-                player: this.updatePlayers
+                player: this.updatePlayers,
+                dateCreated: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             }
             if(this.updateTeam === '' || this.updateLink === ''){
                 this.$q.dialog({
