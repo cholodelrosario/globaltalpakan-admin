@@ -126,12 +126,52 @@
           File Maintenance
         </q-item-label>
         
+        <q-item clickable v-ripple to="/credits" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="money" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Send Credits</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/withdrawal" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="request_page" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Withdrawal</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item clickable v-ripple to="/games" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="money" />
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-weight-bold">Add Games (SUGALAN)</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/team" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="money" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Add Team</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/betsopt" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="money" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Add Betting Option</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/schedule" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="money" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Schedule Event</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/useraccounts" active-class="text-black bg-primary">
@@ -142,12 +182,12 @@
             <q-item-label class="text-weight-bold">User Accounts</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/total-sales" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/gcashbank" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="request_page" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Total Sales</q-item-label>
+            <q-item-label class="text-weight-bold">G-Cash And Bank Account</q-item-label>
           </q-item-section>
         </q-item>
         <q-separator inset  />
