@@ -23,6 +23,8 @@ const routes = [
       { path: '/gcashbank', component: () => import('pages/GcashBank.vue') },
       { path: '/withdrawal', component: () => import('pages/Withdrawal.vue') },
       { path: '/team', component: () => import('pages/Team.vue') },
+      { path: '/backup', component: () => import('pages/Backup.vue') },
+
     ]
   },
   {
