@@ -17,7 +17,14 @@ const routes = [
       { path: '/logs', component: () => import('pages/Logs.vue') },
       { path: '/games', component: () => import('pages/Games.vue') },
       { path: '/useraccounts', component: () => import('pages/UserAccounts.vue') },
-      // { path: '/backup', component: () => import('pages/Backup.vue') },
+      { path: '/betsopt', component: () => import('pages/Betsopt.vue') },
+      { path: '/schedule', component: () => import('pages/Schedule.vue') },
+      { path: '/credits', component: () => import('pages/Credits.vue') },
+      { path: '/gcashbank', component: () => import('pages/GcashBank.vue') },
+      { path: '/withdrawal', component: () => import('pages/Withdrawal.vue') },
+      { path: '/team', component: () => import('pages/Team.vue') },
+      { path: '/backup', component: () => import('pages/Backup.vue') },
+
     ]
   },
   {
