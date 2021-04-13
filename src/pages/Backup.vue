@@ -8,7 +8,7 @@
 </template>
 <script>
 const stringifyObject = require('stringify-object');
-import json from '../tmp/Games.json'
+// import json from '../tmp/Games.json'
 export default {
     
     firestore(){
