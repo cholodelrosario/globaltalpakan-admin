@@ -1,6 +1,20 @@
 <template>
-    <q-page padding>
-        <q-table grid :data="Team" :columns="columns" :filter="filter" class="full-width align-center " row-key=".key">
+    <q-page>
+        <div full-width>
+            <!-- <q-scroll-area horizontal style="height: 55px;width: 2000px" > -->
+                <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
+                    <div class="row">
+                        <q-tab name="ALL" label="ALL" />
+                        <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
+                    </div>
+                    <!-- <div class="row">
+                        <q-tab name="ALL" label="ALL" />
+                        <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
+                    </div>         -->
+                </q-tabs>
+            <!-- </q-scroll-area> -->
+        </div>
+        <q-table title="TEAM" grid :data="teamALL" :columns="columns" :filter="filter" class="full-width align-center q-pa-sm " row-key=".key">
             <template v-slot:item="props">
                 <div class="q-pa-xs col-md-6 grid-style-transition">
                     <q-card class="my-card" flat bordered>
@@ -272,6 +286,7 @@ import { date } from 'quasar'
 export default {
     data(){
         return {
+            gameCategory: 'ALL',
             updatePlayerName: '',
             updateStatus: null,
             editPlayer: false,
@@ -315,6 +330,19 @@ export default {
         })
     },
     computed:{
+        teamALL(){
+            if(this.gameCategory == 'ALL'){
+                let all = this.$lodash.orderBy(this.Team, ['dateCreated'], ['asc']);
+                return all
+            }else{
+                let optionss = this.$lodash.filter(this.Team, m => {
+                    return m.game == this.gameCategory
+                })
+                let orderBy = this.$lodash.orderBy(optionss, ['dateCreated'], ['asc']);
+                console.log(optionss, 'opoopst')
+                return orderBy
+            }
+        },
         gamesOption(){
                 let optionss = this.GamesCategory.map(GamesCategory => {
                     return {
@@ -418,7 +446,11 @@ export default {
                         position: 'center'
                     })
                     this.teamName = ''
-                    this.siteUrl = ''
+                    this.siteUrl =  ''
+                    this.gametype = null
+                    this.win = 0
+                    this.lose = 0
+                    this.Player = []
             })
         },
         openDeleteDialog (task) {

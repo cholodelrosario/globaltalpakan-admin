@@ -1,6 +1,14 @@
 <template>
-    <q-page padding>
-        <q-table grid title="Betting Options" :data="BetOptions" :columns="columns" row-key="name" :filter="filter" hide-header>
+    <q-page>
+        <div full-width>
+                <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
+                    <div class="row">
+                        <q-tab name="ALL" label="ALL" />
+                        <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
+                    </div>        
+                </q-tabs>
+        </div>
+        <q-table grid title="Betting Options" :data="betALL" :columns="columns" row-key="name" :filter="filter" hide-header>
             <template v-slot:top-right>
                 <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
                 <template v-slot:append>
@@ -85,6 +93,7 @@ import { date } from 'quasar'
 export default {
     data(){
         return {
+            gameCategory: 'ALL',
             updateGame: null,
             updateBetsopt: '',
             editDialog: false,
@@ -111,6 +120,19 @@ export default {
         })
     },
     computed:{
+        betALL(){
+            if(this.gameCategory == 'ALL'){
+                let all = this.$lodash.orderBy(this.BetOptions, ['dateCreated'], ['asc']);
+                return all
+            }else{
+                let optionss = this.$lodash.filter(this.BetOptions, m => {
+                    return m.games == this.gameCategory
+                })
+                let orderBy = this.$lodash.orderBy(optionss, ['dateCreated'], ['asc']);
+                console.log(optionss, 'opoopst')
+                return orderBy
+            }
+        },
         gamesOption(){
             let optionss = this.GamesCategory.map(GamesCategory => {
                 return {
