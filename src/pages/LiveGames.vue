@@ -1,16 +1,67 @@
 <template>
-  <q-page class=" bg-white">
+  <q-page class="bg-white">
       <div>
           <div full-width>
-              <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
+                <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
                     <div class="row">
                         <q-tab name="ALL" label="ALL" />
                         <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
                     </div>        
-            </q-tabs>
-           
+                </q-tabs>
+            <div class="q-pa-md">
+                <q-card >
+                    <div class="col-12">
+                        <q-card-section>
+                            <div class="q-pl-sm q-pr-sm text-overline flex flex-center">
+                                <b>Current Live For : <b class="text-h6">{{this.gameCategory == 'ALL' ? 'Please Select Games' : this.gameCategory}}</b></b>
+                            </div>
+                        </q-card-section>
+                    </div>
+                    <div v-for="(l, liveIndex) in live" :key="liveIndex" class="row">
+                        <div class="col-5 q-pr-sm q-pb-sm q-pl-sm">
+                            <template>
+                                <q-video :ratio="8/4" :src="l.videoLink"/>
+                            </template>
+                        </div>
+                        <div class="col">
+                            <div align="center" class="flex flex-center row q-gutter-md">
+                                <div class="col-5 bg-red text-overline column justify-between">
+                                    <q-item-label class="q-pt-xs">{{l.teamRed.team}}</q-item-label>
+                                </div>
+                                <div class="col-5 bg-blue text-overline column justify-between">
+                                    <q-item-label class="q-pt-xs q-ml-sx">{{l.teamBlue.team}}</q-item-label>
+                                </div>
+                            </div>
+                            <div v-show="l.betOptions.length != 0" class="q-pt-md q-pl-md q-pr-md q-pb-sm flex flex-center"><b>BET OPTIONS:</b></div>
+                            <div v-for="(c, indexxx) in l.betOptions" :key="indexxx" class="flex flex-center">
+                                    <div v-show="l.betOptions != null" class="q-pa-sm flex flex-center col column justify-between">
+                                        <q-badge color="orange" text-color="black">
+                                            <q-item-label class="text-h6 flex flex-center">{{c.name}}</q-item-label>
+                                        </q-badge>
+                                    </div>
+                            </div>
+                            <div class="q-pa-sm row items-start q-gutter-md flex flex-center">
+                                <div class="col-6 q-pl-xl text-overline">Betting Status: <q-badge outline :color="l.bettingStatus == true ? 'green' : 'black' " :label="l.status" /> <q-toggle @input="activate(l)" v-model="l.bettingStatus" color="green"/> </div>
+                                <div class="col text-overline">Game Status: <q-badge outline :color="l.gameStatus == true ? 'green' : 'black' " :label="l.gameStatus == true ? 'On Going' : 'Cancelled' " /> <q-toggle v-show="l.bettingStatus == false" @input="gameStats(l)" :disable="l.gameStatus == false" v-model="l.gameStatus" color="green"/> </div>
+                                <div v-show="l.gameStatus == false" class="text-overline">Go to Bet Management For Cancelled Games Refund</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-show="live.length == 0" class="q-pr-md q-pl-md q-pb-lg">
+                        <div align="center" class="flex flex-center row q-gutter-md">
+                            <div class="col-5 bg-red text-overline column justify-between">
+                                <q-item-label class="text-h6">NO LIVE DATA AVAILABLE</q-item-label>
+                            </div>
+                        </div>    
+                    </div>
+                     <!-- <q-card-actions v-show="live.length != 0" align="right" class="text-dark">
+                        <q-btn flat label="Cancel this Game" v-close-popup />
+                    </q-card-actions> -->
+                </q-card>
+            </div>
+            <q-separator />
             <div class="q-pa-sm">
-                <q-table grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center " row-key=".key">
+                <q-table title="Scheduled Games" grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center " row-key=".key">
                     <template v-slot:top-right>
                         <q-input bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
                         <template v-slot:append>
@@ -25,24 +76,19 @@
                                 <div class="col-12">
                                     <q-card-section>
                                         <div class="q-pb-sm q-pr-sm q-pl-sm row items-start q-gutter-md">
-                                            <div class="col-9 row">
+                                            <div class="col-8 row">
                                                 <q-item-label class="text-h6 flex flex-center">No:</q-item-label>
                                                 <q-chip padding="none" color="orange" text-color="white" icon-right="star">
                                                     {{props.row.gameNumber}}
                                                 </q-chip>
                                             </div>
-                                            <div class="col">
-                                                <q-btn icon="delete" dense label="Delete" flat color="negative" @click="openDeleteDialog(props.row)">
-                                                    <q-tooltip> Delete Event </q-tooltip>
+                                            <div class="col" v-show="gameCategory != 'ALL'">
+                                                <q-btn icon="send" dense label="Go Live" @click="updateLive(props.row)" flat color="accent" >
+                                                    <q-tooltip>Live this Event</q-tooltip>
                                                 </q-btn>
                                             </div>
                                         </div>
-                                        <div>
-                                            <template>
-                                                <q-video :ratio="10/5" :src="props.row.videoLink"/>
-                                            </template>
-                                        </div>
-                                        <div class="q-pa-sm flex flex-center">
+                                        <div class="q-pb-sm q-pl-sm q-pr-sm text-h6 flex flex-center">
                                             <b>{{props.row.gameCategory}}</b>
                                         </div>
                                         <div align="center" class="flex flex-center row q-gutter-md">
@@ -56,8 +102,8 @@
                                         <div v-show="props.row.betOptions.length != 0" class="q-pt-md q-pl-md q-pr-md q-pb-sm flex flex-center"><b>BET OPTIONS:</b></div>
                                         <div v-for="(b, indexx) in props.row.betOptions" :key="indexx" class="flex flex-center">
                                                 <div v-show="props.row.betOptions != null" class="q-pa-sm flex flex-center col column justify-between">
-                                                    <q-badge class="flex flex-center" color="orange" text-color="black">
-                                                        <q-item-label class="text-h6 q-pa-sm flex flex-center">{{b.name}}</q-item-label>
+                                                    <q-badge color="orange" text-color="black">
+                                                        <q-item-label class="text-h6 flex flex-center">{{b.name}}</q-item-label>
                                                     </q-badge>
                                                 </div>
                                         </div>
@@ -71,14 +117,6 @@
             
           </div>
       </div>
-      <!--FLOATING BUTTON-->
-        <q-page-sticky position="bottom-right" :offset="[18, 18]">
-                <q-btn fab icon="add" color="accent" @click="schedDialog = true" />
-                <q-tooltip>
-                    Schedule Games
-                </q-tooltip>
-        </q-page-sticky>
-        <!-- Schedule Dialog -->
         <q-dialog v-model="schedDialog">
             <q-card class="column full-height" style="width: 700px">  
                 <q-card-section>
@@ -189,7 +227,7 @@
                             <div class="q-pl-sm row q-gutter-md">
                                     <div class="col column justify-between">
                                         <q-badge color="orange" text-color="black">
-                                            <q-item-label class="q-pa-lg text-h6">{{i.name}}</q-item-label>
+                                            <q-item-label class="q-pa-lg text-h6">{{i.betsopt}}</q-item-label>
                                         </q-badge>
                                     </div>
                             </div>
@@ -229,6 +267,106 @@
 import { date } from 'quasar'
 export default {
     methods:{
+        gameStats(data) {
+            this.$q.dialog({
+                title: data.gameStatus == false ? `Cancel This Game ??` : `Open This Game ??`,
+                type: 'accent',
+                color: 'accent',
+                textColor: 'white',
+                persistent: true,
+                icon: 'warning',
+                ok: 'Ok'
+            }).onOk(()=> {
+            var status = data.gameStatus
+			console.log(data, 'data')
+			let key = data['.key']
+            let update = {...data}
+            delete update['.key']
+                this.$db.collection(`LiveGames`).doc(key).set(update)
+                this.$db.collection('CancelledGames').add(data)
+				.then(() => {  
+                        this.$q.notify({
+                        message: status ? `${'Game'} is On Going`: `${'Game'} has been Cancelled`,
+                        type: 'positive',
+                        color: 'positive',
+                        textColor: 'white',
+                        icon: 'info'
+                    })
+				})
+				.catch((err) => {
+					this.$q.notify({
+                    message: `An error occured`,
+                    type: 'negative',
+                    color: 'negative',
+                    textColor: 'white',
+                    icon: 'warning'
+                })
+					console.log(err)
+                })
+            })
+		},
+        activate(data) {
+            this.$q.dialog({
+                title: data.bettingStatus == false ? `Close Betting ??` : `Open Betting ??`,
+                type: 'accent',
+                color: 'accent',
+                textColor: 'white',
+                persistent: true,
+                icon: 'warning',
+                ok: 'Ok'
+            }).onOk(()=> {
+            var status = data.bettingStatus
+            data.status = data.bettingStatus == true ? 'OPEN' : 'CLOSE'
+			console.log(data, 'data')
+			let key = data['.key']
+            let update = {...data}
+            delete update['.key']
+            this.$db.collection(`LiveGames`).doc(key).set(update)
+				.then(() => {
+			this.$q.notify({
+            message: status ? `${'Betting'} has been OPEN`: `${'Betting'} has been CLOSE`,
+            type: 'positive',
+            color: 'positive',
+            textColor: 'white',
+            icon: 'info'
+          })
+				})
+				.catch((err) => {
+					this.$q.notify({
+                    message: `An error occured`,
+                    type: 'negative',
+                    color: 'negative',
+                    textColor: 'white',
+                    icon: 'warning'
+                })
+					console.log(err)
+                })
+            })
+		},
+        updateLive (task) {
+			this.$q.dialog({
+				title: 'Confirm',
+                message: 'Do you want to update Live?',
+                ok: 'Update',
+                cancel: 'Cancel'
+			})
+            .onOk(() => {
+			let data = {...task}
+			var key = data['.key']
+            data.scheduleKey = key
+			delete data.__index
+			delete data['.key']
+            console.log('user', data)
+                this.$db.collection('LiveGames').doc(data.gameKey).set(data)
+                this.$q.notify({
+                    message: `Live Game has been updated`,
+                    type: 'positive',
+                    color: 'positive',
+                    textColor: 'white',
+                    icon: 'info'
+                })  
+            })
+        },
         openDeleteDialog (task) {
           var id = task['.key']
           this.$q.dialog({
@@ -249,8 +387,6 @@ export default {
         },
         schedEvents(){
             var newEvents = {
-                bettingStatus: true,
-                gameStatus: true,
                 gameCategory: this.selectGame.games,
                 gameKey: this.selectGame['.key'],
                 betOptions: this.Options,
@@ -261,13 +397,9 @@ export default {
                 },
                 status: 'OPEN',
                 tag: 'MIRROR',
-                teamBlue: {
-                    team: this.selectTeamOne.team,
-                },
+                teamBlue: this.selectTeamOne.team,
                 teamBlueKey: this.selectTeamOne['.key'],
-                teamRed: {
-                     team: this.selectTeamTwo.team,
-                },
+                teamRed: this.selectTeamTwo.team,
                 teamRedKey: this.selectTeamTwo['.key'],
                 dateCreated: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
                 trends: [],
@@ -296,7 +428,7 @@ export default {
                     this.selectGame = ''
                     this.Options = []
                     this.selectTeamOne = ''
-                    this.selectTeamTwo = ''
+                    this.selectTeamOne = ''
                     this.dateFrom = date.formatDate(new Date(), 'YYYY-MM-DD HH:mm')
                     this.dateTo = date.formatDate(new Date(), 'YYYY-MM-DD HH:mm')
                     this.videoUrl = 'https://www.youtube.com/embed/k3_tw44QsZQ?rel=0'
@@ -304,8 +436,7 @@ export default {
         },
         addOptions(){
             var OptionBet  = {
-                name: this.betOpt.betsopt,
-                betOptionsKey: this.betOpt['.key']
+                betsopt: this.betOpt.betsopt,
             }
             if(this.betOpt === '') {
               this.$q.dialog({
@@ -333,15 +464,26 @@ export default {
         },
     },
     computed:{
+        live(){
+            if(this.gameCategory == 'ALL'){
+                return []
+            }else{
+                let liveG = this.$lodash.filter(this.LiveGames, m => {
+                    return m.gameCategory == this.gameCategory
+                })
+                console.log(liveG, 'live')
+                return liveG
+            }
+        },
         asc(){
             if(this.gameCategory == 'ALL'){
                 let all = this.$lodash.orderBy(this.ScheduledGames, ['gameNumber'], ['asc']);
-                
                 return all
             }else{
                 let optionss = this.$lodash.filter(this.ScheduledGames, m => {
-                    return m.gameCategory == this.gameCategory
+                return m.gameCategory == this.gameCategory
                 })
+                console.log(optionss, 'laman')
                 let orderBy = this.$lodash.orderBy(optionss, ['gameNumber'], ['asc']);
                 console.log(optionss, 'opoopst')
                 return orderBy
@@ -404,6 +546,7 @@ export default {
     },
     data(){
         return {
+            LiveGames: [],
             columns: [
                 { name: 'gameCategory', required: true, label: 'Game Category', align: 'left', field: 'gameCategory', sortable: true },
                 { name: 'image', required: true, label: 'Image', align: 'left', field: 'image', sortable: true },
@@ -445,6 +588,10 @@ export default {
         this.$binding('ScheduledGames', this.$db.collection('ScheduledGames'))
         .then(ScheduledGames => {
           console.log(ScheduledGames, 'ScheduledGames')
+        })
+        this.$binding('LiveGames', this.$db.collection('LiveGames'))
+        .then(LiveGames => {
+          console.log(LiveGames, 'LiveGames')
         })
     },
 }

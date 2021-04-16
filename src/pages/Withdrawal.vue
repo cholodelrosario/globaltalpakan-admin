@@ -2,198 +2,39 @@
   <q-page class="bg-white">
     <div>
         <div full-width>
-
-        <q-tabs v-model="tab" inline-label class="bg-yellow shadow-2 col-12" >
-            <q-tab class="col-4" name="players" label="Players" icon="mdi-human-greeting" />
-            <q-tab class="col-4" name="agents" label="Agents" icon="mdi-face-agent" />
-            <q-tab class="col-4" name="magents" label="Master Agents" icon="mdi-account-multiple" />
-        </q-tabs>
-
-        <q-tab-panels v-model="tab" animated>
-            <!-- for players  -->
-          <q-tab-panel name="players">
-                <!-- for player tabs -->
+            <q-tabs v-model="tab" inline-label class="bg-yellow shadow-2 col-12" >
+                <q-tab class="col-4" name="players" label="Players" icon="mdi-human-greeting" />
+                <q-tab class="col-4" name="agents" label="Agents" icon="mdi-face-agent" />
+                <q-tab class="col-4" name="magents" label="Master Agents" icon="mdi-account-multiple" />
+            </q-tabs>
+            <div class="q-pa-md">
                 <q-tabs v-model="withdrawPlayerTab" inline-label class="bg-yellow shadow-2 col-12" >
                     <q-tab class="col-6" name="pending" label="Pending" icon="mdi-human-greeting" />
                     <q-tab class="col-6" name="completed" label="Completed" icon="mdi-face-agent" />
                 </q-tabs>
-                <!-- start tab for player withdrawal -->
-                <q-tab-panels v-model="withdrawPlayerTab" animated>
-                    <!-- Pending Withdrawal -->
-                    <q-tab-panel name="pending">    
-                        <q-table title="Players Withdrawal" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td key="accountName" :props="props">{{props.row.accountName}}</q-td>
-                                    <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                                    <q-td key="action" :props="props">
-                                        <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
-                                        <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
-                                    </q-td>  
-                                </q-tr>
+            </div>
+            <div class="q-pa-sm">
+                <q-table :title="this.tab == 'players' ? 'Players Withdrawal' : this.tab == 'agents' ? 'Agents Withdrawal' : 'Master Agent Withdrawal'" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
+                    <template v-slot:body="props">
+                        <q-tr :props="props">
+                            <q-td v-if="tab == 'players' || tab == 'agents'" key="accountName" :props="props">{{props.row.accountName}}</q-td>
+                            <q-td v-else key="accountFirstName" :props="props">{{props.row.accountFirstName + ' ' + props.row.accountLastName}}</q-td>
+                            <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
+                            <q-td key="action" :props="props">
+                                <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
+                                <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
+                            </q-td>  
+                        </q-tr>
+                    </template>
+                    <template v-slot:top-right>
+                        <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
+                            <template v-slot:append>
+                                <q-icon name="search" />
                             </template>
-                            <template v-slot:top-right>
-                                <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                                    <template v-slot:append>
-                                        <q-icon name="search" />
-                                    </template>
-                                </q-input>
-                            </template>  
-                        </q-table>
-                    </q-tab-panel>
-                    <!-- End for Pending Withdrawal -->
-                    <!-- Completed Withdrawal -->
-                    <q-tab-panel name="completed">    
-                        <q-table title="Players Withdrawal" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td key="accountName" :props="props">{{props.row.accountName}}</q-td>
-                                    <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                                    <q-td key="action" :props="props">
-                                        <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
-                                        <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
-                                    </q-td>  
-                                </q-tr>
-                            </template>
-                            <template v-slot:top-right>
-                                <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                                    <template v-slot:append>
-                                        <q-icon name="search" />
-                                    </template>
-                                </q-input>
-                            </template>  
-                        </q-table>
-                    </q-tab-panel>
-                     <!-- end for completed withdrawal -->
-                </q-tab-panels>   
-                <!-- end tab for players withdrawal -->
-          </q-tab-panel>
-
-           <!-- end for players  -->
-            <!-- for agent  -->
-
-          <q-tab-panel name="agents">
-                <!-- for Agents tabs -->
-                <q-tabs v-model="withdrawAgentTab" inline-label class="bg-yellow shadow-2 col-12" >
-                    <q-tab class="col-6" name="pending" label="Pending" icon="mdi-human-greeting" />
-                    <q-tab class="col-6" name="completed" label="Completed" icon="mdi-face-agent" />
-                </q-tabs>
-                <!-- start tab for Agents withdrawal -->
-                <q-tab-panels v-model="withdrawAgentTab" animated>
-                    <!-- Pending Withdrawal -->
-                    <q-tab-panel name="pending">    
-                        <q-table title="Agents Withdrawal" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td key="accountName" :props="props">{{props.row.accountName}}</q-td>
-                                    <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                                    <q-td key="action" :props="props">
-                                        <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
-                                        <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
-                                    </q-td>  
-                                </q-tr>
-                            </template>
-                            <template v-slot:top-right>
-                                <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                                    <template v-slot:append>
-                                        <q-icon name="search" />
-                                    </template>
-                                </q-input>
-                            </template>  
-                        </q-table>
-                    </q-tab-panel>
-                    <!-- End for Pending Withdrawal -->
-                    <!-- Completed Withdrawal -->
-                    <q-tab-panel name="completed">    
-                        <q-table title="Players Withdrawal" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td key="accountName" :props="props">{{props.row.accountName}}</q-td>
-                                    <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                                    <q-td key="action" :props="props">
-                                        <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
-                                        <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
-                                    </q-td>  
-                                </q-tr>
-                            </template>
-                            <template v-slot:top-right>
-                                <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                                    <template v-slot:append>
-                                        <q-icon name="search" />
-                                    </template>
-                                </q-input>
-                            </template>  
-                        </q-table>
-                    </q-tab-panel>
-                     <!-- end for completed withdrawal -->
-                </q-tab-panels>   
-                <!-- end tab for Agents withdrawal -->
-          </q-tab-panel>
-
-           <!-- end for agent  -->
-           <!-- for MA -->
-
-          <q-tab-panel name="magents">
-                <!-- for Master Agent tabs -->
-                <q-tabs v-model="withdrawMATab" inline-label class="bg-yellow shadow-2 col-12" >
-                    <q-tab class="col-6" name="pending" label="Pending" icon="mdi-human-greeting" />
-                    <q-tab class="col-6" name="completed" label="Completed" icon="mdi-face-agent" />
-                </q-tabs>
-                <!-- start tab for Master Agent withdrawal -->
-                <q-tab-panels v-model="withdrawMATab" animated>
-                    <!-- Pending Withdrawal -->
-                    <q-tab-panel name="pending">    
-                        <q-table title="Master Agents Withdrawal" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td key="accountFirstName" :props="props">{{props.row.accountFirstName}}&nbsp;{{props.row.accountLastName}}</q-td>
-                                    <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                                    <q-td key="action" :props="props">
-                                        <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
-                                        <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
-                                    </q-td>  
-                                </q-tr>
-                            </template>
-                            <template v-slot:top-right>
-                                <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                                    <template v-slot:append>
-                                        <q-icon name="search" />
-                                    </template>
-                                </q-input>
-                            </template>  
-                        </q-table>
-                    </q-tab-panel>
-                    <!-- End for Pending Withdrawal -->
-                    <!-- Completed Withdrawal -->
-                    <q-tab-panel name="completed">    
-                        <q-table title="Master Agents Withdrawal" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td key="accountFirstName" :props="props">{{props.row.accountFirstName}}&nbsp;{{props.row.accountLastName}}</q-td>
-                                    <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                                    <q-td key="action" :props="props">
-                                        <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
-                                        <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
-                                    </q-td>  
-                                </q-tr>
-                            </template>
-                            <template v-slot:top-right>
-                                <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                                    <template v-slot:append>
-                                        <q-icon name="search" />
-                                    </template>
-                                </q-input>
-                            </template>  
-                        </q-table>
-                    </q-tab-panel>
-                     <!-- end for completed withdrawal -->
-                </q-tab-panels>   
-                <!-- end tab for Master Agent withdrawal -->
-          </q-tab-panel>
-
-            <!-- end for MA -->
-
-        </q-tab-panels>
+                        </q-input>
+                    </template>  
+                </q-table>
+            </div>
         </div>
     </div>
         <q-dialog v-model="sendCredits">
@@ -250,7 +91,7 @@ export default {
             Agents: [],
             columnsP: [
                 { name: 'accountName', required: true, label: 'Full Name', align: 'left', field: 'accountName', sortable: true },
-                { name: 'accountPhone', required: true, label: 'Phone Number', align: 'right', field: 'accountPhone', sortable: true },
+                { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
                 { name: 'action', align: 'right', label: 'Action' }
             ],
             columnsA: [

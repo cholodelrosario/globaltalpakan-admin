@@ -19,118 +19,46 @@
             <q-tab class="col-4" name="cebuanna" label="Cebuanna Lhuiller" icon="mdi-account-multiple" />
             
         </q-tabs>
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="gcash">
-                <q-table grid title="G-Cash Account" :data="GcashAccount" :columns="columnA" row-key="name" :filter="filterA" hide-header>
-                    <template v-slot:top-right>
-                        <q-input outlined dense debounce="300" v-model="filterA" placeholder="Search">
-                        <template v-slot:append>
-                            <q-icon name="search" />
-                        </template>
-                        </q-input>
-                    </template>
 
-                    <template v-slot:item="props">
-                        <div class="q-pa-xs col-md-4">
+            <q-table grid :title="this.tab == 'gcash' ? 'G-cash Account' : this.tab == 'bank' ? 'Bank Account' : 'Cebuanna Account'" :data="bankAndGcash" :columns="this.tab == 'gcash' ? columnA : this.tab == 'bank' ? columnB : columnC " row-key="name" :filter="filterA" hide-header>
+                <template v-slot:top-right>
+                    <q-input outlined dense debounce="300" v-model="filterA" placeholder="Search">
+                    <template v-slot:append>
+                        <q-icon name="search" />
+                    </template>
+                    </q-input>
+                </template>
+
+                <template v-slot:item="props">
+                    <div class="q-pa-xs col-md-4">
                         <q-card class="my-card" flat bordered>
-                                <q-card-section class="col-6 flex flex-center" horizontal>
-                                    <q-card-section class="q-pt-xs">
-                                    <div class="text-h5 q-mt-sm q-mb-xs">{{props.row.gcashName}}</div>
-                                    <div class="row">
-                                        <div class="text-overline">{{props.row.gcashNumber}}</div>
-                                    </div>
-                                    </q-card-section>
-                                </q-card-section>
-                                <q-separator />
-                                <q-card-actions align="center">
-                                    <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class="col column justify-between" color="accent" icon="mdi-pencil">
-                                        <q-tooltip> Edit Team </q-tooltip>
-                                    </q-btn>
-                                    <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="negative" icon="delete" >
-                                        <q-tooltip> Delete Team </q-tooltip>
-                                    </q-btn>
-                                </q-card-actions>
-                            </q-card>
-                        </div>
-                    </template>
-                </q-table>        
-          </q-tab-panel>
-
-          <q-tab-panel name="bank">
-                <q-table grid title="Bank Account" :data="BankAccount" :columns="columnB" row-key="name" :filter="filterB" hide-header>
-                    <template v-slot:top-right>
-                        <q-input outlined dense debounce="300" v-model="filterB" placeholder="Search">
-                        <template v-slot:append>
-                            <q-icon name="search" />
-                        </template>
-                        </q-input>
-                    </template>
-
-                    <template v-slot:item="props">
-                        <div class="q-pa-xs col-md-4">
-                            <q-card class="my-card" flat bordered>
-                                <q-card-section class="col-6 flex flex-center text-center" horizontal>
-                                    <q-card-section class="q-pt-xs">
-                                    <div class="text-h5 q-mt-sm q-mb-xs">{{props.row.bankAccountName}}</div>
-                                    <div class="row">
-                                        <div class="text-overline q-ml-xl">{{props.row.bankName}}</div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="text-overline">{{props.row.bankNumber}}</div>
-                                    </div>
-                                    </q-card-section>
-                                </q-card-section>
-                                <q-separator />
-                                <q-card-actions align="center">
-                                    <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class=" col column justify-between" color="accent" icon="mdi-pencil">
-                                        <q-tooltip> Edit Team </q-tooltip>
-                                    </q-btn>
-                                    <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="negative" icon="delete" >
-                                        <q-tooltip> Delete Team </q-tooltip>
-                                    </q-btn>
-                                </q-card-actions>
-                            </q-card>
-                        </div>
-                    </template>
-                </q-table>
-          </q-tab-panel>
-
-          <q-tab-panel name="cebuanna">
-                <q-table grid title="Cebuanna Account" :data="CebuannaAccount" :columns="columnC" row-key="name" :filter="filterB" hide-header>
-                    <template v-slot:top-right>
-                        <q-input outlined dense debounce="300" v-model="filterB" placeholder="Search">
-                        <template v-slot:append>
-                            <q-icon name="search" />
-                        </template>
-                        </q-input>
-                    </template>
-
-                    <template v-slot:item="props">
-                        <div class="q-pa-xs col-md-4">
-                            <q-card class="my-card" flat bordered>
-                                <q-card-section class="col-6 flex flex-center text-center" horizontal>
-                                    <q-card-section class="q-pt-xs">
-                                    <div class="text-h5 q-mt-sm q-mb-xs">{{props.row.receiversName}}</div>
-                                    <div class="row">
-                                        <div class="text-overline">{{props.row.receiversNumber}}</div>
-                                    </div>
-                                    </q-card-section>
-                                </q-card-section>
-                                <q-separator />
-                                <q-card-actions align="center">
-                                    <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class=" col column justify-between" color="accent" icon="mdi-pencil">
-                                        <q-tooltip> Edit Team </q-tooltip>
-                                    </q-btn>
-                                    <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="negative" icon="delete" >
-                                        <q-tooltip> Delete Team </q-tooltip>
-                                    </q-btn>
-                                </q-card-actions>
-                            </q-card>
-                        </div>
-                    </template>
-                </q-table>                
-          </q-tab-panel>
-        </q-tab-panels>
+                            <q-card-section class="col-6 flex flex-center" horizontal>
+                                <q-card-section class="q-pt-xs">
+                                <div class="text-h5 q-mt-sm q-mb-xs row flex flex-center">{{tab == 'gcash' ? props.row.gcashName : tab == 'bank' ? props.row.bankAccountName : props.row.receiversName}}</div>
+                                <div class="row flex flex-center">
+                                    <div class="text-overline">{{tab == 'gcash' ? props.row.gcashNumber : tab == 'bank' ? props.row.bankNumber : props.row.receiversNumber}}</div>
+                                </div>
+                                <div v-show="tab == 'bank'" class="row flex flex-center">
+                                    <div class="text-overline">{{props.row.bankName}}</div>
+                                </div>
+                                <div class="row flex flex-center">
+                                    <div class="text-overline">status: <q-toggle @input="activate(props.row)" v-model="props.row.activated" :label="props.row.activated == true ? 'Available' : 'Not Available' " color="green"/> </div>
+                                </div>
+                            </q-card-section>
+                            </q-card-section>
+                            <q-separator />
+                            <q-card-actions align="center">
+                                <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class="col column justify-between" color="accent" icon="mdi-pencil">
+                                    <q-tooltip> Edit Account </q-tooltip>
+                                </q-btn>
+                                <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="negative" icon="delete" >
+                                    <q-tooltip> Delete Account </q-tooltip>
+                                </q-btn>
+                            </q-card-actions>
+                        </q-card>
+                    </div>
+                </template>
+            </q-table>        
         </div>
     </div>
         <q-dialog v-model="addAccountDialog" persistent>
@@ -203,6 +131,7 @@ import { date } from 'quasar'
 export default {
     data(){
         return {
+            activated: false,
             updateBankNumber: '',
             accountBankNumber: '',
             updateBankName: '',
@@ -259,8 +188,101 @@ export default {
         })
     },
     computed: {
+        bankAndGcash(){
+            if(this.tab == 'gcash'){
+                return this.GcashAccount
+            }if(this.tab == 'bank'){
+                return this.BankAccount
+            }if(this.tab == 'cebuanna'){
+                return this.CebuannaAccount
+            }
+        }
     },
     methods:{
+        activate(data) {
+            this.$q.dialog({
+                title: `Enabling and Disabling Accounts`,
+                type: 'negative',
+                color: 'negative',
+                textColor: 'white',
+                persistent: true,
+                icon: 'warning',
+                ok: 'Ok'
+            }).onOk(()=> {
+                var status = data.activated
+                console.log(data, 'data')
+                let key = data['.key']
+                let update = {...data}
+                delete update['.key']
+                if(this.tab == 'gcash'){
+                    this.$db.collection(`GcashAccount`).doc(key).set(update)
+                    .then(() => {
+                        this.$q.notify({
+                            message: status ? `${data.gcashName} has been activated`: `${data.gcashName} has been deactivated`,
+                            type: 'positive',
+                            color: 'positive',
+                            textColor: 'white',
+                            icon: 'info',
+                            persistent: true
+                        })
+                    })
+                    .catch((err) => {
+                        this.$q.notify({
+                        message: `An error occured`,
+                        type: 'negative',
+                        color: 'negative',
+                        textColor: 'white',
+                        icon: 'warning'
+                    })
+                        console.log(err)
+                    })
+                }else if(this.tab == 'bank'){
+                    this.$db.collection(`BankAccount`).doc(key).set(update)
+                    .then(() => {
+                        this.$q.notify({
+                            message: status ? `${data.bankAccountName} has been activated`: `${data.bankAccountName} has been deactivated`,
+                            type: 'positive',
+                            color: 'positive',
+                            textColor: 'white',
+                            icon: 'info',
+                            persistent: true
+                        })
+                    })
+                    .catch((err) => {
+                        this.$q.notify({
+                        message: `An error occured`,
+                        type: 'negative',
+                        color: 'negative',
+                        textColor: 'white',
+                        icon: 'warning'
+                    })
+                        console.log(err)
+                    })
+                }else{
+                    this.$db.collection(`CebuannaAccount`).doc(key).set(update)
+                    .then(() => {
+                        this.$q.notify({
+                            message: status ? `${data.receiversName} has been activated`: `${data.receiversName} has been deactivated`,
+                            type: 'positive',
+                            color: 'positive',
+                            textColor: 'white',
+                            icon: 'info',
+                            persistent: true
+                        })
+                    })
+                    .catch((err) => {
+                        this.$q.notify({
+                        message: `An error occured`,
+                        type: 'negative',
+                        color: 'negative',
+                        textColor: 'white',
+                        icon: 'warning'
+                    })
+                        console.log(err)
+                    })
+                }
+            })
+		},
         setTask(){
             var accountBagoA = {
                 gcashName: this.updateName,

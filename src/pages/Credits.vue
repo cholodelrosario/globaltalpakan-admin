@@ -7,59 +7,17 @@
             inline-label
             class="bg-yellow shadow-2 col-12"
         >
-            <q-tab class="col-4" name="players" label="Players" icon="mdi-human-greeting" />
-            <q-tab class="col-4" name="agents" label="Agents" icon="mdi-face-agent" />
+            <!-- <q-tab class="col-4" name="players" label="Players" icon="mdi-human-greeting" />
+            <q-tab class="col-4" name="agents" label="Agents" icon="mdi-face-agent" /> -->
             <q-tab class="col-4" name="magents" label="Master Agents" icon="mdi-account-multiple" />
             
         </q-tabs>
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="players">
-                <q-table title="Send Credits to Players" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                    <template v-slot:body="props">
-                        <q-tr :props="props">
-                            <q-td key="accountName" :props="props">{{props.row.accountName}}</q-td>
-                            <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                            <q-td key="action" :props="props">
-                                <q-btn icon="send" @click="openEditDialog(props.row)" color="accent" />
-                            </q-td>  
-                        </q-tr>
-                    </template>
-                    <template v-slot:top-right>
-                        <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                            <template v-slot:append>
-                                <q-icon name="search" />
-                            </template>
-                        </q-input>
-                    </template>  
-                </q-table>
-          </q-tab-panel>
-
-          <q-tab-panel name="agents">
-                <q-table title="Send Credits to Agents" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                    <template v-slot:body="props">
-                        <q-tr :props="props">
-                            <q-td key="accountName" :props="props">{{props.row.accountName}}</q-td>
-                            <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                            <q-td key="action" :props="props">
-                                <q-btn icon="send" @click="openEditDialog(props.row)" color="accent" />
-                            </q-td>  
-                        </q-tr>
-                    </template>
-                    <template v-slot:top-right>
-                        <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                            <template v-slot:append>
-                                <q-icon name="search" />
-                            </template>
-                        </q-input>
-                    </template>  
-                </q-table>
-          </q-tab-panel>
-
-          <q-tab-panel name="magents">
+            <div class="q-pa-md">
                 <q-table title="Send Credits to Master Agents" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
                     <template v-slot:body="props">
                         <q-tr :props="props">
-                            <q-td key="accountFirstName" :props="props">{{props.row.accountFirstName}}&nbsp;{{props.row.accountLastName}}</q-td>
+                            <q-td v-if="tab == 'players' || tab == 'agents'" key="accountName" :props="props">{{props.row.accountName}}</q-td>
+                            <q-td v-else key="accountFirstName" :props="props">{{props.row.accountFirstName + ' ' + props.row.accountLastName}}</q-td>
                             <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
                             <q-td key="action" :props="props">
                                 <q-btn icon="send" @click="openEditDialog(props.row)" color="accent" />
@@ -74,8 +32,7 @@
                         </q-input>
                     </template>  
                 </q-table>
-          </q-tab-panel>
-        </q-tab-panels>
+            </div>
         </div>
     </div>
         <q-dialog v-model="sendCredits">
@@ -88,7 +45,7 @@
                     <div padding="none" class="row q-gutter-md">
                         <div class="q-pt-md">
                             <b class="col text-h6">Amount:</b>
-                            <q-input v-model="amount" dense type="number" outlined style="width: 200px" />
+                            <q-input v-model="amount" dense  mask="#.##" fill-mask="0" reverse-fill-mask hint="Mask: #.##" input-class="text-right" type="number" outlined style="width: 200px" />
                         </div>
                         <div class="q-pt-md">
                             <b class="col text-h6">Recipient No.:</b>
@@ -106,7 +63,7 @@
 
                 <q-card-actions align="right">
                 <q-btn flat label="cancel" color="primary" v-close-popup />
-                <q-btn flat label="Send" color="primary" v-close-popup />
+                <q-btn flat label="Send" @click="sendCreditsToPlayer()" color="primary" v-close-popup />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -114,6 +71,8 @@
 </template>
 
 <script>
+import { firebase,firebaseAuth,firebaseDb } from 'src/boot/firebase'
+import { Dialog } from 'quasar'
 export default {
     data(){
         return {
@@ -126,6 +85,8 @@ export default {
             sendCredits: false,
             filter: '',
             MasterAgents: [],
+            CreditHistory: [],
+            Wallet: [],
             Players: [],
             Agents: [],
             columnsP: [
@@ -143,7 +104,7 @@ export default {
                 { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
                 { name: 'action', align: 'right', label: 'Action' }
             ],
-            tab: 'players',
+            tab: 'magents',
             splitterModel: 20,
         }
     },
@@ -159,6 +120,14 @@ export default {
         this.$binding('Players', this.$db.collection('Players'))
             .then(Players => {
             console.log(Players, 'Players')
+        })
+        this.$binding('CreditHistory', this.$db.collection('CreditHistory'))
+            .then(CreditHistory => {
+            console.log(CreditHistory, 'CreditHistory')
+        })
+        this.$binding('Wallet', this.$db.collection('Wallet'))
+            .then(Wallet => {
+            console.log(Wallet, 'Wallet')
         })
     },
     computed: {
@@ -200,7 +169,83 @@ export default {
         }
     },
     methods:{
+        sendCreditsToPlayer(){
+            let recieverID = this.coinsID
+            let credits = this.$lodash.filter(this.Wallet, m => {
+                    return m['.key'] == recieverID
+            })
+            let currentCredits = credits[0].creditsAmount
+            let total = parseFloat(currentCredits) + parseFloat(this.amount)
+            console.log(credits, 'current')
+            console.log(this.amount, 'amount')
+            var addCreditsBago = {
+                creditsAmount: total
+            }
+            if(this.amount === '' || this.amount === 0){
+                this.$q.dialog({
+                    title: 'Field Required!',
+                    message: 'Fill all Requirements?',
+                    ok: 'Ok',
+                    cancel: 'Cancel'
+                    })
+                }else
+                this.$q.dialog({
+                    title: 'Update Games',
+                    message: 'Update This Games?',
+                    ok: 'Yes',
+                    cancel: 'Cancel'
+                }).onOk(() => { 
+                this.$db.collection('Wallet').doc(recieverID).set(addCreditsBago)
+                this.recordHistory()
+                this.updateLastTransaction()
+                this.$q.notify({
+                        message: 'Credits Send! Your Transaction Has Been Recorded',
+                        icon: 'mdi-update',
+                        color: 'positive',
+                        textColor: 'white',
+                        position: 'center'
+                    })
+                    this.amount = 0
+                    this.sendCredits = false  
+            })
+        },
+        recordHistory(){
+                let receiveID = this.coinsID
+                let receiverInfo = this.$lodash.filter(this.MasterAgents, m => {
+                        return m['.key'] == receiveID
+                })
+                console.log(receiverInfo, 'receivers')
+                let reciever = {...receiverInfo[0]}
+                let recieverID = reciever['.key']
+                delete reciever['.key']
+                reciever.accountID = recieverID
+
+                let user = this.$store.getters['useraccount/isAuthenticated']
+                console.log(user,'user')
+                let sender = {...user}
+                let senderID = sender.userDBKey
+                delete sender['.key']
+                sender.accountID = senderID
+                console.log(reciever, 'ID')
+                var newHistory = {
+                    amount: this.amount,
+                    from: sender,
+                    to: reciever,
+                    timestamp: new Date(),
+                }
+                this.$db.collection('CreditHistory').add(newHistory)
+        },
+        async updateLastTransaction(){
+            try {
+                const response = await firebaseDb.collection('MasterAgents').doc(this.coinsID).update({ lastTransaction: new Date() })
+                if(response) { console.log('%c SUCCESS_LAST_TRANSACTION','background: #222; color: #bada55') }
+            } catch (error) {
+                console.log(error,'error')
+                console.log('%c ERROR_LAST_TRANSACTION','background: #D50000; color: #fff')
+            }      
+        },
         openEditDialog (task) {
+            console.log(task, 'task')
             if(this.tab === 'players'){
                 this.coinsID = task['.key']
                 this.number = task.accountPhone
