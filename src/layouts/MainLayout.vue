@@ -28,8 +28,8 @@
       <q-list>
         <q-item class="text-white bg-dark q-pt-xl">
           <q-item-section>
-            <q-item-label class="text-h6">NAME</q-item-label>
-            <q-item-label overline class="text-white">09654767706</q-item-label>
+           <q-item-label class="text-h6">{{returnUser.displayName}}</q-item-label>
+            <q-item-label overline class="text-white">{{returnUser.phone}}</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/dashboard" active-class="text-black bg-primary">
@@ -338,6 +338,12 @@ export default {
       dialog: false,
       leftDrawerOpen: false,
       essentialLinks: linksData
+    }
+  },
+  computed:{
+    returnUser(){
+      let user = this.$store.getters['useraccount/isAuthenticated']
+      return user
     }
   }
 }

@@ -110,7 +110,7 @@ export default {
         getUsers () {
 			try {
 				let filterUsers = this.$lodash.filter(this.Accounts, u => {
-					return u.accountPosition !== 'Admin'
+					return u.accountPosition 
                 })
                 console.log(filterUsers, 'users')
 				return filterUsers
