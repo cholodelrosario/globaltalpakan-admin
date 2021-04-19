@@ -153,7 +153,7 @@ module.exports = function (/* ctx */) {
       config: {
         brand: {
           primary: '#fde03a',
-          secondary: '#95969a',
+          secondary: '#2A2D32',
           accent: '#084887',
   
           dark: '#212121',

@@ -1,69 +1,48 @@
 <template>
-  <q-page class="bg-white">
+  <q-page class="bg-dark text-white">
       <div>
           <div full-width>
-                <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
-                    <div class="row">
-                        <q-tab name="ALL" label="ALL" />
-                        <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
-                    </div>        
-                </q-tabs>
+            <q-tabs v-model="gameCategory" inline-label class="bg-secondary text-white shadow-2 col-12" >
+                <div class="row">
+                    <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
+                </div>        
+            </q-tabs>
             <div class="q-pa-md">
-                <q-card >
-                    <div class="col-12">
-                        <q-card-section>
-                            <div class="q-pl-sm q-pr-sm text-overline flex flex-center">
-                                <b>Current Live For : <b class="text-h6">{{this.gameCategory == 'ALL' ? 'Please Select Games' : this.gameCategory}}</b></b>
-                            </div>
-                        </q-card-section>
-                    </div>
-                    <div v-for="(l, liveIndex) in live" :key="liveIndex" class="row">
-                        <div class="col-5 q-pr-sm q-pb-sm q-pl-sm">
-                            <template>
-                                <q-video :ratio="8/4" :src="l.videoLink"/>
-                            </template>
-                        </div>
-                        <div class="col">
-                            <div align="center" class="flex flex-center row q-gutter-md">
-                                <div class="col-5 bg-red text-overline column justify-between">
-                                    <q-item-label class="q-pt-xs">{{l.teamRed.team}}</q-item-label>
-                                </div>
-                                <div class="col-5 bg-blue text-overline column justify-between">
-                                    <q-item-label class="q-pt-xs q-ml-sx">{{l.teamBlue.team}}</q-item-label>
-                                </div>
-                            </div>
-                            <div v-show="l.betOptions.length != 0" class="q-pt-md q-pl-md q-pr-md q-pb-sm flex flex-center"><b>BET OPTIONS:</b></div>
-                            <div v-for="(c, indexxx) in l.betOptions" :key="indexxx" class="flex flex-center">
-                                    <div v-show="l.betOptions != null" class="q-pa-sm flex flex-center col column justify-between">
-                                        <q-badge color="orange" text-color="black">
-                                            <q-item-label class="text-h6 flex flex-center">{{c.name}}</q-item-label>
-                                        </q-badge>
-                                    </div>
-                            </div>
-                            <div class="q-pa-sm row items-start q-gutter-md flex flex-center">
-                                <div class="col-6 q-pl-xl text-overline">Betting Status: <q-badge outline :color="l.bettingStatus == true ? 'green' : 'black' " :label="l.status" /> <q-toggle @input="activate(l)" v-model="l.bettingStatus" color="green"/> </div>
-                                <div class="col text-overline">Game Status: <q-badge outline :color="l.gameStatus == true ? 'green' : 'black' " :label="l.gameStatus == true ? 'On Going' : 'Cancelled' " /> <q-toggle v-show="l.bettingStatus == false" @input="gameStats(l)" :disable="l.gameStatus == false" v-model="l.gameStatus" color="green"/> </div>
-                                <div v-show="l.gameStatus == false" class="text-overline">Go to Bet Management For Cancelled Games Refund</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-show="live.length == 0" class="q-pr-md q-pl-md q-pb-lg">
+                <q-card class="bg-secondary">
+                    <q-card-section class="text-center">
+                        <b>Current Live For : <b class="text-h6">{{this.gameCategory == 'ALL' ? 'Please Select Games' : this.gameCategory}}</b></b>
+                    </q-card-section>
+                     <div v-show="live.length == 0" class="q-pr-md q-pl-md q-pb-lg">
                         <div align="center" class="flex flex-center row q-gutter-md">
                             <div class="col-5 bg-red text-overline column justify-between">
                                 <q-item-label class="text-h6">NO LIVE DATA AVAILABLE</q-item-label>
                             </div>
                         </div>    
                     </div>
-                     <!-- <q-card-actions v-show="live.length != 0" align="right" class="text-dark">
-                        <q-btn flat label="Cancel this Game" v-close-popup />
-                    </q-card-actions> -->
+                    <q-card-section class="text-center">
+                       <div class="text-h2" v-show="live.length !== 0">
+                            <span class="text-blue text-weight-bold" v-if="live.teamBlue">{{live.teamBlue.team}}</span> 
+                            VS 
+                            <span class="text-red text-weight-bold" v-if="live.teamRed">{{live.teamRed.team}}</span>
+                        </div> 
+                        <q-chip v-show="live.length !== 0" :color="returnColorStatus(live.status)"  text-color="white" :label="live.status" />
+                        <!-- <div class="q-pa-sm row items-start q-gutter-md flex flex-center" v-show="live.length !== 0">
+                            <div class="col-6 q-pl-xl text-overline">Betting Status: <q-badge outline :color="live.bettingStatus == true ? 'green' : 'black' " :label="live.status" /> <q-toggle @input="activate(l)" v-model="live.bettingStatus" color="green"/> </div>
+                            <div class="col text-overline">Game Status: <q-badge outline :color="live.gameStatus == true ? 'green' : 'black' " :label="live.gameStatus == true ? 'On Going' : 'Cancelled' " /> <q-toggle v-show="live.bettingStatus == false" @input="gameStats(l)" :disable="live.gameStatus == false" v-model="live.gameStatus" color="green"/> </div>
+                            <div v-show="live.gameStatus == false" class="text-overline">Go to Bet Management For Cancelled Games Refund</div>
+                        </div> -->
+                    </q-card-section>
+                    <q-separator  dark />
+                    <q-card-actions align="center" v-show="live.length !== 0">
+                        <q-btn flat class="full-width" label="view Full Live Details" color="grey" @click="$router.push(`/live-games/${live.gameKey}/${live.scheduleKey}`)"/>
+                    </q-card-actions>
                 </q-card>
             </div>
             <q-separator />
             <div class="q-pa-sm">
-                <q-table title="Scheduled Games" grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center " row-key=".key">
+            <q-table title="Scheduled Games" grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center text-white " dark row-key=".key">
                     <template v-slot:top-right>
-                        <q-input bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
+                        <q-input dark bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
                         <template v-slot:append>
                             <q-icon name="search" />
                         </template>
@@ -71,45 +50,40 @@
                     </template>
                     <template v-slot:item="props">
                         
-                        <div class="q-pa-xs col-md-6 grid-style-transition">
-                            <q-card class="my-card" >
-                                <div class="col-12">
-                                    <q-card-section>
-                                        <div class="q-pb-sm q-pr-sm q-pl-sm row items-start q-gutter-md">
-                                            <div class="col-8 row">
-                                                <q-item-label class="text-h6 flex flex-center">No:</q-item-label>
-                                                <q-chip padding="none" color="orange" text-color="white" icon-right="star">
-                                                    {{props.row.gameNumber}}
-                                                </q-chip>
-                                            </div>
-                                            <div class="col" v-show="gameCategory != 'ALL'">
-                                                <q-btn icon="send" dense label="Go Live" @click="updateLive(props.row)" flat color="accent" >
-                                                    <q-tooltip>Live this Event</q-tooltip>
-                                                </q-btn>
-                                            </div>
-                                        </div>
-                                        <div class="q-pb-sm q-pl-sm q-pr-sm text-h6 flex flex-center">
-                                            <b>{{props.row.gameCategory}}</b>
-                                        </div>
-                                        <div align="center" class="flex flex-center row q-gutter-md">
-                                                <div class="col-5 bg-red text-overline column justify-between">
-                                                    <q-item-label class="q-pt-xs">{{props.row.teamRed.team}}</q-item-label>
-                                                </div>
-                                                <div class="col-5 bg-blue text-overline column justify-between">
-                                                    <q-item-label class="q-pt-xs q-ml-sx">{{props.row.teamBlue.team}}</q-item-label>
-                                                </div>
-                                        </div>
-                                        <div v-show="props.row.betOptions.length != 0" class="q-pt-md q-pl-md q-pr-md q-pb-sm flex flex-center"><b>BET OPTIONS:</b></div>
-                                        <div v-for="(b, indexx) in props.row.betOptions" :key="indexx" class="flex flex-center">
-                                                <div v-show="props.row.betOptions != null" class="q-pa-sm flex flex-center col column justify-between">
-                                                    <q-badge color="orange" text-color="black">
-                                                        <q-item-label class="text-h6 flex flex-center">{{b.name}}</q-item-label>
-                                                    </q-badge>
-                                                </div>
-                                        </div>
-                                    </q-card-section>
-                                </div>
-                            </q-card>
+                        <div class="q-pa-md col-md-4 grid-style-transition">
+                            <q-card class="my-card bg-secondary text-white">
+                                <q-video :ratio="4/2" :src="props.row.videoLink" disabled/>
+
+                                <q-card-section>
+                                    <div class="text-h6 ellipsis">
+                                         GAME #{{props.row.gameNumber}}
+                                         
+                                    </div>
+                                    <span class="text-grey text-caption"> {{$moment(props.row.scheduledTime.from).calendar()}}</span>
+
+                                </q-card-section>
+
+                                <q-card-section class="q-pt-none">
+                                    <div class="text-subtitle1">
+                                    <span class="text-blue text-weight-bold">{{props.row.teamBlue.team}}</span> 
+                                    VS 
+                                    <span class="text-red text-weight-bold">{{props.row.teamRed.team}}</span>
+                                    </div>
+                                    <div class="text-caption text-grey">
+                                    {{props.row.gameCategory}}
+                                    </div>
+                                    <q-btn outline class="full-width q-mt-sm" color="grey" size="sm" v-show="props.row.betOptions.length > 0" @click="viewBetOptionsDialog(props.row.betOptions)">
+                                    view bet options list ({{props.row.betOptions.length}})
+                                    </q-btn>
+                                </q-card-section>
+
+                                <q-separator />
+
+                                <q-card-actions align="right">
+                                    <q-btn flat icon-right="play_arrow" label="GO LIVE" color="primary" @click="updateLive(props.row)"/>
+
+                                </q-card-actions>
+                                </q-card>
                         </div>
                     </template>
                 </q-table>
@@ -117,146 +91,25 @@
             
           </div>
       </div>
-        <q-dialog v-model="schedDialog">
-            <q-card class="column full-height" style="width: 700px">  
+
+        <q-dialog v-model="betOptionsDialog" persistent>
+            <q-card style="min-width: 350px" dark>
                 <q-card-section>
-                    <div class="row items-start q-gutter-md">
-                        <div class="text-h6 col-7">New Games</div>
-                        <div class="col">
-                            <q-input outlined v-model="gameNo" label="Enter Game Number"/>
-                        </div>
-                    </div>
-                </q-card-section>
-
-                <q-card-section class="col q-pt-none scroll">
-                    <template>
-                        <q-video :ratio="14/7" :src="videoUrl"/>
-                    </template>
-                    <div class="q-pt-sm q-pb-sm row items-start q-gutter-md">
-                        <div class="col-4">
-                            <q-select outlined v-model="selectGame" :options="gamesOption" emit-value map-options label="Select Game" />
-                        </div>
-                        <div class="col column">
-                            <q-input outlined v-model="videoUrl" label="Enter Video Url."/>
-                        </div>
-                    </div>
-                    <q-separator/>
-                    <div class="q-pt-sm q-pb-sm row items-start q-gutter-md">
-                        <div class="col column" >
-                            <q-input hint="Start of Event" outlined v-model="dateFrom">
-                            <template v-slot:prepend>
-                                <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="dateFrom" mask="YYYY-MM-DD HH:mm">
-                                    <div class="row items-center justify-end">
-                                        <q-btn v-close-popup label="Ok" color="primary" flat />
-                                    </div>
-                                    </q-date>
-                                </q-popup-proxy>
-                                </q-icon>
-                            </template>
-
-                            <template v-slot:append>
-                                <q-icon name="access_time" class="cursor-pointer">
-                                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-time v-model="dateFrom" mask="YYYY-MM-DD HH:mm" format24h>
-                                    <div class="row items-center justify-end">
-                                        <q-btn v-close-popup label="Ok" color="primary" flat />
-                                    </div>
-                                    </q-time>
-                                </q-popup-proxy>
-                                </q-icon>
-                            </template>
-                            </q-input>
-                        </div>
-                        <q-separator vertical inset />
-                        <div class="col column" >
-                            <q-input hint="End of Event" outlined v-model="dateTo">
-                            <template v-slot:prepend>
-                                <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="dateTo" mask="YYYY-MM-DD HH:mm">
-                                    <div class="row items-center justify-end">
-                                        <q-btn v-close-popup label="Ok" color="primary" flat />
-                                    </div>
-                                    </q-date>
-                                </q-popup-proxy>
-                                </q-icon>
-                            </template>
-
-                            <template v-slot:append>
-                                <q-icon name="access_time" class="cursor-pointer">
-                                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-time v-model="dateTo" mask="YYYY-MM-DD HH:mm" format24h>
-                                    <div class="row items-center justify-end">
-                                        <q-btn v-close-popup label="Ok" color="primary" flat />
-                                    </div>
-                                    </q-time>
-                                </q-popup-proxy>
-                                </q-icon>
-                            </template>
-                            </q-input>
-                        </div>
-                    </div>
-                    <q-separator/>
-                    <div class="q-pt-sm q-pb-sm row items-start q-gutter-md">
-                        <div class="col column bg-red text-white">
-                            <div class="text-h6 text-center">
-                                <q-select class="col column justify-between" emit-value map-options v-model="selectTeamOne" outlined :options="teamOptionOne" label="Select Team" />
-                            </div>
-                        </div>
-                        <q-separator vertical inset />
-                        <div class="col column bg-blue text-white">
-                            <div class="text-h6">
-                                <q-select class="col column justify-between" emit-value map-options v-model="selectTeamTwo" outlined :options="teamOptionTwo" label="Select Team" />
-                            </div>
-                        </div>
-                    </div>
-                    <q-separator  />
-                    <div class="row q-gutter-md">
-                        <div class="col column justify-between text-overline q-pa-sm">ADD ANOTHER BET OPTIONS</div>
-                        <div class="column q-pa-sm">
-                            <q-btn @click="optDialog = true" class="col column justify-between" label="Add Options" padding="none" style="width: 150px" color="accent" icon="add">
-                                <q-tooltip> Add Bet Options </q-tooltip>
-                            </q-btn>
-                        </div>
-                    </div>
-                    <q-separator  />
-                    <div>
-                        <q-list v-for="(i, index) in this.Options" :key="index" dense>
-                            <div class="q-pl-sm row q-gutter-md">
-                                    <div class="col column justify-between">
-                                        <q-badge color="orange" text-color="black">
-                                            <q-item-label class="q-pa-lg text-h6">{{i.betsopt}}</q-item-label>
-                                        </q-badge>
-                                    </div>
-                            </div>
-                            <q-separator/>
-                            <q-separator/>
-                            <q-separator/>
-                        </q-list>
-                    </div>
-                </q-card-section>
-
-                <q-card-actions align="right">
-                    <q-btn flat label="Cancel" v-close-popup />
-                    <q-btn flat label="Schedule Game" @click="schedEvents()" v-close-popup />
-                </q-card-actions>
-            </q-card>
-        </q-dialog>
-        <q-dialog v-model="optDialog" persistent>
-            <q-card style="min-width: 350px">
-                <q-card-section>
-                <div class="text-h6">Select Bet Options</div>
+                <div class="text-h6">BetOptions</div>
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <q-select class="col column justify-between" emit-value map-options v-model="betOpt" outlined :options="betOptions" label="Select Team" />
+                   <q-list bordered>
+                       <q-item clickable v-ripple v-show="viewBetOptions.length > 0" v-for="(betopt,n) in viewBetOptions" :key="betopt['.key']">
+                           <q-item-section top avatar>
+                               <q-avatar > {{n+1}} </q-avatar>
+                           </q-item-section>
+                           <q-item-section>{{betopt.name}}</q-item-section>
+                       </q-item>
+                   </q-list>
                 </q-card-section>
-
                 <q-card-actions align="right" class="text-primary">
-                <q-btn flat label="Cancel" v-close-popup />
-                <q-btn flat label="Add Options" @click="addOptions()" v-close-popup />
+                    <q-btn flat label="Close" v-close-popup />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -367,6 +220,11 @@ export default {
                 })  
             })
         },
+        viewBetOptionsDialog(array){
+            this.viewBetOptions = array
+            this.betOptionsDialog = true
+            console.log('code co true')
+        },
         openDeleteDialog (task) {
           var id = task['.key']
           this.$q.dialog({
@@ -462,6 +320,17 @@ export default {
             })
             console.log(this.Options, 'options')
         },
+        returnColorStatus(status){
+            if(status == 'CLOSED'){
+                return 'grey'
+            } else if (status == 'CANCELLED') {
+                return 'red'
+            } else if (status == 'ENDGAME') { 
+                return 'black'
+            } else {
+                return 'green'
+            }          
+        }
     },
     computed:{
         live(){
@@ -472,7 +341,7 @@ export default {
                     return m.gameCategory == this.gameCategory
                 })
                 console.log(liveG, 'live')
-                return liveG
+                return liveG[0] == undefined ? [] : liveG[0]
             }
         },
         asc(){
@@ -554,7 +423,7 @@ export default {
             ],
             filter: '',
             gameNo: 0,
-            gameCategory: 'ALL',
+            gameCategory: 'Sabong',
             splitterModel: 20,
             dateTo: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             dateFrom: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
@@ -570,6 +439,7 @@ export default {
             selectTeamTwo: '',
             selectTeamOne: '',
             schedDialog: false,
+            betOptionsDialog: false,
         }
     },
     mounted () {

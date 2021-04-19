@@ -226,45 +226,6 @@
 
     <q-page-container>
       <router-view />
-      <q-page-sticky position="bottom-right" :offset="[90, 19]" v-show="$route.path == '/event'">
-        <q-btn fab color="primary" class="text-black" icon="play_arrow" @click="dialog = true"></q-btn>
-      </q-page-sticky>
-      <q-dialog
-        v-model="dialog"
-        persistent
-        maximized
-        transition-show="slide-up"
-        transition-hide="slide-down"
-      >
-        <q-card class="text-white bg-dark">
-        <div class="flex text-center bg-dark q-pa-md q-py-lg">
-          <div class="q-py-xl q-mb-xl">
-          <h5 class="text-center full-width text-primary text-weight-bolder q-ma-none">SELECT GAME</h5>
-          <div class="text-center full-width text-secondary q-ma-none q-mb-md text-weight-light text-italic">SCROLL FOR MORE GAMES & EVENTS</div>
-          <div class="container flex row flex-center" :class="$q.platform.is.desktop ? 'q-pa-md' : ''">
-            <div class="q-ma-sm" :class="$q.platform.is.desktop ? 'col-4'  :'col-6 ' " v-for="n in 8" :key="n" :style="$q.platform.is.desktop ? 'width:25vw;' : 'width:40vw'">
-              <!-- <q-card class="cursor-pointer bg-dark my-card">
-              <q-img
-                src="https://cdn.quasar.dev/img/parallax2.jpg"
-                contain
-                ratio="1"
-              >
-              </q-img>
-              </q-card> -->
-              <q-btn round  @click="$router.push('/event')">
-                <q-avatar :size="$q.platform.is.desktop ? '15vw' : '      '">
-                  <img src="https://picsum.photos/200/300">
-                </q-avatar>
-              </q-btn>
-              <div class="text-white q-mt-sm">GAME {{n}}</div>
-            </div>
-          </div>
-          <q-btn class="text-black q-mt-md" fab color="primary" icon="close" @click="dialog = false"></q-btn>
-          </div>
-          
-        </div>
-        </q-card>
-      </q-dialog>
     </q-page-container>
   </q-layout>
 </template>
