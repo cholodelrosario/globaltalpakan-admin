@@ -29,11 +29,11 @@
             <div class="row q-pa-none">
 
                 <div class="col " :class="EndGames.winningTeam == 'BLUE' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                    <div class="text-subtitle1 text-center">₱ {{EndGames.endingOddBets.teamBlue.totalBets}} / {{EndGames.endingOddBets.teamBlue.odds}}</div>              
+                    <div class="text-subtitle1 text-center">₱ {{EndGames.endingOddBets.teamBlue.totalBets}} / {{EndGames.endingOddBets.teamBlue.odds.toFixed(2)}}</div>              
                 </div>
 
                 <div class="col " :class="EndGames.winningTeam == 'RED' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                <div class="text-subtitle1 text-center">₱ {{EndGames.endingOddBets.teamRed.totalBets}} / {{EndGames.endingOddBets.teamRed.odds}}</div>
+                <div class="text-subtitle1 text-center">₱ {{EndGames.endingOddBets.teamRed.totalBets}} / {{EndGames.endingOddBets.teamRed.odds.toFixed(2)}}</div>
                 </div>
 
             </div> 

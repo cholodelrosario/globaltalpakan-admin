@@ -40,7 +40,7 @@
 
  
             <q-card-section class="text-center">
-                <div class="text-caption">Date Cancelled: {{CancelledGames.dateEnded ? $moment(CancelledGames.dateEnded.toDate()).format('LLLL') : ''}}</div>
+                <div class="text-caption">Date Cancelled: {{CancelledGames.dateCancelled ? $moment(CancelledGames.dateCancelled.toDate()).format('LLLL') : ''}}</div>
                 <q-chip :color="returnColorStatus(CancelledGames.status)"  text-color="white" :label="CancelledGames.status" />
             </q-card-section>
             <q-separator dark v-show="CancelledGames.status !== 'PROCESSED'"/>
