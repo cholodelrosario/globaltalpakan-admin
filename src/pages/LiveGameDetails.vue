@@ -118,7 +118,7 @@
                                 
                             <q-separator />
                             <q-card-actions vertical align="center">
-                                 <q-btn v-if="props.row.status !== 'CANCELLED' && props.row.status !== 'ENDGAME'" flat color="grey" label="Update Bet Option Status" @click="openUpdateDialogOptions(props.row['.key'],props.row.status)"/>
+                                 <q-btn v-if="props.row.status !== 'CANCELLED' && props.row.status !== 'ENDGAME'" flat color="grey" label="Update Bet Option Status" @click="openUpdateDialogOptions(props.row['.key'],props.row.status,props.row)"/>
                                 <q-btn v-else-if="props.row.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation">
                                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
                                     </q-badge>
@@ -143,7 +143,7 @@
         <q-dialog v-model="confirm" persistent>
             <q-card style="width:30em" class="bg-dark">
                 <q-card-section class="text-h6 text-white">
-                    Select Status Update <q-btn color="grey" round size="sm" flat class="float-right" icon="close" @click="confirm = false,selectedOptionsKey = null" />
+                    Select Status Update <q-btn color="grey" round size="sm" flat class="float-right" icon="close" @click="confirm = false,selectedOptionsKey = null,selectedOptions = null" />
                 </q-card-section>
                 <q-tabs
                     v-model="tab"
@@ -155,7 +155,7 @@
                     <q-tab name="Open Betting" icon="credit_card" label="Open" v-else-if="selectedStatus == 'CLOSED'"/>
                     <q-tab name="Cancel Game" icon="cancel" label="Cancel" />
  
-                    <q-tab name="End Game" icon="open_in_new" label="End" v-show="selectedOptionsKey == null"/>
+                    <q-tab name="End Game" icon="open_in_new" label="End" />
                 </q-tabs>
                 <q-tab-panels v-model="tab" animated class="bg-secondary text-white">
 
@@ -178,7 +178,7 @@
                         You can't undo this update status if you proceed.
                     </q-tab-panel>
 
-                    <q-tab-panel name="End Game" v-show="selectedOptionsKey == null">
+                    <q-tab-panel name="End Game">
                         <div class="text-h6">END GAME</div>
                         Ending the game will stop the live feed and betting all at once.
                         This will ask you to record the winner after clicking proceed. You can't undo this update status if you proceed.
@@ -186,7 +186,7 @@
                 </q-tab-panels>
 
                 <q-card-actions align="right">
-                    <q-btn flat label="Cancel" color="grey" v-close-popup @click="selectedOptionsKey = null" />
+                    <q-btn flat label="Cancel" color="grey" v-close-popup @click="selectedOptionsKey = null,selectedOptions = null" />
                     <q-btn flat :disable="tab == ''" :label="`Proceed to ${tab == 'Cancel Game' && selectedOptionsKey !== null ? 'Cancel Bets' : tab}`" color="primary" v-close-popup @click="confirmStatusUpdateMain()" />
                 </q-card-actions>
             </q-card>
@@ -199,7 +199,10 @@ export default {
         return { 
             confirm: false,
             tab: '',
+            columns: [],
+            filter: '',
             selectedOptionsKey: null,
+            selectedOptions: null,
             selectedStatus: '',
             TrendsHistory: []
         }
@@ -261,6 +264,12 @@ export default {
         }
     },
     methods:{
+        returnCompanyCommissionOptions(red = 0,blue = 0){
+            let total = red + blue
+            if(total == 0) return 0
+            let minus = total * 0.055
+            return minus
+        },
         returnPayoutOption(total,bet){
             if(total == 0) return 0
             let companyCommision = this.returnOptionMinusCompanyComission(total)
@@ -364,7 +373,29 @@ export default {
                 }
             }).onOk(async ()=> {    
                 let status = null; 
-                let self = this       
+                let self = this     
+                
+                if(optionskey){
+                    if(tab == 'Close Betting'){
+                        status = 'CLOSED'
+                    } else if (tab == 'Open Betting') {
+                        status = 'OPEN'
+                    } else if (tab == 'Cancel Game') {
+                        status = 'CANCELLED'
+                        await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
+                        await self.cancelGameOptionsRecords()
+                        return
+                    } else if (tab == 'End Game') { 
+                        status = 'ENDGAME' 
+                        await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
+                        await self.endGameOptionsRecords()
+                        return
+                    }
+                    await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
+                    return
+                }               
+
+
                 if(tab == 'Close Betting'){
                     status = 'CLOSED'
                 } else if (tab == 'Open Betting') {
@@ -373,15 +404,11 @@ export default {
                     status = 'CANCELLED'
                     await this.$db.collection(`LiveGames`).doc(this.$route.params.code).update({status: status})
                     await self.cancelGameRecords()
+                    return
                 } else if (tab == 'End Game') { 
                     status = 'ENDGAME'
                     await this.$db.collection(`LiveGames`).doc(this.$route.params.code).update({status: status})
                     await self.endGameRecords()
-                    return
-                }
-
-                if(optionskey){
-                    await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
                     return
                 }
 
@@ -399,10 +426,98 @@ export default {
                 return 'green'
             }          
         },
-        openUpdateDialogOptions(key,status){
+        openUpdateDialogOptions(key,status,options){
             this.selectedOptionsKey = key
+            this.selectedOptions = options
             this.confirm = true
             this.selectedStatus = status
+            console.log(options,'optionsdata')
+        },
+        async endGameOptionsRecords(){
+            let options = {...this.selectedOptions}
+            let red = options.teamRed.team
+            let blue = options.teamBlue.team
+            let oddsRed = this.returnPayoutOption(options.totalBets,options.totalRed)
+            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalRed)
+            options.endingOddBets = {
+                teamRed: {
+                    odds: oddsRed,
+                    totalBets: options.totalRed,
+                },
+                teamBlue: {
+                    odds: oddsBlue,
+                    totalBets: options.totalBlue,
+                }
+            }
+            options.companyCommission = this.returnCompanyCommissionOptions(options.totalRed,options.totalBlue),
+            options.totalMoneyBox = options.returnTotalMoneyBox    
+            this.$q.dialog({
+                title: `Record the Winning Team`,
+                message: 'Please be sure before you proceed. You cannot undo this action later. Please note that the draw value is only applicable to some of the games.',
+                type: 'primary',
+                color: 'primary',
+                dark: true,
+                textColor: 'white',
+                options: {
+                type: 'radio',
+                model: '',
+                // inline: true
+                items: [
+                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
+                    { label: blue+' - BLUE TEAM', value: 'BLUE', color: 'blue', textColor: 'blue' },
+                    { label: 'DRAW', value: 'DRAW', color: 'yellow', textColor: 'yellow' }
+                ]
+                },
+                icon: 'warning',
+                ok: 'PROCEED TO RECORD WINNING TEAM',
+                persistent: true,
+            }).onOk(async (DATA)=> {     
+                options.winningTeam = DATA
+                options.dateEnded = new Date()
+                await this.saveOptionsEndedGame(options)
+                this.$q.dialog({
+                    title: `GAME BETOPTIONS ENDED SUCCESS`,
+                    message: 'You can now compute for the winnings and commissions of players and agents.',
+                    color: 'grey',
+                    textColor: 'white',
+                    persistent: true,
+                    icon: 'warning',
+                    dark: true,
+                    ok: 'Ok'
+                })  
+            })
+
+        },
+        async cancelGameOptionsRecords(){
+            let options = {...this.selectedOptions}
+            let red = options.teamRed.team
+            let blue = options.teamBlue.team
+            let oddsRed = this.returnPayoutOption(options.totalBets,options.totalRed)
+            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalRed)
+            options.endingOddBets = {
+                teamRed: {
+                    odds: oddsRed,
+                    totalBets: options.totalRed,
+                },
+                teamBlue: {
+                    odds: oddsBlue,
+                    totalBets: options.totalBlue,
+                }
+            }
+            options.companyCommission = this.returnCompanyCommissionOptions(options.totalRed,options.totalBlue),
+            options.totalMoneyBox = options.returnTotalMoneyBox    
+            options.dateEnded = new Date()
+            await this.saveOptionsCancelledGame(options)
+            this.$q.dialog({
+                title: `GAME BETOPTIONS CANCELLED SUCCESS`,
+                message: 'You can now compute for the refund bets of players for the betOPTIONS. Please also update status for the OTHER bet options. Thank you.',
+                color: 'grey',
+                textColor: 'white',
+                persistent: true,
+                icon: 'warning',
+                dark: true,
+                ok: 'Ok'
+            }) 
         },
         async cancelGameRecords(){
             console.log('CODE GO HERE - CANCEL')
@@ -562,14 +677,41 @@ export default {
                 console.log(err,'err')
             })
         },
+        async saveOptionsEndedGame(options){
+            let bet = {...options}
+            bet.status = 'ENDGAME'
+            delete bet['.key']
+            await this.$db.collection(`BetOptionsEndGames`).doc(options['.key']).set(bet)
+            .then(()=>{
+                console.log('%c SUCCESS_SAVED_ENDGAME_OPTIONS','background: #222; color: #bada55') 
+            }).catch(err=>{
+                console.log(err,'err')
+            })
+        },
+        async saveOptionsCancelledGame(options){
+            let bet = {...options}
+            bet.status = 'ENDGAME'
+            delete bet['.key']
+            await this.$db.collection(`BetOptionsCancelledGames`).doc(options['.key']).set(bet)
+            .then(()=>{
+                console.log('%c SUCCESS_SAVED_CANCELLEDGAME_OPTIONS','background: #222; color: #bada55') 
+            }).catch(err=>{
+                console.log(err,'err')
+            })
+        },
         async endAllBetOptions(){
             let betOptionsControl = this.BetOptionsLiveControl
             betOptionsControl.forEach(async a=>{
                 if(a.status !== 'CANCELLED'){
                     await this.$db.collection(`BetOptionsLiveControl`).doc(a['.key']).update({status: 'ENDGAME'})
-                    .then(()=>{
-                        console.log('%c SUCCESS_UPDATED_BETOPTIONS_TO_ENDGAME','background: #222; color: #bada55')})
-                    .catch(err=>{
+                    .then(async()=>{
+                        console.log('%c SUCCESS_UPDATED_BETOPTIONS_TO_ENDGAME','background: #222; color: #bada55')
+                        let options = {...a}
+                        options.status = 'ENDGAME'
+                        delete options['.key']
+                        await this.$db.collection(`BetOptionsEndGames`).doc(a['.key']).set(options)
+                        console.log('%c SUCCESS_BETOPTIONS_ENDGAME_SAVING','background: #222; color: #bada55')
+                    }).catch(err=>{
                         console.log(err,'BetOptionsLiveControl Update Error - End Game')
                     })
                 }
