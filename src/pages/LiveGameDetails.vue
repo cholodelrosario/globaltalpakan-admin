@@ -44,7 +44,7 @@
         </q-card>
         </div>
             <!-- <q-separator  dark /> -->
-            <q-card-actions align="center">
+            <q-card-actions align="center" v-if="ifProcessed(LiveGames.status,$route.params.schedule) == false">
                 <q-btn v-if="LiveGames.status !== 'CANCELLED' && LiveGames.status !== 'ENDGAME'" flat color="grey" label="Update Game Status" @click="confirm = true,selectedStatus = LiveGames.status"/>
                 <q-btn v-else-if="LiveGames.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation" @click="$router.push(`/bet-cancellation/${$route.params.code}/${$route.params.schedule}`)">
                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
@@ -53,6 +53,11 @@
                 <q-btn v-else-if="LiveGames.status == 'ENDGAME'" flat color="info" label="Compute Winnings and Commissions" icon="paid" @click="$router.push(`/bet-computations/${$route.params.code}/${$route.params.schedule}`)">
                      <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/></q-badge>
                 </q-btn>
+            </q-card-actions>
+            <q-card-actions vertical align="center" v-else>
+                <q-btn flat icon="check_circle" color="green" :label="LiveGames.status == 'CANCELLED' ? 'View Processed Refunds' : 'View Processed Winnings and Commission'"
+                    @click="$router.push(`/${LiveGames.status == 'CANCELLED' ? 'bet-cancellation' : 'bet-computations'}/${$route.params.code}/${$route.params.schedule}`)"
+                />
             </q-card-actions>
         </q-card>
         <!-- <div class="row">
@@ -117,16 +122,21 @@
                             </q-card-section>
                                 
                             <q-separator />
-                            <q-card-actions vertical align="center">
-                                 <q-btn v-if="props.row.status !== 'CANCELLED' && props.row.status !== 'ENDGAME'" flat color="grey" label="Update Bet Option Status" @click="openUpdateDialogOptions(props.row['.key'],props.row.status)"/>
-                                <q-btn v-else-if="props.row.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation">
+                            <q-card-actions vertical align="center" v-if="ifProcessed(LiveGames.status,props.row['.key'],true) == false">
+                                 <q-btn v-if="props.row.status !== 'CANCELLED' && props.row.status !== 'ENDGAME'" flat color="grey" label="Update Bet Option Status" @click="openUpdateDialogOptions(props.row['.key'],props.row.status,props.row)"/>
+                                <q-btn v-else-if="props.row.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation" @click="$router.push(`/bet-options-cancellation/${$route.params.code}/${$route.params.schedule}/${props.row['.key']}`)">
                                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
                                     </q-badge>
                                 </q-btn>
-                                <q-btn v-else-if="props.row.status == 'ENDGAME'" flat color="info" label="Compute Winnings and Commissions" icon="paid">
+                                <q-btn v-else-if="props.row.status == 'ENDGAME'" flat color="info" label="Compute Winnings and Commissions" icon="paid" @click="$router.push(`/bet-options-computations/${$route.params.code}/${$route.params.schedule}/${props.row['.key']}`)">
                                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/></q-badge>
                                 </q-btn>
                                 <!-- <q-btn :icon="props.row.status == 'OPEN' ? 'close' : 'play_arrow'" flat color="grey" class="full-width" :label="props.row.status == 'OPEN' ? 'CLOSE BETTING':'OPEN BETTING'" @click="activateOptions(props.row)"/> -->
+                            </q-card-actions>
+                            <q-card-actions vertical align="center" v-else>
+                                <q-btn flat icon="check_circle" color="green"  :label="props.row.status == 'CANCELLED' ? 'View Processed Refunds' : 'View Processed Winnings and Commission'"
+                                    @click="$router.push(`/${props.row.status == 'CANCELLED' ? 'bet-options-cancellation' : 'bet-options-computations'}/${$route.params.code}/${$route.params.schedule}/${props.row['.key']}`)"
+                                />
                             </q-card-actions>
                             <!-- <q-card-actions>
                                 <q-btn flat round icon="edit" color="grey"/>
@@ -143,7 +153,7 @@
         <q-dialog v-model="confirm" persistent>
             <q-card style="width:30em" class="bg-dark">
                 <q-card-section class="text-h6 text-white">
-                    Select Status Update <q-btn color="grey" round size="sm" flat class="float-right" icon="close" @click="confirm = false,selectedOptionsKey = null" />
+                    Select Status Update <q-btn color="grey" round size="sm" flat class="float-right" icon="close" @click="confirm = false,selectedOptionsKey = null,selectedOptions = null" />
                 </q-card-section>
                 <q-tabs
                     v-model="tab"
@@ -155,7 +165,7 @@
                     <q-tab name="Open Betting" icon="credit_card" label="Open" v-else-if="selectedStatus == 'CLOSED'"/>
                     <q-tab name="Cancel Game" icon="cancel" label="Cancel" />
  
-                    <q-tab name="End Game" icon="open_in_new" label="End" v-show="selectedOptionsKey == null"/>
+                    <q-tab name="End Game" icon="open_in_new" label="End" />
                 </q-tabs>
                 <q-tab-panels v-model="tab" animated class="bg-secondary text-white">
 
@@ -178,7 +188,7 @@
                         You can't undo this update status if you proceed.
                     </q-tab-panel>
 
-                    <q-tab-panel name="End Game" v-show="selectedOptionsKey == null">
+                    <q-tab-panel name="End Game">
                         <div class="text-h6">END GAME</div>
                         Ending the game will stop the live feed and betting all at once.
                         This will ask you to record the winner after clicking proceed. You can't undo this update status if you proceed.
@@ -186,7 +196,7 @@
                 </q-tab-panels>
 
                 <q-card-actions align="right">
-                    <q-btn flat label="Cancel" color="grey" v-close-popup @click="selectedOptionsKey = null" />
+                    <q-btn flat label="Cancel" color="grey" v-close-popup @click="selectedOptionsKey = null,selectedOptions = null" />
                     <q-btn flat :disable="tab == ''" :label="`Proceed to ${tab == 'Cancel Game' && selectedOptionsKey !== null ? 'Cancel Bets' : tab}`" color="primary" v-close-popup @click="confirmStatusUpdateMain()" />
                 </q-card-actions>
             </q-card>
@@ -194,12 +204,16 @@
     </q-page>
 </template>
 <script>
+import { firebase,firebaseAuth,firebaseApp,firebaseDb,firefirestore } from 'boot/firebase'
 export default {
     data(){
         return { 
             confirm: false,
             tab: '',
+            columns: [],
+            filter: '',
             selectedOptionsKey: null,
+            selectedOptions: null,
             selectedStatus: '',
             TrendsHistory: []
         }
@@ -261,6 +275,12 @@ export default {
         }
     },
     methods:{
+        returnCompanyCommissionOptions(red = 0,blue = 0){
+            let total = red + blue
+            if(total == 0) return 0
+            let minus = total * 0.055
+            return minus
+        },
         returnPayoutOption(total,bet){
             if(total == 0) return 0
             let companyCommision = this.returnOptionMinusCompanyComission(total)
@@ -364,7 +384,29 @@ export default {
                 }
             }).onOk(async ()=> {    
                 let status = null; 
-                let self = this       
+                let self = this     
+                
+                if(optionskey){
+                    if(tab == 'Close Betting'){
+                        status = 'CLOSED'
+                    } else if (tab == 'Open Betting') {
+                        status = 'OPEN'
+                    } else if (tab == 'Cancel Game') {
+                        status = 'CANCELLED'
+                        await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
+                        await self.cancelGameOptionsRecords()
+                        return
+                    } else if (tab == 'End Game') { 
+                        status = 'ENDGAME' 
+                        await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
+                        await self.endGameOptionsRecords()
+                        return
+                    }
+                    await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
+                    return
+                }               
+
+
                 if(tab == 'Close Betting'){
                     status = 'CLOSED'
                 } else if (tab == 'Open Betting') {
@@ -373,15 +415,11 @@ export default {
                     status = 'CANCELLED'
                     await this.$db.collection(`LiveGames`).doc(this.$route.params.code).update({status: status})
                     await self.cancelGameRecords()
+                    return
                 } else if (tab == 'End Game') { 
                     status = 'ENDGAME'
                     await this.$db.collection(`LiveGames`).doc(this.$route.params.code).update({status: status})
                     await self.endGameRecords()
-                    return
-                }
-
-                if(optionskey){
-                    await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
                     return
                 }
 
@@ -399,10 +437,100 @@ export default {
                 return 'green'
             }          
         },
-        openUpdateDialogOptions(key,status){
+        openUpdateDialogOptions(key,status,options){
             this.selectedOptionsKey = key
+            this.selectedOptions = options
             this.confirm = true
             this.selectedStatus = status
+            console.log(options,'optionsdata')
+        },
+        async endGameOptionsRecords(){
+            let options = {...this.selectedOptions}
+            let red = options.teamRed.team
+            let blue = options.teamBlue.team
+            let oddsRed = this.returnPayoutOption(options.totalBets,options.totalRed)
+            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
+            options.endingOddBets = {
+                teamRed: {
+                    odds: oddsRed,
+                    totalBets: options.totalRed,
+                },
+                teamBlue: {
+                    odds: oddsBlue,
+                    totalBets: options.totalBlue,
+                }
+            }
+            options.companyCommission = this.returnCompanyCommissionOptions(options.totalRed,options.totalBlue),
+            options.totalMoneyBox = options.totalBets    
+            this.$q.dialog({
+                title: `Record the Winning Team`,
+                message: 'Please be sure before you proceed. You cannot undo this action later. Please note that the draw value is only applicable to some of the games.',
+                type: 'primary',
+                color: 'primary',
+                dark: true,
+                textColor: 'white',
+                options: {
+                type: 'radio',
+                model: '',
+                // inline: true
+                items: [
+                    { label: blue+' - BLUE TEAM', value: 'BLUE', color: 'blue', textColor: 'blue' },
+                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
+                    { label: 'DRAW', value: 'DRAW', color: 'yellow', textColor: 'yellow' }
+                ]
+                },
+                icon: 'warning',
+                ok: 'PROCEED TO RECORD WINNING TEAM',
+                persistent: true,
+            }).onOk(async (DATA)=> {     
+                options.winningTeam = DATA
+                options.dateEnded = new Date()
+                await this.saveOptionsEndedGame(options)
+                this.$q.dialog({
+                    title: `GAME BETOPTIONS ENDED SUCCESS`,
+                    message: 'You can now compute for the winnings and commissions of players and agents.',
+                    color: 'grey',
+                    textColor: 'white',
+                    persistent: true,
+                    icon: 'warning',
+                    dark: true,
+                    ok: 'Ok'
+                })  
+            })
+
+        },
+        async cancelGameOptionsRecords(){
+            let options = {...this.selectedOptions}
+            
+            let red = options.teamRed.team
+            let blue = options.teamBlue.team
+            let oddsRed = this.returnPayoutOption(options.totalBets,options.totalRed)
+            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
+            options.endingOddBets = {
+                teamRed: {
+                    odds: oddsRed,
+                    totalBets: options.totalRed,
+                },
+                teamBlue: {
+                    odds: oddsBlue,
+                    totalBets: options.totalBlue,
+                }
+            }
+            options.companyCommission = this.returnCompanyCommissionOptions(options.totalRed,options.totalBlue),
+            options.totalMoneyBox = options.totalBets    
+            options.dateCancelled = new Date()
+            console.log(options,'options')
+            await this.saveOptionsCancelledGame(options)
+            this.$q.dialog({
+                title: `GAME BETOPTIONS CANCELLED SUCCESS`,
+                message: 'You can now compute for the refund bets of players for the betOPTIONS. Please also update status for the OTHER bet options. Thank you.',
+                color: 'grey',
+                textColor: 'white',
+                persistent: true,
+                icon: 'warning',
+                dark: true,
+                ok: 'Ok'
+            }) 
         },
         async cancelGameRecords(){
             console.log('CODE GO HERE - CANCEL')
@@ -419,7 +547,7 @@ export default {
             }
             live.companyCommission = this.returnCompanyCommission,
             live.totalMoneyBox = this.returnTotalMoneyBox    
-            live.dateEnded = new Date()
+            live.dateCancelled = new Date()
             delete live['.key']
             console.log(live,'live')
             await this.updateTrends('CANCELLED',live.gameKey,live.scheduleKey)
@@ -467,8 +595,8 @@ export default {
                 model: '',
                 // inline: true
                 items: [
-                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
                     { label: blue+' - BLUE TEAM', value: 'BLUE', color: 'blue', textColor: 'blue' },
+                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
                     { label: 'DRAW', value: 'DRAW', color: 'yellow', textColor: 'yellow' }
                 ]
                 },
@@ -562,19 +690,71 @@ export default {
                 console.log(err,'err')
             })
         },
+        async saveOptionsEndedGame(options){
+            let bet = {...options}
+            bet.status = 'ENDGAME'
+            delete bet['.key']
+            await this.$db.collection(`BetOptionsEndGames`).doc(options['.key']).set(bet)
+            .then(()=>{
+                console.log('%c SUCCESS_SAVED_ENDGAME_OPTIONS','background: #222; color: #bada55') 
+            }).catch(err=>{
+                console.log(err,'err')
+            })
+        },
+        async saveOptionsCancelledGame(options){
+            let bet = {...options}
+            bet.status = 'ENDGAME'
+            delete bet['.key']
+            await this.$db.collection(`BetOptionsCancelledGames`).doc(options['.key']).set(bet)
+            .then(()=>{
+                console.log('%c SUCCESS_SAVED_CANCELLEDGAME_OPTIONS','background: #222; color: #bada55') 
+            }).catch(err=>{
+                console.log(err,'err')
+            })
+        },
         async endAllBetOptions(){
             let betOptionsControl = this.BetOptionsLiveControl
             betOptionsControl.forEach(async a=>{
                 if(a.status !== 'CANCELLED'){
                     await this.$db.collection(`BetOptionsLiveControl`).doc(a['.key']).update({status: 'ENDGAME'})
-                    .then(()=>{
-                        console.log('%c SUCCESS_UPDATED_BETOPTIONS_TO_ENDGAME','background: #222; color: #bada55')})
-                    .catch(err=>{
+                    .then(async()=>{
+                        console.log('%c SUCCESS_UPDATED_BETOPTIONS_TO_ENDGAME','background: #222; color: #bada55')
+                        let options = {...a}
+                        options.status = 'ENDGAME'
+                        delete options['.key']
+                        await this.$db.collection(`BetOptionsEndGames`).doc(a['.key']).set(options)
+                        console.log('%c SUCCESS_BETOPTIONS_ENDGAME_SAVING','background: #222; color: #bada55')
+                    }).catch(err=>{
                         console.log(err,'BetOptionsLiveControl Update Error - End Game')
                     })
                 }
             })
-        }  
+        }, 
+        async ifProcessed(status,key,ifOptions = false){
+            let document = null
+            if(ifOptions == true){
+                if(status == 'CANCELLED'){
+                    document = await firebase.firestore().collection("BetOptionsCancelledGames").doc(key).get();
+                } else if (status == 'ENDGAME') {
+                    document = await firebase.firestore().collection("BetOptionsEndGames").doc(key).get();
+                }
+
+                if (document && document.exists && document.data().status == 'PROCESSED') {
+                    return true
+                }
+                return false
+            }
+
+            if(status == 'CANCELLED'){
+                document = await firebase.firestore().collection("CancelledGames").doc(key).get();
+            } else if (status == 'ENDGAME'){
+                document = await firebase.firestore().collection("EndGames").doc(key).get();
+            }
+            if (document && document.exists && document.data().status == 'PROCESSED') {
+                return true
+            } 
+            return false
+        }
     }
 }
 </script>

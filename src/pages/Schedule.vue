@@ -10,7 +10,7 @@
             </q-tabs>
            
             <div class="q-pa-sm">
-                <q-table grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center text-white " dark row-key=".key">
+                <q-table grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center text-white " dark row-key=".key" :pagination="initialPagination">
                     <template v-slot:top-right>
                         <q-input dark bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
                         <template v-slot:append>
@@ -89,7 +89,7 @@
 
                                 <q-separator />
 
-                                <q-card-actions>
+                                <q-card-actions v-show="props.row.showedLive !== true">
                                     <q-btn flat round icon="edit" color="grey"/>
                                     <q-btn flat round icon="delete" color="grey" @click="openDeleteDialog(props.row)"/>
                                     <q-btn flat color="grey" size="sm" v-show="props.row.betOptions.length > 0" @click="viewBetOptionsDialog(props.row.betOptions)">
@@ -437,7 +437,17 @@ export default {
                     return m.betsopt
                 }
             })
-            let newBetsOpt = betsopts.map(betsopts => {
+
+            let map = betsopts.map(a=>{
+                return {
+                    ...a,
+                    name: a.betsopt
+                }
+            })
+
+            let diff = this.$lodash.differenceBy(map,this.Options, 'name')
+            console.log(diff,'ffd')
+            let newBetsOpt = diff.map(betsopts => {
                 return {
                     label: betsopts.betsopt,
                     value: betsopts
@@ -451,7 +461,10 @@ export default {
                     return m.team
                 }
             })
-            let optionss = teams.map(teams => {
+            let diff = this.$lodash.differenceBy(teams,this.selectTeamTwo == '' ? [] : [{...this.selectTeamTwo}], 'team')
+
+
+            let optionss = diff.map(teams => {
                 return {
                     label: teams.team,
                     value: teams
@@ -466,7 +479,12 @@ export default {
                     return m.team
                 }
             })
-            let optionss = teams.map(teams => {
+
+            let diff = this.$lodash.differenceBy(teams,this.selectTeamOne == '' ? [] : [{...this.selectTeamOne}], 'team')
+
+
+
+            let optionss = diff.map(teams => {
                 return {
                     label: teams.team,
                     value: teams
@@ -478,6 +496,13 @@ export default {
     },
     data(){
         return {
+            initialPagination: {
+                sortBy: 'showedLive',
+                descending: false,
+                page: 1,
+                rowsPerPage: 10
+                // rowsNumber: xx if getting data from a server
+            },
             columns: [
                 { name: 'gameCategory', required: true, label: 'Game Category', align: 'left', field: 'gameCategory', sortable: true },
                 { name: 'image', required: true, label: 'Image', align: 'left', field: 'image', sortable: true },

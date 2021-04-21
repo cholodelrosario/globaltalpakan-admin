@@ -2,7 +2,7 @@
     <q-page class="bg-dark text-white">
         <q-card class="bg-secondary q-pa-md">
             <q-card-section class="text-center">
-                <b><b class="text-h6">{{CancelledGames.gameCategory}}</b></b>
+                <b><b class="text-h6">{{CancelledGames.name}}</b></b>
             </q-card-section>
 
             <q-card-section class="text-center">
@@ -29,11 +29,11 @@
             <div class="row q-pa-none">
 
                 <div class="col " :class="CancelledGames.winningTeam == 'BLUE' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                    <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamBlue.totalBets}} / {{CancelledGames.endingOddBets.teamBlue.odds}}</div>              
+                    <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamBlue.totalBets}} / {{CancelledGames.endingOddBets.teamBlue.odds.toFixed(2)}}</div>              
                 </div>
 
                 <div class="col " :class="CancelledGames.winningTeam == 'RED' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamRed.totalBets}} / {{CancelledGames.endingOddBets.teamRed.odds}}</div>
+                <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamRed.totalBets}} / {{CancelledGames.endingOddBets.teamRed.odds.toFixed(2)}}</div>
                 </div>
 
             </div> 
@@ -106,8 +106,8 @@ export default {
     },
     firestore(){
       return {
-        CancelledGames: this.$db.collection('CancelledGames').doc(this.$route.params.schedule),
-        TeamGameAccountBets: this.$db.collection('TeamGameAccountBets').where('gameKey',"==",this.$route.params.schedule),
+        CancelledGames: this.$db.collection('BetOptionsCancelledGames').doc(this.$route.params.options),
+        TeamGameAccountBets: this.$db.collection('TeamGameAccountOptionsBets').where('guideKey',"==",this.$route.params.options),
         Players: this.$db.collection('Players'),
         Agents: this.$db.collection('Agents'),
         MasterAgents: this.$db.collection('MasterAgents'),
@@ -217,8 +217,8 @@ export default {
             let winnings = this.returnCancelledAmount
             winnings.forEach(a=>{
                 let winningOBJ = {
-                    scheduleKey: this.CancelledGames['.key'],
-                    gameKey: this.CancelledGames.gameKey,
+                    guideKey: this.CancelledGames['.key'],
+                    scheduleKey: this.CancelledGames.scheduleKey,
                     amount: a.totalRefunds,
                     from: this.$store.getters['useraccount/isAuthenticated'],
                     to: {...a.Player,accountID: a.accountID},
@@ -235,11 +235,11 @@ export default {
         },
         async saveRefundsHistory(OBJ){
             try {
-                const response = await this.$db.collection('RefundsHistory').add(OBJ)
-                if(response) { console.log('%c SUCCESS_REFUNDS_HISTORY','background: #222; color: #bada55') }
+                const response = await this.$db.collection('OptionsRefundsHistory').add(OBJ)
+                if(response) { console.log('%c SUCCESS_OPTIONS_REFUNDS_HISTORY','background: #222; color: #bada55') }
             } catch (error) {
                 console.log(error,'error')
-                console.log('%c ERROR_REFUNDS_HISTORY','background: #D50000; color: #fff')
+                console.log('%c ERROR_OPTIONS_REFUNDS_HISTORY','background: #D50000; color: #fff')
             }              
         },
 
@@ -247,20 +247,20 @@ export default {
             try {
                 const increment = firebase.firestore.FieldValue.increment(credits);
                 const response = await firebaseDb.collection('Wallet').doc(downlineID).update({ creditsAmount: increment });
-                if(response) { console.log('%c SUCCESS_CREDITS_REFUNDED','background: #222; color: #bada55') }
+                if(response) { console.log('%c SUCCESS_OPTIONS_CREDITS_REFUNDED','background: #222; color: #bada55') }
             } catch (error) {
                 console.log(error,'error')
-                console.log('%c ERROR_CREDITS_REFUNDED','background: #D50000; color: #fff')
+                console.log('%c ERROR_OPTIONS_CREDITS_REFUNDED','background: #D50000; color: #fff')
             }   
         },
 
         async updateStatusEndGameProcessed(){
             try {
-                const response = await firebaseDb.collection('CancelledGames').doc(this.$route.params.schedule).update({ status: 'PROCESSED' });
-                if(response) { console.log('%c SUCCESS_UPDATE_ENDGAME_PROCESSED','background: #222; color: #bada55') }
+                const response = await firebaseDb.collection('BetOptionsCancelledGames').doc(this.$route.params.options).update({ status: 'PROCESSED' });
+                if(response) { console.log('%c SUCCESS_UPDATE_OPTIONS_CANCELLED_PROCESSED','background: #222; color: #bada55') }
             } catch (error) {
                 console.log(error,'error')
-                console.log('%c ERROR_UPDATE_ENDGAME_PROCESSED','background: #D50000; color: #fff')
+                console.log('%c ERROR_UPDATE_OPTIONS_CANCELLED_PROCESSED','background: #D50000; color: #fff')
             }               
         }
     }
