@@ -46,7 +46,7 @@
             <!-- <q-separator  dark /> -->
             <q-card-actions align="center">
                 <q-btn v-if="LiveGames.status !== 'CANCELLED' && LiveGames.status !== 'ENDGAME'" flat color="grey" label="Update Game Status" @click="confirm = true,selectedStatus = LiveGames.status"/>
-                <q-btn v-else-if="LiveGames.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation">
+                <q-btn v-else-if="LiveGames.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation" @click="$router.push(`/bet-cancellation/${$route.params.code}/${$route.params.schedule}`)">
                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
                     </q-badge>
                 </q-btn>
@@ -371,6 +371,8 @@ export default {
                     status = 'OPEN'
                 } else if (tab == 'Cancel Game') {
                     status = 'CANCELLED'
+                    await this.$db.collection(`LiveGames`).doc(this.$route.params.code).update({status: status})
+                    await self.cancelGameRecords()
                 } else if (tab == 'End Game') { 
                     status = 'ENDGAME'
                     await this.$db.collection(`LiveGames`).doc(this.$route.params.code).update({status: status})
@@ -401,6 +403,39 @@ export default {
             this.selectedOptionsKey = key
             this.confirm = true
             this.selectedStatus = status
+        },
+        async cancelGameRecords(){
+            console.log('CODE GO HERE - CANCEL')
+            let live = {...this.LiveGames}
+            live.endingOddBets = {
+                teamRed: {
+                    odds: this.returnPayoutRed.toFixed(2),
+                    totalBets: this.MoneyBox.totalRed,
+                },
+                teamBlue: {
+                    odds: this.returnPayoutBlue.toFixed(2),
+                    totalBets: this.MoneyBox.totalBlue,
+                }
+            }
+            live.companyCommission = this.returnCompanyCommission,
+            live.totalMoneyBox = this.returnTotalMoneyBox    
+            live.dateEnded = new Date()
+            delete live['.key']
+            console.log(live,'live')
+            await this.updateTrends('CANCELLED',live.gameKey,live.scheduleKey)
+            .then(async ()=>{
+                await this.saveCancelledGame(live)   
+                this.$q.dialog({
+                    title: `GAME CANCELLED SUCCESS`,
+                    message: 'You can now compute for the refund bets of players for the main bet. Please also update status for the bet options. Thank you.',
+                    color: 'grey',
+                    textColor: 'white',
+                    persistent: true,
+                    icon: 'warning',
+                    dark: true,
+                    ok: 'Ok'
+                })  
+            })   
         },
         endGameRecords(){
             console.log('CODE GO HERE')
@@ -515,6 +550,14 @@ export default {
             await this.$db.collection(`EndGames`).doc(live.scheduleKey).set(live)
             .then(()=>{
                 console.log('%c SUCCESS_SAVED_ENDGAME','background: #222; color: #bada55') 
+            }).catch(err=>{
+                console.log(err,'err')
+            })
+        },
+        async saveCancelledGame(live){
+            await this.$db.collection(`CancelledGames`).doc(live.scheduleKey).set(live)
+            .then(()=>{
+                console.log('%c SUCCESS_SAVED_CANCELLEDGAME','background: #222; color: #bada55') 
             }).catch(err=>{
                 console.log(err,'err')
             })
