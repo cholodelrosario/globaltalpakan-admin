@@ -196,21 +196,22 @@ export default {
                 })
             })
 		},
-        updateLive (task) {
+        async updateLive (task) {
 			this.$q.dialog({
 				title: 'Confirm',
                 message: 'Do you want to update Live?',
                 ok: 'Update',
                 cancel: 'Cancel'
 			})
-            .onOk(() => {
+            .onOk(async () => {
 			let data = {...task}
 			var key = data['.key']
             data.scheduleKey = key
 			delete data.__index
 			delete data['.key']
             console.log('user', data)
-                this.$db.collection('LiveGames').doc(data.gameKey).set(data)
+                await this.$db.collection('ScheduledGames').doc(key).update({showedLive: true})
+                await this.$db.collection('LiveGames').doc(data.gameKey).set(data)
                 this.$q.notify({
                     message: `Live Game has been updated`,
                     type: 'positive',
@@ -347,7 +348,9 @@ export default {
         asc(){
             if(this.gameCategory == 'ALL'){
                 let all = this.$lodash.orderBy(this.ScheduledGames, ['gameNumber'], ['asc']);
-                return all
+                return all.filter(a=>{
+                    return a.showedLive !== true
+                })
             }else{
                 let optionss = this.$lodash.filter(this.ScheduledGames, m => {
                 return m.gameCategory == this.gameCategory
@@ -355,7 +358,9 @@ export default {
                 console.log(optionss, 'laman')
                 let orderBy = this.$lodash.orderBy(optionss, ['gameNumber'], ['asc']);
                 console.log(optionss, 'opoopst')
-                return orderBy
+                return orderBy.filter(a=>{
+                    return a.showedLive !== true
+                })
             }
         },
         gamesOption(){
