@@ -1,8 +1,8 @@
 <template>
-  <q-page class=" bg-white">
+  <q-page class=" bg-dark">
       <div>
           <div full-width>
-              <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
+              <q-tabs v-model="gameCategory" inline-label class="bg-secondary text-white shadow-2 col-12" >
                     <div class="row">
                         <q-tab name="ALL" label="ALL" />
                         <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
@@ -10,9 +10,9 @@
             </q-tabs>
            
             <div class="q-pa-sm">
-                <q-table grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center " row-key=".key">
+                <q-table grid :data="asc" :columns="columns" :filter="filter" class="full-width align-center text-white " dark row-key=".key">
                     <template v-slot:top-right>
-                        <q-input bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
+                        <q-input dark bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
                         <template v-slot:append>
                             <q-icon name="search" />
                         </template>
@@ -20,8 +20,8 @@
                     </template>
                     <template v-slot:item="props">
                         
-                        <div class="q-pa-xs col-md-6 grid-style-transition">
-                            <q-card class="my-card" >
+                        <div class="q-pa-md col-md-3 grid-style-transition">
+                            <!-- <q-card class="my-card bg-secondary"> STYX CODE
                                 <div class="col-12">
                                     <q-card-section>
                                         <div class="q-pb-sm q-pr-sm q-pl-sm row items-start q-gutter-md">
@@ -63,17 +63,50 @@
                                         </div>
                                     </q-card-section>
                                 </div>
-                            </q-card>
+                            </q-card> -->
+                            <q-card class="my-card bg-secondary text-white">
+                                <q-video :ratio="4/2" :src="props.row.videoLink" disabled/>
+
+                                <q-card-section>
+                                    <div class="text-h6 ellipsis">
+                                         GAME #{{props.row.gameNumber}}
+                                         
+                                    </div>
+                                    <span class="text-grey text-caption"> {{$moment(props.row.scheduledTime.from).calendar()}}</span>
+
+                                </q-card-section>
+
+                                <q-card-section class="q-pt-none">
+                                    <div class="text-subtitle1">
+                                    <span class="text-blue text-weight-bold">{{props.row.teamBlue.team}}</span> 
+                                    VS 
+                                    <span class="text-red text-weight-bold">{{props.row.teamRed.team}}</span>
+                                    </div>
+                                    <div class="text-caption text-grey">
+                                    {{props.row.gameCategory}}
+                                    </div>
+                                </q-card-section>
+
+                                <q-separator />
+
+                                <q-card-actions>
+                                    <q-btn flat round icon="edit" color="grey"/>
+                                    <q-btn flat round icon="delete" color="grey" @click="openDeleteDialog(props.row)"/>
+                                    <q-btn flat color="grey" size="sm" v-show="props.row.betOptions.length > 0" @click="viewBetOptionsDialog(props.row.betOptions)">
+                                    view bet options list ({{props.row.betOptions.length}})
+                                    </q-btn>
+                                </q-card-actions>
+                                </q-card>
                         </div>
                     </template>
                 </q-table>
             </div>
-            
+            <br><br><br><br>
           </div>
       </div>
       <!--FLOATING BUTTON-->
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
-                <q-btn fab icon="add" color="accent" @click="schedDialog = true" />
+                <q-btn fab icon="add" color="primary" class="text-black" @click="schedDialog = true" />
                 <q-tooltip>
                     Schedule Games
                 </q-tooltip>
@@ -83,28 +116,24 @@
             <q-card class="column full-height" style="width: 700px">  
                 <q-card-section>
                     <div class="row items-start q-gutter-md">
-                        <div class="text-h6 col-7">New Games</div>
+                        <div class="text-h6 col-7">New Game Schedule</div>
                         <div class="col">
-                            <q-input outlined v-model="gameNo" label="Enter Game Number"/>
+                            <q-input outlined filled dense v-model="gameNo" label="Enter Game Number"/>
                         </div>
                     </div>
                 </q-card-section>
 
-                <q-card-section class="col q-pt-none scroll">
+                <q-card-section class="col q-pt-none scroll q-gutter-md">
                     <template>
                         <q-video :ratio="14/7" :src="videoUrl"/>
                     </template>
-                    <div class="q-pt-sm q-pb-sm row items-start q-gutter-md">
-                        <div class="col-4">
-                            <q-select outlined v-model="selectGame" :options="gamesOption" emit-value map-options label="Select Game" />
-                        </div>
-                        <div class="col column">
-                            <q-input outlined v-model="videoUrl" label="Enter Video Url."/>
-                        </div>
-                    </div>
-                    <q-separator/>
-                    <div class="q-pt-sm q-pb-sm row items-start q-gutter-md">
-                        <div class="col column" >
+
+                    <q-select outlined v-model="selectGame" :options="gamesOption" emit-value map-options label="Select Game" class="q-pt-md" />
+
+                    <q-input outlined v-model="videoUrl" label="Enter Video Url."/>
+    
+                    <div class="row items-start">
+                        <div class="col column q-mr-md" >
                             <q-input hint="Start of Event" outlined v-model="dateFrom">
                             <template v-slot:prepend>
                                 <q-icon name="event" class="cursor-pointer">
@@ -131,7 +160,6 @@
                             </template>
                             </q-input>
                         </div>
-                        <q-separator vertical inset />
                         <div class="col column" >
                             <q-input hint="End of Event" outlined v-model="dateTo">
                             <template v-slot:prepend>
@@ -160,21 +188,19 @@
                             </q-input>
                         </div>
                     </div>
-                    <q-separator/>
-                    <div class="q-pt-sm q-pb-sm row items-start q-gutter-md">
-                        <div class="col column bg-red text-white">
+                    <div class="row items-start">
+                        <div class="col column bg-red text-white q-mr-md">
                             <div class="text-h6 text-center">
                                 <q-select class="col column justify-between" emit-value map-options v-model="selectTeamOne" outlined :options="teamOptionOne" label="Select Team" />
                             </div>
                         </div>
-                        <q-separator vertical inset />
                         <div class="col column bg-blue text-white">
                             <div class="text-h6">
                                 <q-select class="col column justify-between" emit-value map-options v-model="selectTeamTwo" outlined :options="teamOptionTwo" label="Select Team" />
                             </div>
                         </div>
                     </div>
-                    <q-separator  />
+
                     <div class="row q-gutter-md">
                         <div class="col column justify-between text-overline q-pa-sm">ADD ANOTHER BET OPTIONS</div>
                         <div class="column q-pa-sm">
@@ -183,23 +209,29 @@
                             </q-btn>
                         </div>
                     </div>
-                    <q-separator  />
+
                     <div>
-                        <q-list v-for="(i, index) in this.Options" :key="index" dense>
-                            <div class="q-pl-sm row q-gutter-md">
+                        <q-list v-for="(i, index) in this.Options" :key="index" bordered>
+                            <q-item class="bg-secondary text-white ">
+                                <q-item-section>
+                                    <q-item-label class="text-h6 q-pa-sm">{{i.name}}</q-item-label>
+                                </q-item-section>
+                                <q-item-section side>
+                                    <q-btn color="grey" flat size="sm"  icon="close" label="remove" @click="removeBetOptions(index)" />
+                                </q-item-section>
+                            </q-item>
+                            <!-- <div class="q-pl-sm row q-gutter-md">
                                     <div class="col column justify-between">
-                                        <q-badge color="orange" text-color="black">
+                                        <q-badge color="secondary" text-color="white">
                                             <q-item-label class="q-pa-lg text-h6">{{i.name}}</q-item-label>
                                         </q-badge>
+
                                     </div>
-                            </div>
-                            <q-separator/>
-                            <q-separator/>
-                            <q-separator/>
+                            </div> -->
                         </q-list>
                     </div>
                 </q-card-section>
-
+                <q-separator  />
                 <q-card-actions align="right">
                     <q-btn flat label="Cancel" v-close-popup />
                     <q-btn flat label="Schedule Game" @click="schedEvents()" v-close-popup />
@@ -213,12 +245,33 @@
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <q-select class="col column justify-between" emit-value map-options v-model="betOpt" outlined :options="betOptions" label="Select Team" />
+                    <q-select class="col column justify-between" emit-value map-options v-model="betOpt" outlined :options="betOptions" label="Select Options" />
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
                 <q-btn flat label="Cancel" v-close-popup />
                 <q-btn flat label="Add Options" @click="addOptions()" v-close-popup />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+        <q-dialog v-model="betOptionsDialog" persistent>
+            <q-card style="min-width: 350px" dark>
+                <q-card-section>
+                <div class="text-h6">BetOptions</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                   <q-list bordered>
+                       <q-item clickable v-ripple v-show="viewBetOptions.length > 0" v-for="(betopt,n) in viewBetOptions" :key="betopt['.key']">
+                           <q-item-section top avatar>
+                               <q-avatar > {{n+1}} </q-avatar>
+                           </q-item-section>
+                           <q-item-section>{{betopt.name}}</q-item-section>
+                       </q-item>
+                   </q-list>
+                </q-card-section>
+                <q-card-actions align="right" class="text-primary">
+                    <q-btn flat label="Close" v-close-popup />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -286,6 +339,10 @@ export default {
                 ok: 'Yes',
             }).onOk(() => { 
                 this.$db.collection('ScheduledGames').add(newEvents)
+                .then(async (doc)=>{
+                    await this.$db.collection('MoneyBox').doc(doc.id).set({totalRed: 0,totalBlue:0})
+                    await this.saveBetOptionsControl(newEvents.betOptions,newEvents.teamBlue,newEvents.teamRed,doc.id)
+                })
                 this.$q.notify({
                         message: 'Events Added!',
                         icon: 'mdi-folder-plus-outline',
@@ -301,6 +358,19 @@ export default {
                     this.dateTo = date.formatDate(new Date(), 'YYYY-MM-DD HH:mm')
                     this.videoUrl = 'https://www.youtube.com/embed/k3_tw44QsZQ?rel=0'
             })
+        },
+        async saveBetOptionsControl(array,blue,red,scheduleKey){
+            await array.forEach(async a=>{
+                console.log('code runs here a')
+                await this.$db.collection('BetOptionsLiveControl').doc(`${scheduleKey}-${a.betOptionsKey}`).set({...a,dateCreated:new Date(),status: 'OPEN',teamBlue: blue,teamRed: red,scheduleKey: scheduleKey})
+                .then(async ()=>{
+                    await this.$db.collection('BetOptionsMoneyBox').doc(`${scheduleKey}-${a.betOptionsKey}`).set({totalRed:0,totalBlue:0,scheduleKey: scheduleKey})
+                    console.log('code runs here b')
+                })
+            })
+        },
+        removeBetOptions(index){
+            this.Options.splice(index,1)
         },
         addOptions(){
             var OptionBet  = {
@@ -331,6 +401,10 @@ export default {
             })
             console.log(this.Options, 'options')
         },
+        viewBetOptionsDialog(array){
+            this.viewBetOptions = array
+            this.betOptionsDialog = true
+        }
     },
     computed:{
         asc(){
@@ -427,6 +501,8 @@ export default {
             selectTeamTwo: '',
             selectTeamOne: '',
             schedDialog: false,
+            viewBetOptions: [],
+            betOptionsDialog: false
         }
     },
     mounted () {

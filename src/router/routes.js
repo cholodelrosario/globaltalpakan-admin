@@ -24,6 +24,9 @@ const routes = [
       { path: '/withdrawal', component: () => import('pages/Withdrawal.vue') },
       { path: '/team', component: () => import('pages/Team.vue') },
       { path: '/live-games', component: () => import('pages/LiveGames.vue') },
+      { path: '/live-games/:code/:schedule', component: () => import('pages/LiveGameDetails.vue') },
+      { path: '/bet-computations/:code/:schedule', component: () => import('pages/BetComputationDetails.vue') },
+      { path: '/bet-cancellation/:code/:schedule', component: () => import('pages/BetCancellationDetails.vue') },
       { path: '/backup', component: () => import('pages/Backup.vue') },
 
     ]
