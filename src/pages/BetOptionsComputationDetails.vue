@@ -2,7 +2,7 @@
     <q-page class="bg-dark text-white">
         <q-card class="bg-secondary q-pa-md">
             <q-card-section class="text-center">
-                <b><b class="text-h6">{{EndGames.gameCategory}}</b></b>
+                <b><b class="text-h6">{{EndGames.name}}</b></b>
             </q-card-section>
 
             <q-card-section class="text-center">
@@ -108,8 +108,8 @@ export default {
     },
     firestore(){
       return {
-        EndGames: this.$db.collection('EndGames').doc(this.$route.params.schedule),
-        TeamGameAccountBets: this.$db.collection('TeamGameAccountBets').where('gameKey',"==",this.$route.params.schedule),
+        EndGames: this.$db.collection('BetOptionsEndGames').doc(this.$route.params.options),
+        TeamGameAccountBets: this.$db.collection('TeamGameAccountOptionsBets').where('guideKey',"==",this.$route.params.options),
         Players: this.$db.collection('Players'),
         Agents: this.$db.collection('Agents'),
         MasterAgents: this.$db.collection('MasterAgents'),
@@ -279,8 +279,8 @@ export default {
             let winnings = this.returnWinningAccounts
             winnings.forEach(a=>{
                 let winningOBJ = {
-                    scheduleKey: this.EndGames['.key'],
-                    gameKey: this.EndGames.gameKey,
+                    guideKey: this.EndGames['.key'],
+                    scheduleKey: this.EndGames.scheduleKey,
                     amount: a.totalWinnings,
                     from: this.$store.getters['useraccount/isAuthenticated'],
                     to: {...a.Player,accountID: a.accountID},
@@ -302,8 +302,8 @@ export default {
             
             commission.forEach(a=>{
                 let commissionOBJ = {
-                    scheduleKey: this.EndGames['.key'],
-                    gameKey: this.EndGames.gameKey,
+                    guideKey: this.EndGames['.key'],
+                    scheduleKey: this.EndGames.scheduleKey,
                     amount: a.AgentCommission,
                     from: this.$store.getters['useraccount/isAuthenticated'],
                     to: {...a.Agent,accountID: a.agentKey},
@@ -327,8 +327,8 @@ export default {
             
             commission.forEach(a=>{
                 let commissionOBJ = {
-                    scheduleKey: this.EndGames['.key'],
-                    gameKey: this.EndGames.gameKey,
+                    guideKey: this.EndGames['.key'],
+                    scheduleKey: this.EndGames.scheduleKey,
                     amount: a.MasterCommission,
                     from: this.$store.getters['useraccount/isAuthenticated'],
                     to: {...a.MasterAgent,accountID: a.masterAgentKey},
@@ -383,7 +383,7 @@ export default {
         },
         async updateStatusEndGameProcessed(){
             try {
-                const response = await firebaseDb.collection('EndGames').doc(this.$route.params.schedule).update({ status: 'PROCESSED' });
+                const response = await firebaseDb.collection('BetOptionsEndGames').doc(this.$route.params.options).update({ status: 'PROCESSED' });
                 if(response) { console.log('%c SUCCESS_UPDATE_ENDGAME_PROCESSED','background: #222; color: #bada55') }
             } catch (error) {
                 console.log(error,'error')

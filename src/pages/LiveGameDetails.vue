@@ -119,11 +119,11 @@
                             <q-separator />
                             <q-card-actions vertical align="center">
                                  <q-btn v-if="props.row.status !== 'CANCELLED' && props.row.status !== 'ENDGAME'" flat color="grey" label="Update Bet Option Status" @click="openUpdateDialogOptions(props.row['.key'],props.row.status,props.row)"/>
-                                <q-btn v-else-if="props.row.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation">
+                                <q-btn v-else-if="props.row.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation" @click="$router.push(`/bet-options-cancellation/${$route.params.code}/${$route.params.schedule}/${props.row['.key']}`)">
                                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
                                     </q-badge>
                                 </q-btn>
-                                <q-btn v-else-if="props.row.status == 'ENDGAME'" flat color="info" label="Compute Winnings and Commissions" icon="paid">
+                                <q-btn v-else-if="props.row.status == 'ENDGAME'" flat color="info" label="Compute Winnings and Commissions" icon="paid" @click="$router.push(`/bet-options-computations/${$route.params.code}/${$route.params.schedule}/${props.row['.key']}`)">
                                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/></q-badge>
                                 </q-btn>
                                 <!-- <q-btn :icon="props.row.status == 'OPEN' ? 'close' : 'play_arrow'" flat color="grey" class="full-width" :label="props.row.status == 'OPEN' ? 'CLOSE BETTING':'OPEN BETTING'" @click="activateOptions(props.row)"/> -->
@@ -438,7 +438,7 @@ export default {
             let red = options.teamRed.team
             let blue = options.teamBlue.team
             let oddsRed = this.returnPayoutOption(options.totalBets,options.totalRed)
-            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalRed)
+            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
             options.endingOddBets = {
                 teamRed: {
                     odds: oddsRed,
@@ -450,7 +450,7 @@ export default {
                 }
             }
             options.companyCommission = this.returnCompanyCommissionOptions(options.totalRed,options.totalBlue),
-            options.totalMoneyBox = options.returnTotalMoneyBox    
+            options.totalMoneyBox = options.totalBets    
             this.$q.dialog({
                 title: `Record the Winning Team`,
                 message: 'Please be sure before you proceed. You cannot undo this action later. Please note that the draw value is only applicable to some of the games.',
@@ -463,8 +463,8 @@ export default {
                 model: '',
                 // inline: true
                 items: [
-                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
                     { label: blue+' - BLUE TEAM', value: 'BLUE', color: 'blue', textColor: 'blue' },
+                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
                     { label: 'DRAW', value: 'DRAW', color: 'yellow', textColor: 'yellow' }
                 ]
                 },
@@ -490,10 +490,11 @@ export default {
         },
         async cancelGameOptionsRecords(){
             let options = {...this.selectedOptions}
+            
             let red = options.teamRed.team
             let blue = options.teamBlue.team
             let oddsRed = this.returnPayoutOption(options.totalBets,options.totalRed)
-            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalRed)
+            let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
             options.endingOddBets = {
                 teamRed: {
                     odds: oddsRed,
@@ -505,8 +506,9 @@ export default {
                 }
             }
             options.companyCommission = this.returnCompanyCommissionOptions(options.totalRed,options.totalBlue),
-            options.totalMoneyBox = options.returnTotalMoneyBox    
-            options.dateEnded = new Date()
+            options.totalMoneyBox = options.totalBets    
+            options.dateCancelled = new Date()
+            console.log(options,'options')
             await this.saveOptionsCancelledGame(options)
             this.$q.dialog({
                 title: `GAME BETOPTIONS CANCELLED SUCCESS`,
@@ -534,7 +536,7 @@ export default {
             }
             live.companyCommission = this.returnCompanyCommission,
             live.totalMoneyBox = this.returnTotalMoneyBox    
-            live.dateEnded = new Date()
+            live.dateCancelled = new Date()
             delete live['.key']
             console.log(live,'live')
             await this.updateTrends('CANCELLED',live.gameKey,live.scheduleKey)
@@ -582,8 +584,8 @@ export default {
                 model: '',
                 // inline: true
                 items: [
-                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
                     { label: blue+' - BLUE TEAM', value: 'BLUE', color: 'blue', textColor: 'blue' },
+                    { label: red+' - RED TEAM', value: 'RED', color: 'red', textColor: 'red' },
                     { label: 'DRAW', value: 'DRAW', color: 'yellow', textColor: 'yellow' }
                 ]
                 },
