@@ -1,8 +1,8 @@
 <template>
-    <q-page>
+    <q-page class="bg-dark text-white">
         <div full-width>
             <!-- <q-scroll-area horizontal style="height: 55px;width: 2000px" > -->
-                <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
+                <q-tabs v-model="gameCategory" inline-label class="bg-secondary text-white shadow-2 col-12" >
                     <div class="row">
                         <q-tab name="ALL" label="ALL" />
                         <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
@@ -17,7 +17,7 @@
         <q-table title="TEAM" grid :data="teamALL" :columns="columns" :filter="filter" class="full-width align-center q-pa-sm " row-key=".key">
             <template v-slot:item="props">
                 <div class="q-pa-xs col-md-6 grid-style-transition">
-                    <q-card class="my-card" flat bordered>
+                    <q-card class="my-card bg-secondary text-white" flat bordered>
                         <q-card-section class="col-6 flex flex-center" horizontal>
                             <q-card-section class="q-pt-xs">
                             <div class="text-overline">{{props.row.game}}</div>
@@ -67,10 +67,10 @@
                         <q-separator />
 
                         <q-card-actions align="center">
-                            <q-btn label="Edit" padding="none" style="width: 30px" @click="openEditDialog(props.row)" class=" col column justify-between" color="accent" icon="mdi-pencil">
+                            <q-btn label="Edit" padding="none" style="width: 30px" @click="openEditDialog(props.row)" class=" col column justify-between" color="grey" flat icon="mdi-pencil">
                                 <q-tooltip> Edit Team </q-tooltip>
                             </q-btn>
-                            <q-btn label="Delete" padding="none" style="width: 30px" class=" col column justify-between" color="negative" icon="delete" @click="openDeleteDialog(props.row)">
+                            <q-btn label="Delete" padding="none" style="width: 30px" class=" col column justify-between" color="grey" flat icon="delete" @click="openDeleteDialog(props.row)">
                                 <q-tooltip> Delete Team </q-tooltip>
                             </q-btn>
                         </q-card-actions>
@@ -78,7 +78,7 @@
                 </div>
             </template>
             <template v-slot:top-right>
-                <q-input bordered outlined debounce="300" v-model="filter" placeholder="Search">
+                <q-input bordered outlined debounce="300" dark dense v-model="filter" placeholder="Search">
                 <template v-slot:append>
                     <q-icon name="search" />
                 </template>
@@ -88,14 +88,14 @@
 
         <!--FLOATING BUTTON-->
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
-                <q-btn fab icon="add" color="accent" @click="addTeamDialog = true" />
+                <q-btn fab icon="add" color="primary" @click="addTeamDialog = true" />
                 <q-tooltip>
                     Add Team
                 </q-tooltip>
         </q-page-sticky>
         <!--dialog-->
         <q-dialog v-model="addTeamDialog" persistent>
-            <q-card style="min-width: 750px">
+            <q-card class="bg-secondary text-white" style="min-width: 750px">
                 <q-card-section>
                     <div class="text-h6">New Team</div>
                 </q-card-section>
@@ -104,23 +104,23 @@
                     <div style="margin-top: -40px" class="q-pa-md row q-gutter-md">
                         <div class="col column justify-between">
                             <q-img style="border: 2px solid;border-color: #ffc400;" :src="siteUrl" :ratio="4/3" />
-                            <q-input class="q-pa-xs" outlined v-model="siteUrl" label="Enter Img Url."/>
+                            <q-input dark class="q-pa-xs" outlined v-model="siteUrl" label="Enter Img Url."/>
                         </div>
                         <q-separator vertical inset />
                         <div class="col column">
-                            <q-select class="q-pa-xs" v-model="gametype" dense outlined emit-value map-options :options="gamesOption" label="Select Game" />
-                            <q-input class="q-pa-xs" v-model="teamName" dense outlined label="Team"/>
+                            <q-select dark class="q-pa-xs" v-model="gametype" dense outlined emit-value map-options :options="gamesOption" label="Select Game" />
+                            <q-input dark class="q-pa-xs" v-model="teamName" dense outlined label="Team"/>
                             <div class="q-pa-xs row q-gutter-md">
                                 <b style="margin-top: 30px">Standing:</b>
-                                <q-input class="col column justify-between" outlined input-class="text-center" v-model.number="win" type="number" dense label="Win" />
-                                <q-input class="col column justify-between" outlined input-class="text-center" v-model.number="lose" type="number" dense label="Lose" />
+                                <q-input class="col column justify-between" dark outlined input-class="text-center" v-model.number="win" type="number" dense label="Win" />
+                                <q-input class="col column justify-between" dark outlined input-class="text-center" v-model.number="lose" type="number" dense label="Lose" />
                                 <b class="col column justify-between" style="margin-top: 30px">WinRate:</b>
                                 <b class="col column justify-between" style="margin-top: 30px">{{winrate}}%</b>
                             </div>
                             <q-separator/>
                             <div class="q-pt-sm row q-gutter-md">
                                 <b class="col column justify-between"> </b>
-                                <q-btn class="column justify-between" label="Add Players" padding="none" @click="playerDialog = true" style="width: 150px" color="accent" icon="add">
+                                <q-btn class="column justify-between" label="Add Players" padding="none" @click="playerDialog = true" style="width: 150px" color="grey" flat icon="add">
                                     <q-tooltip> Add Players </q-tooltip>
                                 </q-btn>
                             </div>
@@ -147,7 +147,7 @@
                                                 </div>
                                                 <div class="col column justify-between">
                                                     <q-item-label class="row">
-                                                        <q-btn padding="none" flat size="sm" @click="deletePlayer(index)" style="height:23px" class="col column justify-between" color="negative" icon="mdi-delete">
+                                                        <q-btn padding="none" flat size="sm" @click="deletePlayer(index)" style="height:23px" class="col column justify-between" color="grey" icon="mdi-delete">
                                                             <q-tooltip> Delete Players </q-tooltip>
                                                         </q-btn>
                                                     </q-item-label>
@@ -168,15 +168,15 @@
         </q-dialog>
         <!-- AddPlayer -->
         <q-dialog v-model="playerDialog" persistent>
-            <q-card style="width: 500px; max-width: 80vw;">
+            <q-card class="bg-secondary text-white" style="width: 500px; max-width: 80vw;">
                 <q-card-section>
                     <div class="text-h6">Add Player</div>
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
                     <div class="row q-gutter-md">
-                        <q-input class="col column justify-between" v-model="playerName" dense label="Player Name"/>
-                        <q-select class="col column justify-between" v-model="status" dense :options="options" label="Select Status" />
+                        <q-input dark outlined class="col column justify-between" v-model="playerName" dense label="Player Name"/>
+                        <q-select dark outlined class="col column justify-between" v-model="status" dense :options="options" label="Select Status" />
                     </div>
                 </q-card-section>
 
@@ -188,15 +188,15 @@
         </q-dialog>
         <!-- Edit Player Dialog -->
         <q-dialog v-model="editPlayer" persistent>
-            <q-card style="width: 500px; max-width: 80vw;">
+            <q-card class="bg-secondary text-white" style="width: 500px; max-width: 80vw;">
                 <q-card-section>
                     <div class="text-h6">Edit Player</div>
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
                     <div class="row q-gutter-md">
-                        <q-input class="col column justify-between" v-model="updatePlayerName" dense label="Player Name"/>
-                        <q-select class="col column justify-between" v-model="updateStatus" dense :options="options" label="Select Status" />
+                        <q-input dark outlined class="col column justify-between" v-model="updatePlayerName" dense label="Player Name"/>
+                        <q-select dark outlined class="col column justify-between" v-model="updateStatus" dense :options="options" label="Select Status" />
                     </div>
                 </q-card-section>
 
@@ -208,7 +208,7 @@
         </q-dialog>
             <!--Modal for upadate-->
         <q-dialog v-model="editDialog" persistent>
-            <q-card style="min-width: 750px">
+            <q-card class="bg-secondary text-white" style="min-width: 750px">
                 <q-card-section>
                     <div class="text-h6">Edit Team</div>
                 </q-card-section>
@@ -217,23 +217,23 @@
                     <div style="margin-top: -40px" class="q-pa-md row q-gutter-md">
                         <div class="col column justify-between">
                             <q-img style="border: 2px solid;border-color: #ffc400;" :src="updateLink" :ratio="4/3" />
-                            <q-input class="q-pa-xs" outlined v-model="updateLink" label="Enter Img Url."/>
+                            <q-input dark class="q-pa-xs" outlined v-model="updateLink" label="Enter Img Url."/>
                         </div>
                         <q-separator vertical inset />
                         <div class="col column">
-                            <q-select class="q-pa-xs" disable v-model="updateGame" dense outlined emit-value map-options :options="gamesOption" label="Select Game" />
-                            <q-input class="q-pa-xs" v-model="updateTeam" dense outlined label="Team"/>
+                            <q-select class="q-pa-xs" dark disable v-model="updateGame" dense outlined emit-value map-options :options="gamesOption" label="Select Game" />
+                            <q-input class="q-pa-xs" dark v-model="updateTeam" dense outlined label="Team"/>
                             <div class="q-pa-xs row q-gutter-md">
                                 <b style="margin-top: 30px">Standing:</b>
-                                <q-input class="col column justify-between" outlined input-class="text-center" v-model.number="updateWin" type="number" dense label="Win" />
-                                <q-input class="col column justify-between" outlined input-class="text-center" v-model.number="updateLose" type="number" dense label="Lose" />
+                                <q-input dark class="col column justify-between" outlined input-class="text-center" v-model.number="updateWin" type="number" dense label="Win" />
+                                <q-input dark class="col column justify-between" outlined input-class="text-center" v-model.number="updateLose" type="number" dense label="Lose" />
                                 <b class="col column justify-between" style="margin-top: 30px">WinRate:</b>
                                 <b class="col column justify-between" style="margin-top: 30px">{{updateWinrate}}%</b>
                             </div>
                             <q-separator/>
                             <div class="q-pt-sm row q-gutter-md">
                                 <b class="col column justify-between"> </b>
-                                <q-btn class="column justify-between" label="Add Players" padding="none" @click="playerDialog = true" style="width: 150px" color="accent" icon="add">
+                                <q-btn class="column justify-between" flat label="Add Players" padding="none" @click="playerDialog = true" style="width: 150px" color="grey" icon="add">
                                     <q-tooltip> Add Players </q-tooltip>
                                 </q-btn>
                             </div>
@@ -260,7 +260,7 @@
                                                 </div>
                                                 <div class="col column justify-between">
                                                     <q-item-label class="row">
-                                                        <q-btn padding="none" flat size="sm" @click="openEditPlayer(i,index)" style="height:23px" class="col column justify-between" color="accent" icon="mdi-pencil">
+                                                        <q-btn padding="none" flat size="sm" @click="openEditPlayer(i,index)" style="height:23px" class="col column justify-between" color="grey" icon="mdi-pencil">
                                                             <q-tooltip> Edit Players </q-tooltip>
                                                         </q-btn>
                                                     </q-item-label>
@@ -459,13 +459,15 @@ export default {
             title: 'Delete Team',
             message: 'Delete This Team?',
             ok: 'Yes',
+            dark: true,
+            textColor: 'white',
             cancel: 'Cancel'
             }).onOk(() => { 
                 this.$db.collection('Team').doc(id).delete()
                 this.$q.notify({
                         message: 'Team Deleted!',
                         icon: 'mdi-delete',
-                        color: 'negative',
+                        color: 'grey',
                         textColor: 'white',
                         position: 'center'
                     })

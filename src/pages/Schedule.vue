@@ -113,12 +113,12 @@
         </q-page-sticky>
         <!-- Schedule Dialog -->
         <q-dialog v-model="schedDialog">
-            <q-card class="column full-height" style="width: 700px">  
+            <q-card class="column full-height bg-dark text-white" style="width: 700px">  
                 <q-card-section>
                     <div class="row items-start q-gutter-md">
                         <div class="text-h6 col-7">New Game Schedule</div>
                         <div class="col">
-                            <q-input outlined filled dense v-model="gameNo" label="Enter Game Number"/>
+                            <q-input dark outlined filled dense v-model="gameNo" label="Enter Game Number"/>
                         </div>
                     </div>
                 </q-card-section>
@@ -128,13 +128,13 @@
                         <q-video :ratio="14/7" :src="videoUrl"/>
                     </template>
 
-                    <q-select outlined v-model="selectGame" :options="gamesOption" emit-value map-options label="Select Game" class="q-pt-md" />
+                    <q-select dark outlined v-model="selectGame" :options="gamesOption" emit-value map-options label="Select Game" class="q-pt-md" />
 
-                    <q-input outlined v-model="videoUrl" label="Enter Video Url."/>
+                    <q-input dark outlined v-model="videoUrl" label="Enter Video Url."/>
     
                     <div class="row items-start">
                         <div class="col column q-mr-md" >
-                            <q-input hint="Start of Event" outlined v-model="dateFrom">
+                            <q-input dark hint="Start of Event" outlined v-model="dateFrom">
                             <template v-slot:prepend>
                                 <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy transition-show="scale" transition-hide="scale">
@@ -161,7 +161,7 @@
                             </q-input>
                         </div>
                         <div class="col column" >
-                            <q-input hint="End of Event" outlined v-model="dateTo">
+                            <q-input dark hint="End of Event" outlined v-model="dateTo">
                             <template v-slot:prepend>
                                 <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy transition-show="scale" transition-hide="scale">
@@ -204,7 +204,7 @@
                     <div class="row q-gutter-md">
                         <div class="col column justify-between text-overline q-pa-sm">ADD ANOTHER BET OPTIONS</div>
                         <div class="column q-pa-sm">
-                            <q-btn @click="optDialog = true" class="col column justify-between" label="Add Options" padding="none" style="width: 150px" color="accent" icon="add">
+                            <q-btn flat @click="optDialog = true" class="col column justify-between" label="Add Options" padding="none" style="width: 150px" color="grey" icon="add">
                                 <q-tooltip> Add Bet Options </q-tooltip>
                             </q-btn>
                         </div>
@@ -239,13 +239,13 @@
             </q-card>
         </q-dialog>
         <q-dialog v-model="optDialog" persistent>
-            <q-card style="min-width: 350px">
+            <q-card class="bg-secondary text-white" style="min-width: 350px">
                 <q-card-section>
                 <div class="text-h6">Select Bet Options</div>
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <q-select class="col column justify-between" emit-value map-options v-model="betOpt" outlined :options="betOptions" label="Select Options" />
+                    <q-select dark class="col column justify-between" emit-value map-options v-model="betOpt" outlined :options="betOptions" label="Select Options" />
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -287,6 +287,7 @@ export default {
           this.$q.dialog({
             title: 'Delete Events',
             message: 'Delete This Events?',
+            dark: true,
             ok: 'Yes',
             cancel: 'Cancel'
             }).onOk(() => { 

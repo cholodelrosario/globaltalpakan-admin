@@ -1,10 +1,10 @@
 <template>
-    <q-page>
+    <q-page class="bg-dark text-white">
         <div class="q-pa-md">
             <div class="q-pa-md row q-gutter-md">
-                <strong>From:</strong><q-input v-model="fromdate" mask="YYYY/MM/DD" filled type="date"/>
-                <strong>To:</strong><q-input v-model="todate" mask="YYYY/MM/DD" filled type="date"/>
-                <q-card class="q-ma-md" style="width: 300px; height: 50px">
+                <strong>From:</strong><q-input dark v-model="fromdate" mask="YYYY/MM/DD" filled type="date"/>
+                <strong>To:</strong><q-input dark v-model="todate" mask="YYYY/MM/DD" filled type="date"/>
+                <q-card class="q-ma-md bg-secondary text-white" style="width: 300px; height: 50px">
                     <q-item>
                         <q-item-section>
                         <q-item-label><strong>Total Comms. Amount:</strong></q-item-label>
@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="q-pa-md">
-            <q-table title="Sales Reports" :data="Commission" :columns="columns" row-key="name">
+            <q-table title="Sales Reports" class="bg-secondary text-white" :data="Commission" :columns="columns" row-key="name">
                 <template v-slot:body="props">
                     <q-tr>
                         <q-td key="gameName" :props="props"></q-td>

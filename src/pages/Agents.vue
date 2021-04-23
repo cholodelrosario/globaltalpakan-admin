@@ -1,14 +1,14 @@
 a<template>
-    <q-page>
+    <q-page class="bg-dark text-white">
         <div class="q-pa-md">
             <div class="q-pa-md row q-gutter-md">
-                <strong>From:</strong><q-input v-model="fromdate" mask="YYYY/MM/DD" filled type="date"/>
-                <strong>To:</strong><q-input v-model="todate" mask="YYYY/MM/DD" filled type="date"/>
-                <q-select class="col column" v-model="type" :options="options" label="Select Master Agent" outlined/>
+                <strong>From:</strong><q-input dark v-model="fromdate" mask="YYYY/MM/DD" filled type="date"/>
+                <strong>To:</strong><q-input dark v-model="todate" mask="YYYY/MM/DD" filled type="date"/>
+                <q-select class="col column" dark v-model="type" :options="options" label="Select Master Agent" outlined/>
             </div>
         </div>
         <div class="q-pa-md">
-            <q-table title="Top Agent" :data="MasterAgent" :columns="columns" row-key="name">
+            <q-table title="Top Agent" class="bg-secondary text-white" :data="MasterAgent" :columns="columns" row-key="name">
                 <template v-slot:body="props">
                     <q-tr>
                         <q-td key="agentName" :props="props"></q-td>

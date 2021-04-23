@@ -1,7 +1,7 @@
 <template>
-    <q-page>
+    <q-page class="bg-dark text-white">
         <div full-width>
-                <q-tabs v-model="gameCategory" inline-label class="bg-yellow shadow-2 col-12" >
+                <q-tabs v-model="gameCategory" inline-label class="bg-secondary text-white shadow-2 col-12" >
                     <div class="row">
                         <q-tab name="ALL" label="ALL" />
                         <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
@@ -10,7 +10,7 @@
         </div>
         <q-table grid title="Betting Options" :data="betALL" :columns="columns" row-key="name" :filter="filter" hide-header>
             <template v-slot:top-right>
-                <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
+                <q-input borderless outlined dense debounce="300" v-model="filter" dark placeholder="Search">
                 <template v-slot:append>
                     <q-icon name="search" />
                 </template>
@@ -19,7 +19,7 @@
 
             <template v-slot:item="props">
                 <div class="q-pa-xs col-md-6">
-                <q-card class="my-card" flat bordered>
+                <q-card class="my-card bg-secondary text-white" flat bordered>
                         <q-card-section class="col-6" horizontal>
                             <q-card-section class="q-pt-xs">
                             <div class="text-h5 q-mt-sm q-mb-xs">{{props.row.games}}</div>
@@ -32,10 +32,10 @@
                         <q-separator />
 
                         <q-card-actions align="center">
-                            <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class=" col column justify-between" color="accent" icon="mdi-pencil">
+                            <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class=" col column justify-between" color="grey" flat icon="mdi-pencil">
                                 <q-tooltip> Edit Team </q-tooltip>
                             </q-btn>
-                            <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="negative" icon="delete" >
+                            <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="grey" flat icon="delete" >
                                 <q-tooltip> Delete Team </q-tooltip>
                             </q-btn>
                         </q-card-actions>
@@ -45,21 +45,21 @@
         </q-table>
         <!--FLOATING BUTTON-->
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
-                <q-btn fab icon="add" color="accent" @click="addBetsDialog = true" />
+                <q-btn fab icon="add" color="primary" @click="addBetsDialog = true" />
                 <q-tooltip>
                     Add Games
                 </q-tooltip>
         </q-page-sticky>
         <!--dialog-->
         <q-dialog v-model="addBetsDialog" persistent>
-            <q-card style="min-width: 400px">
+            <q-card class="bg-secondary text-white" style="min-width: 400px">
                 <q-card-section>
                     <div class="text-h6">New Betting Options</div>
                 </q-card-section>
 
                 <q-card-section>
-                    <q-select class="q-pa-sm col column justify-between" outlined v-model="selectGame" :options="gamesOption" emit-value map-options label="Select Game" />
-                    <q-input class="q-pa-sm" v-model="betsOpt" outlined label="Enter Options."/>
+                    <q-select dark class="q-pa-sm col column justify-between" outlined v-model="selectGame" :options="gamesOption" emit-value map-options label="Select Game" />
+                    <q-input dark class="q-pa-sm" v-model="betsOpt" outlined label="Enter Options."/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -70,14 +70,14 @@
         </q-dialog>
         <!--Modal for upadate-->
         <q-dialog v-model="editDialog">
-            <q-card style="min-width: 400px">
+            <q-card class="bg-secondary text-white" style="min-width: 400px">
                 <q-card-section>
                     <div class="text-h6">New Betting Options</div>
                 </q-card-section>
 
                 <q-card-section>
-                    <q-select class="q-pa-sm col column justify-between" disable outlined v-model="updateGame" :options="gamesOption" emit-value map-options label="Select Game" />
-                    <q-input class="q-pa-sm" v-model="updateBetsopt" outlined label="Enter Options"/>
+                    <q-select dark class="q-pa-sm col column justify-between" disable outlined v-model="updateGame" :options="gamesOption" emit-value map-options label="Select Game" />
+                    <q-input dark class="q-pa-sm" v-model="updateBetsopt" outlined label="Enter Options"/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -190,6 +190,7 @@ export default {
             title: 'Delete Option',
             message: 'Delete This Option?',
             ok: 'Yes',
+            dark: true,
             cancel: 'Cancel'
             }).onOk(() => { 
                 this.$db.collection('BetOptions').doc(id).delete()
