@@ -612,7 +612,7 @@ export default {
                 .then(async ()=>{
                     await this.saveEndedGame(live)
                     .then(async ()=>{
-                        await this.endAllBetOptions()
+                        // await this.endAllBetOptions()
                         this.$q.dialog({
                             title: `GAME ENDED SUCCESS`,
                             message: 'You can now compute for the winnings and commissions of players and agents.',
