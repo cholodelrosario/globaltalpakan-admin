@@ -44,7 +44,7 @@
         </q-card>
         </div>
             <!-- <q-separator  dark /> -->
-            <q-card-actions align="center" v-if="ifProcessed(LiveGames.status,$route.params.schedule) == false">
+            <q-card-actions align="center" >
                 <q-btn v-if="LiveGames.status !== 'CANCELLED' && LiveGames.status !== 'ENDGAME'" flat color="grey" label="Update Game Status" @click="confirm = true,selectedStatus = LiveGames.status"/>
                 <q-btn v-else-if="LiveGames.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation" @click="$router.push(`/bet-cancellation/${$route.params.code}/${$route.params.schedule}`)">
                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
@@ -54,11 +54,11 @@
                      <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/></q-badge>
                 </q-btn>
             </q-card-actions>
-            <q-card-actions vertical align="center" v-else>
+            <!-- <q-card-actions vertical align="center">
                 <q-btn flat icon="check_circle" color="green" :label="LiveGames.status == 'CANCELLED' ? 'View Processed Refunds' : 'View Processed Winnings and Commission'"
                     @click="$router.push(`/${LiveGames.status == 'CANCELLED' ? 'bet-cancellation' : 'bet-computations'}/${$route.params.code}/${$route.params.schedule}`)"
                 />
-            </q-card-actions>
+            </q-card-actions> -->
         </q-card>
         <!-- <div class="row">
             <q-card class="text-center text-white my-card col-6 bg-blue-10" flat >
@@ -122,7 +122,7 @@
                             </q-card-section>
                                 
                             <q-separator />
-                            <q-card-actions vertical align="center" v-if="ifProcessed(LiveGames.status,props.row['.key'],true) == false">
+                            <q-card-actions vertical align="center" >
                                  <q-btn v-if="props.row.status !== 'CANCELLED' && props.row.status !== 'ENDGAME'" flat color="grey" label="Update Bet Option Status" @click="openUpdateDialogOptions(props.row['.key'],props.row.status,props.row)"/>
                                 <q-btn v-else-if="props.row.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation" @click="$router.push(`/bet-options-cancellation/${$route.params.code}/${$route.params.schedule}/${props.row['.key']}`)">
                                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
@@ -133,11 +133,11 @@
                                 </q-btn>
                                 <!-- <q-btn :icon="props.row.status == 'OPEN' ? 'close' : 'play_arrow'" flat color="grey" class="full-width" :label="props.row.status == 'OPEN' ? 'CLOSE BETTING':'OPEN BETTING'" @click="activateOptions(props.row)"/> -->
                             </q-card-actions>
-                            <q-card-actions vertical align="center" v-else>
+                            <!-- <q-card-actions vertical align="center" >
                                 <q-btn flat icon="check_circle" color="green"  :label="props.row.status == 'CANCELLED' ? 'View Processed Refunds' : 'View Processed Winnings and Commission'"
                                     @click="$router.push(`/${props.row.status == 'CANCELLED' ? 'bet-options-cancellation' : 'bet-options-computations'}/${$route.params.code}/${$route.params.schedule}/${props.row['.key']}`)"
                                 />
-                            </q-card-actions>
+                            </q-card-actions> -->
                             <!-- <q-card-actions>
                                 <q-btn flat round icon="edit" color="grey"/>
                                 <q-btn flat round icon="delete" color="grey" @click="openDeleteDialog(props.row)"/>
