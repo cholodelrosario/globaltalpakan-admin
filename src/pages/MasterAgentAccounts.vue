@@ -1,7 +1,7 @@
 <template>
-    <q-page>
+    <q-page class="bg-dark text-white">
         <div class="q-pa-md">
-            <q-table title="CREATE MASTER AGENT ACCOUNTS" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
+            <q-table title="CREATE MASTER AGENT ACCOUNTS" class="bg-secondary text-white" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
                 <template v-slot:body="props">
                     <q-tr :props="props">
                         <q-td key="accountFirstName" :props="props">{{props.row.accountFirstName}}&nbsp;{{props.row.accountLastName}}</q-td>
@@ -12,13 +12,13 @@
                         </q-td>
                         <q-td key="accountPosition" :props="props">{{props.row.accountPosition}}</q-td>
                         <q-td key="action" :props="props">
-                            <q-btn v-if="props.row.accountPosition != 'Admin'" icon="edit" size="sm" color="accent" label="edit" @click="editUser(props.row)" />
-                            <q-btn v-if="props.row.role != 'Admin'" color='negative' size="sm" label="remove" icon="delete" @click="removeUser(props)"></q-btn>
+                            <q-btn v-if="props.row.accountPosition != 'Admin'" icon="edit" size="sm" color="grey" flat label="edit" @click="editUser(props.row)" />
+                            <q-btn v-if="props.row.role != 'Admin'" color='grey' flat size="sm" label="remove" icon="delete" @click="removeUser(props)"></q-btn>
                         </q-td>  
                     </q-tr>
                 </template>
                 <template v-slot:top-right>
-                    <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                    <q-input borderless dense outlined color="primary" debounce="300" v-model="filter" dark placeholder="Search">
                         <template v-slot:append>
                             <q-icon name="search" />
                         </template>
@@ -28,7 +28,7 @@
         </div>
         <!--FLOATING BUTTON-->
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
-            <q-btn fab icon="mdi-account-plus-outline" color="accent" @click="addAccountDialog = true, isEdit = false" />
+            <q-btn fab icon="mdi-account-plus-outline" color="primary" @click="addAccountDialog = true, isEdit = false" />
                 <q-tooltip>
                     Create New Account
                 </q-tooltip>

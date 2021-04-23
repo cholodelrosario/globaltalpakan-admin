@@ -1,7 +1,7 @@
 <template>
-    <q-page>
+    <q-page class="bg-dark text-white">
         <div class="q-pa-md">
-            <q-table title="CREATE ADMIN ACCOUNT" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
+            <q-table title="CREATE ADMIN ACCOUNT" class="bg-secondary text-white" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
                 <template v-slot:body="props">
                     <q-tr :props="props">
                         <q-td key="accountFirstName" :props="props">{{props.row.accountFirstName}}&nbsp;{{props.row.accountLastName}}</q-td>
@@ -12,13 +12,13 @@
                         </q-td>
                         <q-td key="accountPosition" :props="props">{{props.row.accountPosition}}</q-td>
                         <q-td key="action" :props="props">
-                            <q-btn v-if="props.row.accountPosition != 'Admin'" icon="edit" size="sm" color="accent" label="edit" @click="editUser(props.row)" />
-                            <q-btn v-if="props.row.role != 'Admin'" color='negative' size="sm" label="remove" icon="delete" @click="removeUser(props)"></q-btn>
+                            <q-btn class="text-white" v-if="props.row.accountPosition != 'Admin'" icon="edit" size="sm" color="grey" flat label="edit" @click="editUser(props.row)" />
+                            <q-btn class="text-white" v-if="props.row.role != 'Admin'" color='grey' flat size="sm" label="remove" icon="delete" @click="removeUser(props)"></q-btn>
                         </q-td>  
                     </q-tr>
                 </template>
                 <template v-slot:top-right>
-                    <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                    <q-input borderless dense debounce="300" dark v-model="filter" placeholder="Search">
                         <template v-slot:append>
                             <q-icon name="search" />
                         </template>
@@ -28,7 +28,7 @@
         </div>
         <!--FLOATING BUTTON-->
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
-            <q-btn fab icon="mdi-account-plus-outline" color="accent" @click="addAccountDialog = true, isEdit = false" />
+            <q-btn fab icon="mdi-account-plus-outline" color="primary" @click="addAccountDialog = true, isEdit = false" />
                 <q-tooltip>
                     Create New Account
                 </q-tooltip>
@@ -36,21 +36,21 @@
         </q-page-sticky>
         <!--Modal For add Food-->
         <q-dialog v-model="addAccountDialog" persistent>
-            <q-card style="min-width: 600px">
+            <q-card class="bg-secondary text-white" style="min-width: 600px">
                 <q-card-section>
                     <div style="margin-bottom: -50px" class="text-h6">{{this.isEdit == false ? 'New Account' : 'Edit Account'}}</div>
                 </q-card-section>
                 <q-card-section>
                     <div class="q-pa-md row" dense>
-                        <q-input class="q-ma-sm col" outlined v-model="newUser.accountFirstName" label="First Name"/>
-                        <q-input class="q-ma-sm col" outlined v-model="newUser.accountLastName" label="Last Name"/>
+                        <q-input dark class="q-ma-sm col" outlined v-model="newUser.accountFirstName" label="First Name"/>
+                        <q-input dark class="q-ma-sm col" outlined v-model="newUser.accountLastName" label="Last Name"/>
                     </div>
                     <div class="q-pa-md row"  dense>
-                        <q-input class="q-ma-sm col"  outlined v-model="newUser.accountPhone" label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
-                        <q-select class="q-ma-sm col"  outlined v-model="newUser.accountPosition" :options="options" emit-value map-options label="Position"/>
+                        <q-input dark class="q-ma-sm col"  outlined v-model="newUser.accountPhone" label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
+                        <q-select dark class="q-ma-sm col"  outlined v-model="newUser.accountPosition" :options="options" emit-value map-options label="Position"/>
                     </div>
                     <div>
-                        <q-input class="q-ma-md" outlined v-model="newUser.accountEmailAdd" type="email" prefix="Email:" suffix="@gmail.com">
+                        <q-input dark class="q-ma-md" outlined v-model="newUser.accountEmailAdd" type="email" prefix="Email:" suffix="@gmail.com">
                         </q-input>
                     </div>
                     <div>
@@ -133,9 +133,10 @@ export default {
                 this.$q.dialog({
                 title: 'REMOVE THIS ACCOUNT??',
                 message: 'Delete Account??',
-                type: 'negative',
-                color: 'negative',
-                textColor: 'red',
+                dark: true,
+                type: 'primary',
+                color: 'primary',
+                textColor: 'white',
                 icon: 'info',
                 ok: 'Ok',
                 cancel: 'Cancel'
@@ -148,6 +149,7 @@ export default {
 				.then(() => {
 					this.$q.notify({
                     message: `${lName} has been deleted`,
+                    dark: true,
                     type: 'info',
                     color: 'info',
                     textColor: 'white',

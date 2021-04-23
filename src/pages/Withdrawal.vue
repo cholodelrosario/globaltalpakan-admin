@@ -1,183 +1,135 @@
 <template>
-  <q-page class="bg-white">
-    <div>
+  <q-page class="bg-dark">
         <div full-width>
-            <q-tabs v-model="tab" inline-label class="bg-yellow shadow-2 col-12" >
-                <q-tab class="col-4" name="players" label="Players" icon="mdi-human-greeting" />
-                <q-tab class="col-4" name="agents" label="Agents" icon="mdi-face-agent" />
+            <q-tabs v-model="tab" inline-label flat class="bg-secondary text-white shadow-2 col-12" >
                 <q-tab class="col-4" name="magents" label="Master Agents" icon="mdi-account-multiple" />
             </q-tabs>
-            <div class="q-pa-md">
-                <q-tabs v-model="withdrawPlayerTab" inline-label class="bg-yellow shadow-2 col-12" >
-                    <q-tab class="col-6" name="pending" label="Pending" icon="mdi-human-greeting" />
-                    <q-tab class="col-6" name="completed" label="Completed" icon="mdi-face-agent" />
-                </q-tabs>
-            </div>
-            <div class="q-pa-sm">
-                <q-table :title="this.tab == 'players' ? 'Players Withdrawal' : this.tab == 'agents' ? 'Agents Withdrawal' : 'Master Agent Withdrawal'" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
-                    <template v-slot:body="props">
-                        <q-tr :props="props">
-                            <q-td v-if="tab == 'players' || tab == 'agents'" key="accountName" :props="props">{{props.row.accountName}}</q-td>
-                            <q-td v-else key="accountFirstName" :props="props">{{props.row.accountFirstName + ' ' + props.row.accountLastName}}</q-td>
-                            <q-td key="accountPhone" :props="props">{{props.row.accountPhone}}</q-td>
-                            <q-td key="action" :props="props">
-                                <q-btn icon="send" label="Approve" dense @click="openEditDialog(props.row)" color="accent" />
-                                <q-btn icon="delete" class="q-ma-xs" label="Decline" dense @click="openEditDialog(props.row)" color="negative" />
-                            </q-td>  
-                        </q-tr>
-                    </template>
-                    <template v-slot:top-right>
-                        <q-input borderless outlined dense debounce="300" v-model="filter" placeholder="Search">
-                            <template v-slot:append>
-                                <q-icon name="search" />
-                            </template>
-                        </q-input>
-                    </template>  
-                </q-table>
-            </div>
         </div>
-    </div>
-        <q-dialog v-model="sendCredits">
-            <q-card>
-                <q-card-section>
-                <div class="text-h6">Send Credits</div>
-                </q-card-section>
-                <q-separator />
-                <q-card-section style="max-height: 50vh">   
-                    <div padding="none" class="row q-gutter-md">
-                        <div class="q-pt-md">
-                            <b class="col text-h6">Amount:</b>
-                            <q-input v-model="amount" dense type="number" outlined style="width: 200px" />
-                        </div>
-                        <div class="q-pt-md">
-                            <b class="col text-h6">Recipient No.:</b>
-                            <q-input v-model="number" dense type="number" outlined style="width: 200px" />
-                        </div>
-                    </div>
-                    <div padding="none" class="row q-gutter-md flex flex-center">
-                        <div padding="none" class="q-pt-md text-center">
-                            <b class="col text-h6">Name: &nbsp;&nbsp;</b>
-                            <b class="text-overline">{{this.name}}</b>
-                        </div>
-                    </div>
-                </q-card-section>
-                <q-separator />
-
-                <q-card-actions align="right">
-                <q-btn flat label="cancel" color="primary" v-close-popup />
-                <q-btn flat label="Send" color="primary" v-close-popup />
-                </q-card-actions>
-            </q-card>
-        </q-dialog>
+        <div class="q-pa-md">
+            <q-table class="bg-secondary text-white" :pagination.sync="pagination" title="Master Agents Withdrawal Request" :data="this.returnMAwithdrwals" :columns="columns" :filter="filter" row-key="name">
+                <template v-slot:body="props">
+                    <q-tr :props="props">
+                        <q-td key="accountFirstName" :props="props">{{props.row.from.accountFirstName + ' ' + props.row.from.accountLastName}}</q-td>
+                        <q-td key="accountPhone" :props="props">{{props.row.from.accountPhone}}</q-td>
+                        <q-td key="amount" :props="props">{{props.row.amount}}</q-td>
+                        <q-td key="status" :props="props"><q-chip square :color="props.row.status == true ? 'green-8' : 'red-8'" >{{props.row.status == true ? 'Completed' : 'Pending'}}</q-chip></q-td>
+                        <q-td v-if="props.row.status == false" key="action" :props="props">
+                            <q-btn flat label="Approve" @click="approveWithdrawal(props.row)" color="yellow" />
+                        </q-td>
+                        <q-td v-else key="action" :props="props">
+                            <q-btn disable flat label="- - - - - - - - " color="yellow" />
+                        </q-td>  
+                    </q-tr>
+                </template>
+                <template v-slot:top-right>
+                    <q-input borderless outlined dense debounce="300" v-model="filter" dark placeholder="Search">
+                        <template v-slot:append>
+                            <q-icon name="search" />
+                        </template>
+                    </q-input>
+                </template>  
+            </q-table>
+        </div>
   </q-page>
 </template>
 
 <script>
+import { firebase,firebaseAuth,firebaseDb } from 'src/boot/firebase'
+import { date } from 'quasar'
 export default {
     data(){
         return {
-            withdrawMATab: 'pending',
-            withdrawAgentTab: 'pending',
-            withdrawTab: 'mails',
-            table: false,
-            selectNumber: 0,
-            name: '',
-            number: 0,
-            amount: 0,
-            sendCredits: false,
+            pagination: {
+                page: 1, 
+                rowsPerPage: 15, 
+                sortBy: 'timestamp',
+                descending: true,
+                rowsNumber: 100 
+            },
             filter: '',
+            accountObj: null,
+            tab: 'magents',
             MasterAgents: [],
-            Players: [],
-            Agents: [],
-            columnsP: [
-                { name: 'accountName', required: true, label: 'Full Name', align: 'left', field: 'accountName', sortable: true },
-                { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
-                { name: 'action', align: 'right', label: 'Action' }
-            ],
-            columnsA: [
-                { name: 'accountName', required: true, label: 'Full Name', align: 'left', field: 'accountName', sortable: true },
-                { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
-                { name: 'action', align: 'right', label: 'Action' }
-            ],
-            columnsMA: [
+            MasterAgentsWithdrawal: [],
+            columns: [
                 { name: 'accountFirstName', required: true, label: 'Full Name', align: 'left', field: 'accountFirstName', sortable: true },
                 { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
+                { name: 'amount', required: true, label: 'Amount', align: 'left', field: 'amount', sortable: true },
+                { name: 'status', required: true, label: 'Status', align: 'left', field: 'status', sortable: true },
                 { name: 'action', align: 'right', label: 'Action' }
             ],
-            tab: 'players',
-            withdrawPlayerTab: 'pending',
         }
     },
     mounted() {
+        let user = this.$store.getters['useraccount/isAuthenticated']
+        console.log(user,'user')
+        this.$binding("accountObj", this.$db.collection("Accounts").doc(user.userDBKey))
+        .then((account) => {
+            console.log(account,'account') // => __ob__: Observer
+        }).catch(err => {
+            console.error(err)
+        })
         this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
             .then(MasterAgents => {
             console.log(MasterAgents, 'MasterAgents')
         })
-        this.$binding('Agents', this.$db.collection('Agents'))
-            .then(Agents => {
-            console.log(Agents, 'Agents')
-        })
-        this.$binding('Players', this.$db.collection('Players'))
-            .then(Players => {
-            console.log(Players, 'Players')
+        this.$binding('MasterAgentsWithdrawal', this.$db.collection('MasterAgentsWithdrawal'))
+            .then(MasterAgentsWithdrawal => {
+            console.log(MasterAgentsWithdrawal, 'MasterAgentsWithdrawal')
         })
     },
     computed: {
-        getUsers () {
-			try {
-                if(this.tab === 'players'){
-                    return this.Players
-                }else if(this.tab === 'agents'){
-                    return this.Agents
-                }else{
-                    return this.MasterAgents
-                }
-			} catch {
-				return []
-			}
-		},
-        columns(){
-            try {
-                if(this.tab === 'players'){
-                    return this.columnsP
-                }else if(this.tab === 'agents'){
-                    return this.columnsA
-                }else{
-                    return this.columnsMA
-                }
-			} catch {
-				return []
-			}
-        },
-        phoneOption(){
-            let optionss = this.MasterAgents.map(MasterAgents => {
-                return {
-                    label: MasterAgents.accountPhone,
-                    value: MasterAgents.accountPhone
-                }
-            })
-            console.log(optionss, 'opt')
-            return optionss
+        returnMAwithdrwals () {
+            let orderBy = this.$lodash.orderBy(this.MasterAgentsWithdrawal, ['timestamp'], ['desc']);
+            return orderBy
         }
     },
     methods:{
-        openEditDialog (task) {
-            if(this.tab === 'players'){
-                this.coinsID = task['.key']
-                this.number = task.accountPhone
-                this.name = task.accountName
-                this.sendCredits = true
-            }else if(this.tab === 'agents'){
-                this.coinsID = task['.key']
-                this.number = task.accountPhone
-                this.name = task.accountName
-                this.sendCredits = true
-            }else{
-                this.coinsID = task['.key']
-                this.number = task.accountPhone
-                this.name = task.accountFirstName + ' ' + task.accountLastName
-                this.sendCredits = true
-            }  
+        async approveWithdrawal(agent){
+            this.$q.dialog({
+                dark: true,
+                title: `Approve ${agent.from.accountFirstName + '' + agent.from.accountLastName} Withdrawals?`,
+                message: `Approve P${agent.amount} Withdrawals`,
+                cancel: {
+                    color: 'grey',
+                    flat: true,
+                },
+                persistent: true
+            }).onOk(() =>{
+                let user = this.$store.getters['useraccount/isAuthenticated']
+                console.log(user,'user')
+                let masterAgentID = agent.masterAgentKey
+                let userID = user.userDBKey
+                agent.status = agent.status == false ? true : false
+                let key = agent['.key']
+                let update = {...agent}
+                delete update['.key']
+                this.$db.collection(`MasterAgentsWithdrawal`).doc(key).set(update)
+                var approveHistory = {
+                    withdrawalID: agent['.key'],
+                    withdrawBy: agent.from,
+                    withdrawAmount: agent.amount,
+                    approveByID: userID,
+                    approveBy: this.accountObj,
+                    timestamp: new Date(),
+                }
+                console.log(approveHistory, 'approveHistory')
+                this.$db.collection('AdminApprovalHistory').add(approveHistory)
+                try {
+                    const response = firebaseDb.collection('MasterAgents').doc(masterAgentID).update({ lastTransaction: new Date() })
+                    if(response) { console.log('%c SUCCESS_LAST_TRANSACTION','background: #222; color: #bada55') }
+                } catch (error) {
+                    console.log(error,'error')
+                    console.log('%c ERROR_LAST_TRANSACTION','background: #D50000; color: #fff')
+                }
+                this.$q.notify({
+                    message: `${agent.from.accountFirstName + '' + agent.from.accountLastName} Withdrawals has been Approved`,
+                    icon: 'mdi-update',
+                    color: 'positive',
+                    textColor: 'white',
+                    position: 'center'
+                })
+            })            
         },
     }
 }

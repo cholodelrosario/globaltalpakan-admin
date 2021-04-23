@@ -1,8 +1,8 @@
 <template>
-  <q-page class="bg-white">
+  <q-page class="bg-dark text-white">
         <!--FLOATING BUTTON-->
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
-            <q-btn fab icon="add" @click="addAccountDialog = true" color="accent" />
+            <q-btn fab icon="add" @click="addAccountDialog = true" color="primary" />
             <q-tooltip>
                 Add Games
             </q-tooltip>
@@ -12,7 +12,7 @@
         <q-tabs
             v-model="tab"
             inline-label
-            class="bg-yellow shadow-2 col-12"
+            class="bg-secondary text-white shadow-2 col-12"
         >
             <q-tab class="col-4" name="gcash" label="G-Cash" icon="mdi-human-greeting" />
             <q-tab class="col-4" name="bank" label="Bank" icon="mdi-face-agent" />
@@ -22,7 +22,7 @@
 
             <q-table grid :title="this.tab == 'gcash' ? 'G-cash Account' : this.tab == 'bank' ? 'Bank Account' : 'Cebuanna Account'" :data="bankAndGcash" :columns="this.tab == 'gcash' ? columnA : this.tab == 'bank' ? columnB : columnC " row-key="name" :filter="filterA" hide-header>
                 <template v-slot:top-right>
-                    <q-input outlined dense debounce="300" v-model="filterA" placeholder="Search">
+                    <q-input outlined dense debounce="300" v-model="filterA" dark placeholder="Search">
                     <template v-slot:append>
                         <q-icon name="search" />
                     </template>
@@ -31,7 +31,7 @@
 
                 <template v-slot:item="props">
                     <div class="q-pa-xs col-md-4">
-                        <q-card class="my-card" flat bordered>
+                        <q-card class="my-card bg-secondary text-white" flat bordered>
                             <q-card-section class="col-6 flex flex-center" horizontal>
                                 <q-card-section class="q-pt-xs">
                                 <div class="text-h5 q-mt-sm q-mb-xs row flex flex-center">{{tab == 'gcash' ? props.row.gcashName : tab == 'bank' ? props.row.bankAccountName : props.row.receiversName}}</div>
@@ -48,10 +48,10 @@
                             </q-card-section>
                             <q-separator />
                             <q-card-actions align="center">
-                                <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class="col column justify-between" color="accent" icon="mdi-pencil">
+                                <q-btn label="Edit" padding="none" @click="openEditDialog(props.row)" style="width: 30px" class="col column justify-between" color="grey" flat icon="mdi-pencil">
                                     <q-tooltip> Edit Account </q-tooltip>
                                 </q-btn>
-                                <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="negative" icon="delete" >
+                                <q-btn label="Delete" padding="none" @click="openDeleteDialog(props.row)" style="width: 30px" class=" col column justify-between" color="grey" flat icon="delete" >
                                     <q-tooltip> Delete Account </q-tooltip>
                                 </q-btn>
                             </q-card-actions>
@@ -62,7 +62,7 @@
         </div>
     </div>
         <q-dialog v-model="addAccountDialog" persistent>
-            <q-card>
+            <q-card class="bg-secondary text-white">
                 <q-card-section>
                 <div class="text-h6">{{this.tab == 'gcash' ? 'Add G-Cash Account' : this.tab == 'bank' ? 'Add Bank Account' : 'Add Cebuanna Account'}}</div>
                 </q-card-section>
@@ -71,16 +71,16 @@
                     <div padding="none" class="col q-gutter-md">
                         <div >
                             <b class="col text-h6">{{this.tab == 'gcash' ? 'G-Cash Name' : this.tab == 'bank' ? 'Account Name' : "Receiver's Name"}}</b>
-                            <q-input class="q-ma-sm col" v-model="accountName" dense outlined style="width: 300px" />
+                            <q-input dark class="q-ma-sm col" v-model="accountName" dense outlined style="width: 300px" />
                         </div>
                         <div>
                             <b class="col text-h6">{{this.tab == 'gcash' ? 'G-Cash No.' : this.tab == 'cebuanna' ? "Receiver's No." : 'Account Number'}}</b>
-                            <q-input v-show="this.tab == 'gcash' || this.tab == 'cebuanna'" class="q-ma-sm col"  outlined v-model="accountNumber" dense label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
-                            <q-input v-show="this.tab == 'bank'" class="q-ma-sm col"  outlined v-model="accountBankNumber" dense label="Account Number" />
+                            <q-input dark v-show="this.tab == 'gcash' || this.tab == 'cebuanna'" class="q-ma-sm col"  outlined v-model="accountNumber" dense label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
+                            <q-input dark v-show="this.tab == 'bank'" class="q-ma-sm col"  outlined v-model="accountBankNumber" dense label="Account Number" />
                         </div>
                         <div v-show="this.tab == 'bank'" >
                             <b class="col text-h6">Bank Name</b>
-                            <q-input class="q-ma-sm col" v-model="bankName" dense outlined style="width: 300px" />
+                            <q-input dark class="q-ma-sm col" v-model="bankName" dense outlined style="width: 300px" />
                         </div>  
                     </div>
                 </q-card-section>
@@ -93,7 +93,7 @@
             </q-card>
         </q-dialog>
         <q-dialog v-model="editDialog" persistent>
-            <q-card>
+            <q-card class="bg-secondary text-white">
                 <q-card-section>
                 <div class="text-h6">{{this.tab == 'gcash' ? 'Add G-Cash Account' : this.tab == 'bank' ? 'Add Bank Account' : 'Add Cebuanna Account'}}</div>
                 </q-card-section>
@@ -102,16 +102,16 @@
                     <div padding="none" class="col q-gutter-md">
                         <div >
                             <b class="col text-h6">{{this.tab == 'gcash' ? 'G-Cash Name' : this.tab == 'bank' ? 'Account Name' : "Receiver's Name"}}</b>
-                            <q-input class="q-ma-sm col" v-model="updateName" dense outlined style="width: 300px" />
+                            <q-input dark class="q-ma-sm col" v-model="updateName" dense outlined style="width: 300px" />
                         </div>
                         <div>
                             <b class="col text-h6">{{this.tab == 'gcash' ? 'G-Cash No.' : this.tab == 'cebuanna' ? "Receiver's No." : 'Account Number'}}</b>
-                            <q-input v-show="this.tab == 'gcash' || this.tab == 'cebuanna'" class="q-ma-sm col"  outlined v-model="updateNumber" dense label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
-                            <q-input v-show="this.tab == 'bank'" class="q-ma-sm col"  outlined v-model="updateBankNumber" dense label="Account Number" />
+                            <q-input dark v-show="this.tab == 'gcash' || this.tab == 'cebuanna'" class="q-ma-sm col"  outlined v-model="updateNumber" dense label="Phone" mask="(####) ### - ####" hint="Mask: (####) ### - ####" />
+                            <q-input dark v-show="this.tab == 'bank'" class="q-ma-sm col"  outlined v-model="updateBankNumber" dense label="Account Number" />
                         </div>
                         <div v-show="this.tab == 'bank'" >
                             <b class="col text-h6">Bank Name</b>
-                            <q-input class="q-ma-sm col" v-model="updateBankName" dense outlined style="width: 300px" />
+                            <q-input dark class="q-ma-sm col" v-model="updateBankName" dense outlined style="width: 300px" />
                         </div>  
                     </div>
                 </q-card-section>
@@ -355,6 +355,7 @@ export default {
           this.$q.dialog({
             title: 'Delete Account',
             message: 'Delete This Account?',
+            dark: true,
             ok: 'Yes',
             cancel: 'Cancel'
             }).onOk(() => { 

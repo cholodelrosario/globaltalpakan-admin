@@ -1,8 +1,8 @@
 <template>
-    <q-page padding>
+    <q-page padding class="bg-dark text-white">
         <q-table grid :data="GamesCategory" :columns="columns" :filter="filter" class="full-width align-center " row-key=".key">
             <template v-slot:top-right>
-                <q-input bordered dense outlined debounce="300" v-model="filter" placeholder="Search">
+                <q-input bordered dense outlined debounce="300" dark v-model="filter" placeholder="Search">
                 <template v-slot:append>
                     <q-icon name="search" />
                 </template>
@@ -11,7 +11,7 @@
             <template v-slot:item="props">
                 
                 <div class="q-pa-xs col-sm-6 col-md-4 grid-style-transition">
-                    <q-card class="my-card" >
+                    <q-card class="my-card bg-secondary text-white" >
                         <div class="col-12">
                             <q-card-section>
                                 <div class="col-6 flex flex-center">
@@ -23,13 +23,13 @@
                                     <b>{{props.row.games}}</b>
                                 </div>
                                 <div class="q-pa-md row col-12 q-gutter-md flex flex-center">
-                                    <div class="col-5">
-                                        <q-btn style="width: 99px" color="accent" icon="mdi-pencil" @click="openEditDialog(props.row)">
+                                    <div class="col-5 flex flex-center">
+                                        <q-btn style="width: 99px" flat color="grey" icon="mdi-pencil" @click="openEditDialog(props.row)">
                                             <q-tooltip> Edit Games </q-tooltip>  
                                         </q-btn>
                                     </div>
-                                    <div class="col-5">
-                                        <q-btn style="width: 99px" icon="delete" color="negative" @click="openDeleteDialog(props.row)">
+                                    <div class="col-5 flex flex-center">
+                                        <q-btn style="width: 99px" flat icon="delete" color="grey" @click="openDeleteDialog(props.row)">
                                             <q-tooltip> Delete Games </q-tooltip>
                                         </q-btn>
                                     </div>
@@ -43,22 +43,22 @@
 
         <!--FLOATING BUTTON-->
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
-                <q-btn fab icon="add" color="accent" @click="addGamesDialog = true" />
+                <q-btn fab icon="add" color="primary" @click="addGamesDialog = true" />
                 <q-tooltip>
                     Add Games
                 </q-tooltip>
         </q-page-sticky>
         <!--dialog-->
         <q-dialog v-model="addGamesDialog" persistent>
-            <q-card style="min-width: 400px">
+            <q-card class="bg-secondary text-white" style="min-width: 400px">
                 <q-card-section>
                     <div class="text-h6">New Games</div>
                 </q-card-section>
 
                 <q-card-section>
-                    <q-input class="q-ma-sm" outlined v-model="gamesName" label="Games"/>
+                    <q-input dark class="q-ma-sm" outlined v-model="gamesName" label="Games"/>
                     <q-img class="q-pa-sm" style="border: 2px solid;border-color: #ffc400;" :src="siteUrl" :ratio="4/3" />
-                    <q-input class="q-ma-sm" outlined v-model="siteUrl" label="Enter Img Url."/>
+                    <q-input dark class="q-ma-sm" outlined v-model="siteUrl" label="Enter Img Url."/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -69,15 +69,15 @@
         </q-dialog>
             <!--Modal for upadate-->
         <q-dialog v-model="editDialog">
-            <q-card style="min-width: 400px">
+            <q-card class="bg-secondary text-white" style="min-width: 400px">
                 <q-card-section>
                     <div class="text-h6">Edit Games</div>
                 </q-card-section>
 
                 <q-card-section>
-                    <q-input class="q-ma-sm" outlined v-model="updateGames" label="Games"/>
+                    <q-input dark class="q-ma-sm" outlined v-model="updateGames" label="Games"/>
                     <q-img class="q-pa-sm" style="border: 2px solid;border-color: #ffc400;" :src="updateLink" :ratio="4/3" />
-                    <q-input class="q-ma-sm" outlined v-model="updateLink" label="Enter Img Url."/>
+                    <q-input dark class="q-ma-sm" outlined v-model="updateLink" label="Enter Img Url."/>
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
@@ -153,6 +153,7 @@ export default {
           this.$q.dialog({
             title: 'Delete Games',
             message: 'Delete This Games?',
+            dark: true,
             ok: 'Yes',
             cancel: 'Cancel'
             }).onOk(() => { 
