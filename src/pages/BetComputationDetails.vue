@@ -272,11 +272,14 @@ export default {
                 await this.saveMasterAgentCommission()
         
                 await this.updateStatusEndGameProcessed()
-   
+
+                await this.updateAllBetHistory()
             })
         },
         saveWinnings(){
             let winnings = this.returnWinningAccounts
+            let endgames = {...this.EndGames}
+            delete endgames['.key']
             winnings.forEach(a=>{
                 let winningOBJ = {
                     scheduleKey: this.EndGames['.key'],
@@ -285,7 +288,8 @@ export default {
                     from: this.$store.getters['useraccount/isAuthenticated'],
                     to: {...a.Player,accountID: a.accountID},
                     timestamp: new Date(),
-                    accountID: a.accountID
+                    accountID: a.accountID,
+                    gameSchedule: endgames
                 }        
 
                 let credit = a.totalWinnings
@@ -299,6 +303,9 @@ export default {
             let commission = this.returnAgentCommission.filter(a=>{
                     return a.Agent !== null
                 })
+
+            let endgames = {...this.EndGames}
+            delete endgames['.key']
             
             commission.forEach(a=>{
                 let commissionOBJ = {
@@ -308,7 +315,11 @@ export default {
                     from: this.$store.getters['useraccount/isAuthenticated'],
                     to: {...a.Agent,accountID: a.agentKey},
                     timestamp: new Date(),
-                    accountID: a.agentKey
+                    accountID: a.agentKey,
+                    Player: a.Player,
+                    PlayerNamePhone: a.PlayerNamePhone,
+                    PlayerBet: a.totalBets,
+                    gameSchedule: endgames
                 }
                 
                 console.log(commissionOBJ,'saveAgentCommission')
@@ -324,6 +335,9 @@ export default {
             let commission = this.returnAgentCommission.filter(a=>{
                     return a.MasterAgent !== null
                 })
+
+            let endgames = {...this.EndGames}
+            delete endgames['.key']
             
             commission.forEach(a=>{
                 let commissionOBJ = {
@@ -333,7 +347,11 @@ export default {
                     from: this.$store.getters['useraccount/isAuthenticated'],
                     to: {...a.MasterAgent,accountID: a.masterAgentKey},
                     timestamp: new Date(),
-                    accountID: a.masterAgentKey
+                    accountID: a.masterAgentKey,
+                    Player: a.Player,
+                    PlayerNamePhone: a.PlayerNamePhone,
+                    PlayerBet: a.totalBets,
+                    gameSchedule: endgames
                 }
                 console.log(commissionOBJ,'saveMasterAgentCommission')
 
@@ -388,6 +406,34 @@ export default {
             } catch (error) {
                 console.log(error,'error')
                 console.log('%c ERROR_UPDATE_ENDGAME_PROCESSED','background: #D50000; color: #fff')
+            }               
+        },
+        async updateAllBetHistory(){
+            let teambets = this.TeamGameAccountBets
+            let winTeam = this.EndGames.winningTeam
+            
+            teambets.forEach(a=>{
+                let winOdds = a.teamColor == 'RED' ? this.EndGames.endingOddBets.teamRed.odds : this.EndGames.endingOddBets.teamBlue.odds
+                if(a.teamColor == winTeam){
+                    this.updateWinInTeamGameAccount(a['.key'],'WIN',winOdds)
+                } else {
+                    this.updateWinInTeamGameAccount(a['.key'],'LOSE',winOdds)
+                }
+            })
+        },
+        async updateWinInTeamGameAccount(key,status,odds){
+            try {
+                const response = await firebaseDb.collection('TeamGameAccountBets').doc(key).get()
+                if (response && response.exists){
+                        await response.ref.update({ betStatus: status, endingOdds: odds });
+                } else {
+                    console.log('NO DOCUMENT TO UPDATE - TEAMGAMEACCOUNT')
+                }
+                      
+                if(response) { console.log('%c SUCCESS_TEAMGAMEACCOUNT_PROCESSED','background: #222; color: #bada55') }
+            } catch (error) {
+                console.log(error,'error')
+                console.log('%c ERROR_TEAMGAMEACCOUNT_PROCESSED','background: #D50000; color: #fff')
             }               
         }
     }
