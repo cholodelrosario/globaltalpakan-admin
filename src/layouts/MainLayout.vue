@@ -123,9 +123,8 @@
           header
           class="text-grey-8"
         >
-          File Maintenance
+          Request
         </q-item-label>
-        
         <q-item clickable v-ripple to="/credits" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="money" />
@@ -139,9 +138,25 @@
             <q-avatar color="grey-1" text-color="dark" icon="request_page" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Withdrawal</q-item-label>
+            <q-item-label class="text-weight-bold">Withdrawal Request</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable v-ripple to="/convertion-request" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="request_page" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">Convertion Request</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-separator inset  />
+        <q-item-label
+          header
+          class="text-grey-8"
+        >
+          File Maintenance
+        </q-item-label>
+        
         <q-item clickable v-ripple to="/games" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="money" />

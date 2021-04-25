@@ -182,11 +182,14 @@ export default {
                     return m['.key'] == recieverID
             })
             let currentCredits = credits[0].creditsAmount
+            let currentCommission = credits[0].commisionBalance
+            console.log(currentCommission, 'currentCommission')
             let total = parseFloat(currentCredits) + parseFloat(this.amount)
             console.log(credits, 'current')
             console.log(this.amount, 'amount')
             var addCreditsBago = {
-                creditsAmount: total
+                creditsAmount: total,
+                commisionBalance: currentCommission
             }
             if(this.amount === '' || this.amount === 0){
                 this.$q.dialog({

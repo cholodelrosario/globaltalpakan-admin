@@ -23,6 +23,7 @@ const routes = [
       { path: '/gcashbank', component: () => import('pages/GcashBank.vue') },
       { path: '/withdrawal', component: () => import('pages/Withdrawal.vue') },
       { path: '/team', component: () => import('pages/Team.vue') },
+      { path: '/convertion-request', component: () => import('pages/ConvertionRequest.vue') },
       { path: '/live-games', component: () => import('pages/LiveGames.vue') },
       { path: '/live-games/:code/:schedule', component: () => import('pages/LiveGameDetails.vue') },
       { path: '/bet-computations/:code/:schedule', component: () => import('pages/BetComputationDetails.vue') },

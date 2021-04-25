@@ -26,6 +26,7 @@
 export default {
     data(){
         return{
+            masterAgentComms: [],
             CommissionHistory: [],
             fromdate:  '',
             todate:  '',
@@ -59,9 +60,14 @@ export default {
         }
     },
     mounted() {
+        this.$db.collection('TeamGameAccountBets').where('gameKey',"==",this.$route.params.schedule),
         this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
             .then(MasterAgents => {
             console.log(MasterAgents, 'MasterAgents')
+        })
+        this.$binding('masterAgentComms', this.$db.collection('CommissionHistory').where('to.masteragentKey',"==",undefined))
+            .then(masterAgentComms => {
+            console.log(masterAgentComms, 'masterAgentComms')
         })
         this.$binding('CommissionHistory', this.$db.collection('CommissionHistory'))
             .then(CommissionHistory => {
