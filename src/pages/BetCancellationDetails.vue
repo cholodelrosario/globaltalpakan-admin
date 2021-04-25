@@ -210,6 +210,7 @@ export default {
             }).onOk(async ()=> {
                 await this.saveRefunds()      
                 await this.updateStatusEndGameProcessed()
+                await this.updateAllBetHistory()
    
             })
         },
@@ -261,6 +262,31 @@ export default {
             } catch (error) {
                 console.log(error,'error')
                 console.log('%c ERROR_UPDATE_ENDGAME_PROCESSED','background: #D50000; color: #fff')
+            }               
+        },
+
+        async updateAllBetHistory(){
+            let teambets = this.TeamGameAccountBets
+            
+            teambets.forEach(a=>{
+                let winOdds = a.teamColor == 'RED' ? this.CancelledGames.endingOddBets.teamRed.odds : this.CancelledGames.endingOddBets.teamBlue.odds
+                this.updateWinInTeamGameAccount(a['.key'],'CANCELLED',winOdds)
+            })
+        },
+
+        async updateWinInTeamGameAccount(key,status,odds){
+            try {
+                const response = await firebaseDb.collection('TeamGameAccountBets').doc(key).get()
+                if (response && response.exists){
+                        await response.ref.update({ betStatus: status, endingOdds: odds });
+                } else {
+                    console.log('NO DOCUMENT TO UPDATE - TEAMGAMEACCOUNT')
+                }
+                      
+                if(response) { console.log('%c SUCCESS_TEAMGAMEACCOUNT_PROCESSED','background: #222; color: #bada55') }
+            } catch (error) {
+                console.log(error,'error')
+                console.log('%c ERROR_TEAMGAMEACCOUNT_PROCESSED','background: #D50000; color: #fff')
             }               
         }
     }

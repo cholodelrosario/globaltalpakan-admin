@@ -452,11 +452,11 @@ export default {
             let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
             options.endingOddBets = {
                 teamRed: {
-                    odds: oddsRed,
+                    odds: oddsRed.toFixed(2),
                     totalBets: options.totalRed,
                 },
                 teamBlue: {
-                    odds: oddsBlue,
+                    odds: oddsBlue.toFixed(2),
                     totalBets: options.totalBlue,
                 }
             }
@@ -508,11 +508,11 @@ export default {
             let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
             options.endingOddBets = {
                 teamRed: {
-                    odds: oddsRed,
+                    odds: oddsRed.toFixed(2),
                     totalBets: options.totalRed,
                 },
                 teamBlue: {
-                    odds: oddsBlue,
+                    odds: oddsBlue.toFixed(2),
                     totalBets: options.totalBlue,
                 }
             }
@@ -634,7 +634,7 @@ export default {
         async updateTrends(teamColorStatus,gameCategoryKey,scheduleKey){
             let self = this
             let document = await this.$db.collection(`TrendsHistory`).doc(gameCategoryKey).get();
-            if (document && document.exists) {
+            if (document && document.s) {
                 await self.getTrendsHistory(gameCategoryKey);
 
                 let trends = [...self.TrendsHistory.trends]
