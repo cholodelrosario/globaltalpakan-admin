@@ -89,6 +89,7 @@
 </template>
 <script>
 import { firebase,firebaseAuth,firebaseApp,firebaseDb,firefirestore } from 'boot/firebase'
+import { date } from 'quasar'
 export default {
     data(){
         return { 
@@ -270,6 +271,8 @@ export default {
                 await this.saveAgentCommission()
     
                 await this.saveMasterAgentCommission()
+
+                await this.groupAgentCommisions()
         
                 await this.updateStatusEndGameProcessed()
 
@@ -436,6 +439,113 @@ export default {
                 console.log(error,'error')
                 console.log('%c ERROR_TEAMGAMEACCOUNT_PROCESSED','background: #D50000; color: #fff')
             }               
+        },
+
+        async groupAgentCommisions(){
+
+            let agents = this.$lodash.groupBy(this.returnAgentCommission,'AgentKey')
+            let master = this.$lodash.groupBy(this.returnAgentCommission,'MasterKey')
+
+            let agentData = this.$lodash.map(agents,(value,key)=>{
+
+                let sum  = this.$lodash.sumBy(value,'AgentCommission')
+                return {
+                    accountID: key,
+                    history: value,
+                    totalCommission: sum,
+                }
+            })
+
+            let masterData = this.$lodash.map(master,(value,key)=>{
+
+                let sum  = this.$lodash.sumBy(value,'MasterCommission')
+
+                return {
+                    accountID: key,
+                    history: value,
+                    totalCommission: sum
+                }
+            })
+
+            let concat = [...agentData,...masterData]
+
+            concat.forEach(a=>{
+                this.updateMTDHistory(a.totalCommission,a.accountID)
+                this.updateTotalMTD(a.totalCommission,a.accountID)
+            })
+
+
+        },
+        async updateTotalMTD(amount,accountID){
+
+            let sample = date.addToDate(new Date(), { days: 38})
+            let monthYear = date.formatDate(sample,'MM-YYYY');
+
+            // let monthYear = date.formatDate(new Date(),'MM-YYYY');
+            let key = monthYear+'-'+accountID
+            const increment = firebase.firestore.FieldValue.increment(amount);
+            try {
+                const response = await firebaseDb.collection('TotalMonthYearMTD').doc(key).get()
+                if (response && response.exists){
+                    //
+                    console.log('code runs update')
+                        await response.ref.update({ 
+                            MTD: increment,
+                            accountID: accountID,
+                            monthYear: monthYear,
+                            lastUpdated: new Date(),
+                            lastUpdateBy: this.$store.getters['useraccount/isAuthenticated']                            
+                         });
+                         return
+                } else {
+                    await response.ref.set({
+                        MTD: amount,
+                        accountID: accountID,
+                        monthYear: monthYear,
+                        lastUpdated: new Date(),
+                        lastUpdateBy: this.$store.getters['useraccount/isAuthenticated']
+                    })
+                }
+                      
+                if(response) { console.log('%c SUCCESS_TOTALMTD_UPDATED','background: #222; color: #bada55') }
+            } catch (error) {
+                console.log(error,'error')
+                console.log('%c ERROR_TOTALMTD_UPDATED','background: #D50000; color: #fff')
+            }  
+        },
+        async updateMTDHistory(amount,accountID){
+
+            const increment = firebase.firestore.FieldValue.increment(amount);
+            let sample = date.addToDate(new Date(), { days: 38})
+            let guideDate = date.formatDate(sample,'MM-DD-YYYY');
+            // let guideDate = date.formatDate(new Date(),'MM-DD-YYYY');
+            let key = guideDate+'-'+accountID
+
+            try {
+                const response = await firebaseDb.collection('MTDHistory').doc(key).get()
+                if (response && response.exists){
+                        await response.ref.update({ 
+                            totalCommission: increment,
+                            lastUpdated: new Date(),
+                            lastUpdateBy: this.$store.getters['useraccount/isAuthenticated'],                      
+                         });
+                         return
+                } else {
+
+                    await response.ref.set({
+                        totalCommission: amount,
+                        accountID: accountID,
+                        guideDate: guideDate,
+                        lastUpdated: new Date(),
+                        lastUpdateBy: this.$store.getters['useraccount/isAuthenticated']
+                    })
+                }
+                      
+                if(response) { console.log('%c SUCCESS_MTDHISTORY_UPDATED','background: #222; color: #bada55') }
+            } catch (error) {
+                console.log(error,'error')
+                console.log('%c ERROR_MTDHISTORY_UPDATED','background: #D50000; color: #fff')
+            }  
         }
     }
 }
