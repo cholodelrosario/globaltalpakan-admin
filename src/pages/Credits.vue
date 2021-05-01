@@ -181,8 +181,8 @@ export default {
             let credits = this.$lodash.filter(this.Wallet, m => {
                     return m['.key'] == recieverID
             })
-            let currentCredits = credits[0].creditsAmount
-            let currentCommission = credits[0].commisionBalance
+            let currentCredits = credits[0].creditsAmount || 0
+            let currentCommission = credits[0].commisionBalance || 0
             console.log(currentCommission, 'currentCommission')
             let total = parseFloat(currentCredits) + parseFloat(this.amount)
             console.log(credits, 'current')
