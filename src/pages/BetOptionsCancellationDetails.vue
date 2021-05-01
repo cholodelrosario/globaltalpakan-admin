@@ -29,11 +29,11 @@
             <div class="row q-pa-none">
 
                 <div class="col " :class="CancelledGames.winningTeam == 'BLUE' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                    <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamBlue.totalBets}} / {{CancelledGames.endingOddBets.teamBlue.odds.toFixed(2)}}</div>              
+                    <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamBlue.totalBets}} / {{CancelledGames.endingOddBets.teamBlue.odds}}</div>              
                 </div>
 
                 <div class="col " :class="CancelledGames.winningTeam == 'RED' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamRed.totalBets}} / {{CancelledGames.endingOddBets.teamRed.odds.toFixed(2)}}</div>
+                <div class="text-subtitle1 text-center">₱ {{CancelledGames.endingOddBets.teamRed.totalBets}} / {{CancelledGames.endingOddBets.teamRed.odds}}</div>
                 </div>
 
             </div> 

@@ -1,6 +1,6 @@
 <template>
     <q-page class="bg-dark text-white">
-        <q-card class="bg-secondary q-pa-md">
+        <q-card class="bg-secondary q-pa-md" v-show="EndGames.length !== 0">
             <q-card-section class="text-center">
                 <b><b class="text-h6">{{EndGames.name}}</b></b>
             </q-card-section>
@@ -26,14 +26,14 @@
             
 
             </q-card-section>
-            <div class="row q-pa-none">
+            <div class="row q-pa-none" v-show="EndGames.length !== 0">
 
                 <div class="col " :class="EndGames.winningTeam == 'BLUE' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                    <div class="text-subtitle1 text-center">₱ {{EndGames.endingOddBets.teamBlue.totalBets}} / {{EndGames.endingOddBets.teamBlue.odds.toFixed(2)}}</div>              
+                    <div class="text-subtitle1 text-center"  v-if="EndGames.endingOddBets.teamBlue">₱ {{EndGames.endingOddBets.teamBlue.totalBets}} / {{EndGames.endingOddBets.teamBlue.odds ? EndGames.endingOddBets.teamBlue.odds : 0}}</div>              
                 </div>
 
                 <div class="col " :class="EndGames.winningTeam == 'RED' ? 'bg-primary text-black text-weight-bold' : 'bg-grey-8 text-center'">
-                <div class="text-subtitle1 text-center">₱ {{EndGames.endingOddBets.teamRed.totalBets}} / {{EndGames.endingOddBets.teamRed.odds.toFixed(2)}}</div>
+                <div class="text-subtitle1 text-center" v-if="EndGames.endingOddBets.teamRed">₱ {{EndGames.endingOddBets.teamRed.totalBets}} / {{EndGames.endingOddBets.teamRed.odds ?  EndGames.endingOddBets.teamRed.odds : 0}}</div>
                 </div>
 
             </div> 
@@ -155,7 +155,7 @@ export default {
         },
         returnWinningAccounts(){
             let winTeam = this.EndGames.winningTeam
-            let winOdds = winTeam == 'RED' ? this.EndGames.endingOddBets.teamRed.odds : this.EndGames.endingOddBets.teamBlue.odds
+            let winOdds = winTeam == 'RED' && this.EndGames ? this.EndGames.endingOddBets.teamRed.odds : this.EndGames.endingOddBets.teamBlue.odds
             let filterWins = this.TeamGameAccountBets.filter(a=>{
                 return a.teamColor == winTeam
             })
