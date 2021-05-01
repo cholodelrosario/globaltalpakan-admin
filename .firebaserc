@@ -12,6 +12,13 @@
           "globaltalpakan-admin"
         ]
       }
+    },
+    "globaltalpakandev": {
+      "hosting": {
+        "admin": [
+          "globaltalpakandev-admin"
+        ]
+      }
     }
   }
 }
