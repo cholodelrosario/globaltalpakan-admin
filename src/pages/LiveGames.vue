@@ -118,6 +118,7 @@
 
 <script>
 import { date } from 'quasar'
+import { firebase } from 'boot/firebase'
 export default {
     methods:{
         gameStats(data) {
@@ -209,7 +210,14 @@ export default {
             data.scheduleKey = key
 			delete data.__index
 			delete data['.key']
-            console.log('user', data)
+            console.log('for live', data)
+            // let document = await firebase.firestore().collection("TrendsHistory").doc(data.gameKey).get();
+            // console.log(document,'checkForTrends')
+            if (document && document.exists && document.data().trends !== undefined) {
+                // console.log('code go thru here')
+                data.trends = document.data().trends
+            }
+            // console.log(data,'data')
                 await this.$db.collection('ScheduledGames').doc(key).update({showedLive: true})
                 await this.$db.collection('LiveGames').doc(data.gameKey).set(data)
                 this.$q.notify({
@@ -225,6 +233,12 @@ export default {
             this.viewBetOptions = array
             this.betOptionsDialog = true
             console.log('code co true')
+        },
+        async checkForTrends(categoryKey){
+            await this.$binding('TrendsHistory', this.$db.collection('TrendsHistory').doc(categoryKey))
+                .then(TrendsHistory => {
+                    console.log(TrendsHistory, 'TrendsHistory')
+            })
         },
         openDeleteDialog (task) {
           var id = task['.key']
@@ -445,6 +459,7 @@ export default {
             selectTeamOne: '',
             schedDialog: false,
             betOptionsDialog: false,
+            TrendsHistory: null,
         }
     },
     mounted () {

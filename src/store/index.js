@@ -15,18 +15,46 @@ Vue.use(Vuex)
  * with the Store instance.
  */
 
-export default function (/* { ssrContext } */) {
-  const Store = new Vuex.Store({
-    modules: {
-      // example
-      sms,
-      useraccount
-    },
-    plugins: [createPersistedState()],
-    // enable strict mode (adds overhead!)
-    // for dev mode only
-    strict: process.env.DEBUGGING
-  })
+// export default function (/* { ssrContext } */) {
+//   const Store = new Vuex.Store({
+//     modules: {
+//       // example
+//       sms,
+//       useraccount
+//     },
+//     plugins: [createPersistedState()],
+//     // enable strict mode (adds overhead!)
+//     // for dev mode only
+//     strict: process.env.DEBUGGING
+//   })
 
-  return Store
+//   return Store
+// }
+
+const Store = new Vuex.Store({
+  modules: {
+    // example
+    sms,
+    useraccount
+  },
+  plugins: [createPersistedState()],
+
+  // enable strict mode (adds overhead!)
+  // for dev mode only
+  // strict: process.env.DEV
+})
+
+if (process.env.DEV && module.hot) {
+  module.hot.accept(['./useraccount'], () => {
+    const newuseraccount = require('./useraccount').default
+    const newsms = require('./sms').default
+    Store.hotUpdate({ 
+      modules: { 
+        notification: newsms,
+        useraccount: newuseraccount,
+       },
+    })
+  })
 }
+
+export default Store;

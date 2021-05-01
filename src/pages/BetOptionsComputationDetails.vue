@@ -266,6 +266,8 @@ export default {
                     flat: true,
                 }
             }).onOk(async ()=> {
+                
+
                 await this.saveWinnings()
 
                 await this.saveAgentCommission()
@@ -273,6 +275,8 @@ export default {
                 await this.saveMasterAgentCommission()
 
                 await this.groupAgentCommisions()
+
+                await this.groupPlayerAgentCommisions();
         
                 await this.updateStatusEndGameProcessed()
 
@@ -446,6 +450,7 @@ export default {
             let agents = this.$lodash.groupBy(this.returnAgentCommission,'AgentKey')
             let master = this.$lodash.groupBy(this.returnAgentCommission,'MasterKey')
 
+
             let agentData = this.$lodash.map(agents,(value,key)=>{
 
                 let sum  = this.$lodash.sumBy(value,'AgentCommission')
@@ -476,12 +481,35 @@ export default {
 
 
         },
+        async groupPlayerAgentCommisions(){
+            let agents = this.$lodash.groupBy(this.returnAgentCommission, a=>{
+                return a.AgentKey +'-'+ a.accountID //Player
+            })
+
+            let agentData = this.$lodash.map(agents,(value,key)=>{
+
+                let sum  = this.$lodash.sumBy(value,'AgentCommission')
+                return {
+                    playerID: value[0].accountID || null,
+                    agentID: value[0].agentKey || null,
+                    guideKey: key,
+                    history: value,
+                    totalCommission: sum,
+                }
+            })
+            console.log(agentData,'agents')
+            agentData.forEach(a=>{
+                this.updatePlayerAgentMTD(a.totalCommission,a.guideKey,a.agentID,a.playerID)
+            })
+
+        },
+
         async updateTotalMTD(amount,accountID){
 
-            let sample = date.addToDate(new Date(), { days: 38})
-            let monthYear = date.formatDate(sample,'MM-YYYY');
+            // let sample = date.addToDate(new Date(), { days: 38})
+            // let monthYear = date.formatDate(sample,'MM-YYYY');
 
-            // let monthYear = date.formatDate(new Date(),'MM-YYYY');
+            let monthYear = date.formatDate(new Date(),'MM-YYYY');
             let key = monthYear+'-'+accountID
             const increment = firebase.firestore.FieldValue.increment(amount);
             try {
@@ -516,9 +544,9 @@ export default {
         async updateMTDHistory(amount,accountID){
 
             const increment = firebase.firestore.FieldValue.increment(amount);
-            let sample = date.addToDate(new Date(), { days: 38})
-            let guideDate = date.formatDate(sample,'MM-DD-YYYY');
-            // let guideDate = date.formatDate(new Date(),'MM-DD-YYYY');
+            // let sample = date.addToDate(new Date(), { days: 38})
+            // let guideDate = date.formatDate(sample,'MM-DD-YYYY');
+            let guideDate = date.formatDate(new Date(),'MM-DD-YYYY');
             let key = guideDate+'-'+accountID
 
             try {
@@ -545,6 +573,38 @@ export default {
             } catch (error) {
                 console.log(error,'error')
                 console.log('%c ERROR_MTDHISTORY_UPDATED','background: #D50000; color: #fff')
+            }  
+        },
+        async updatePlayerAgentMTD(commission,agentplayerID,agentID,playerID){
+            const increment = firebase.firestore.FieldValue.increment(commission);
+            let monthYear = date.formatDate(new Date(),'MM-YYYY');
+            let key = monthYear+'-'+agentplayerID
+
+            try {
+                const response = await firebaseDb.collection('PlayerAgentMTD').doc(key).get()
+                if (response && response.exists){
+                        await response.ref.update({ 
+                            MTDCommission: increment,
+                            lastUpdated: new Date(),
+                            lastUpdateBy: this.$store.getters['useraccount/isAuthenticated'],                      
+                         });
+                         return
+                } else {
+
+                    await response.ref.set({
+                        MTDCommission: commission,
+                        agentID: agentID,
+                        playerID: playerID,
+                        monthYear: monthYear,
+                        lastUpdated: new Date(),
+                        lastUpdateBy: this.$store.getters['useraccount/isAuthenticated']
+                    })
+                }
+                      
+                if(response) { console.log('%c SUCCESS_PLAYERAGENTMTD_UPDATED','background: #222; color: #bada55') }
+            } catch (error) {
+                console.log(error,'error')
+                console.log('%c ERROR_PLAYERAGENTMTD_UPDATED','background: #D50000; color: #fff')
             }  
         }
     }
