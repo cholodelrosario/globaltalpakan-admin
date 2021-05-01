@@ -291,7 +291,7 @@ export default {
         await this.$store.dispatch('sms/sendSMS',{number: mobile, message: message})
         .then(()=>{
             this.$q.dialog({
-                title: `Account Details Sent`,
+                title: `Account Details Sent . use this password - ${password}`,
                 persistent: true,
             })
         }).catch(err=>{
