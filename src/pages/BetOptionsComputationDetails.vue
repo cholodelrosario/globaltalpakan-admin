@@ -182,6 +182,28 @@ export default {
             console.log(map,'map')
             return map
         },
+        returnLosingAccounts(){
+            let winTeam = this.EndGames.winningTeam
+            let filterLose = this.TeamGameAccountBets.filter(a=>{
+                return a.teamColor !== winTeam
+            })
+
+
+            let map = filterLose.map(a=>{
+                let player = a.accountID !== null ?  this.getAccountDetails(a.accountID,'Player') : null
+                return {
+                    ...a,
+                    totalLose: a.totalBets,
+                    Player: player,
+                    PlayerName: player.accountName,
+                    AccountPhone: player.accountPhone,
+                }
+            })
+
+            console.log(map,'map')
+            return map
+
+        },
         returnAgentCommission(){
             let filter = this.TeamGameAccountBets
 
@@ -270,6 +292,8 @@ export default {
 
                 await this.saveWinnings()
 
+                await this.saveLoseNotifs()
+
                 await this.saveAgentCommission()
     
                 await this.saveMasterAgentCommission()
@@ -304,8 +328,19 @@ export default {
                 let id = a.accountID
                 this.saveWinningsHistory(winningOBJ)
                 this.addCredits(credit,id)
+                this.AddGameNotifs(true,'WIN',id,credit,null,this.EndGames.winningTeam,this.EndGames)
 
             })
+        },
+        saveLoseNotifs(){
+            let losings = this.returnLosingAccounts
+
+            losings.forEach(a=>{
+                let credit = a.totalLose
+                let id = a.accountID
+                this.AddGameNotifs(true,'LOSE',id,credit,null,this.EndGames.winningTeam,this.EndGames)
+            })
+
         },
         saveAgentCommission(){
             let commission = this.returnAgentCommission.filter(a=>{
@@ -606,6 +641,9 @@ export default {
                 console.log(error,'error')
                 console.log('%c ERROR_PLAYERAGENTMTD_UPDATED','background: #D50000; color: #fff')
             }  
+        },
+        async AddGameNotifs(ifOptions = null,status = null,playerKey = null,amount = 0,teamWinnner = null,teamWinnerColor = null,selectedOptions = null){
+            await this.$store.dispatch('gameNotifications/addGamePlayerNotification',{status,ifOptions,playerKey,amount,teamWinnner,teamWinnerColor,selectedOptions})
         }
     }
 }
