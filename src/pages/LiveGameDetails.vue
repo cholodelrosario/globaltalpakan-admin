@@ -45,7 +45,7 @@
         </div>
             <!-- <q-separator  dark /> -->
             <q-card-actions align="center" >
-                <q-btn v-if="LiveGames.status !== 'CANCELLED' && LiveGames.status !== 'ENDGAME'" flat color="grey" label="Update Game Status" @click="confirm = true,selectedStatus = LiveGames.status"/>
+                <q-btn v-if="LiveGames.status !== 'CANCELLED' && LiveGames.status !== 'ENDGAME'" flat color="grey" label="Update Game Status" @click="confirm = true,selectedStatus = LiveGames.status,selectedOptionsKey = null,selectedOptions = null"/>
                 <q-btn v-else-if="LiveGames.status == 'CANCELLED'" flat color="warning" label="Compute Bet Returns" icon="cancel_presentation" @click="$router.push(`/bet-cancellation/${$route.params.code}/${$route.params.schedule}`)">
                     <q-badge color="white" floating transparent text-color="black"><q-icon size="xs" name="next_plan"/>
                     </q-badge>
@@ -402,6 +402,7 @@ export default {
                         await self.endGameOptionsRecords()
                         return
                     }
+                    await this.AddGameNotifs(true,status,null,null,this.selectedOptions)
                     await this.$db.collection(`BetOptionsLiveControl`).doc(optionskey).update({status: status})
                     return
                 }               
@@ -423,6 +424,8 @@ export default {
                     return
                 }
 
+
+                await this.AddGameNotifs(false,status)
                 await this.$db.collection(`LiveGames`).doc(this.$route.params.code).update({status: status})
             })
         },
@@ -485,17 +488,20 @@ export default {
             }).onOk(async (DATA)=> {     
                 options.winningTeam = DATA
                 options.dateEnded = new Date()
-                await this.saveOptionsEndedGame(options)
-                this.$q.dialog({
-                    title: `GAME BETOPTIONS ENDED SUCCESS`,
-                    message: 'You can now compute for the winnings and commissions of players and agents.',
-                    color: 'grey',
-                    textColor: 'white',
-                    persistent: true,
-                    icon: 'warning',
-                    dark: true,
-                    ok: 'Ok'
-                })  
+                await this.saveOptionsEndedGame(options).then(async ()=>{
+                    await this.AddGameNotifs(true,'ENDGAME',null,options.winningTeam,this.selectedOptions)
+                    this.$q.dialog({
+                        title: `GAME BETOPTIONS ENDED SUCCESS`,
+                        message: 'You can now compute for the winnings and commissions of players and agents.',
+                        color: 'grey',
+                        textColor: 'white',
+                        persistent: true,
+                        icon: 'warning',
+                        dark: true,
+                        ok: 'Ok'
+                    })  
+                })
+                
             })
 
         },
@@ -550,19 +556,24 @@ export default {
             live.dateCancelled = new Date()
             delete live['.key']
             console.log(live,'live')
+
             await this.updateTrends('CANCELLED',live.gameKey,live.scheduleKey)
             .then(async ()=>{
-                await this.saveCancelledGame(live)   
-                this.$q.dialog({
-                    title: `GAME CANCELLED SUCCESS`,
-                    message: 'You can now compute for the refund bets of players for the main bet. Please also update status for the bet options. Thank you.',
-                    color: 'grey',
-                    textColor: 'white',
-                    persistent: true,
-                    icon: 'warning',
-                    dark: true,
-                    ok: 'Ok'
-                })  
+                await this.saveCancelledGame(live)
+                .then(async ()=>{
+                    await this.AddGameNotifs(false,'CANCELLED')
+                    this.$q.dialog({
+                        title: `GAME CANCELLED SUCCESS`,
+                        message: 'You can now compute for the refund bets of players for the main bet. Please also update status for the bet options. Thank you.',
+                        color: 'grey',
+                        textColor: 'white',
+                        persistent: true,
+                        icon: 'warning',
+                        dark: true,
+                        ok: 'Ok'
+                    })
+                }) 
+  
             })   
         },
         endGameRecords(){
@@ -612,7 +623,7 @@ export default {
                 .then(async ()=>{
                     await this.saveEndedGame(live)
                     .then(async ()=>{
-                        // await this.endAllBetOptions()
+                        await this.AddGameNotifs(false,'ENDGAME',null,live.winningTeam)
                         this.$q.dialog({
                             title: `GAME ENDED SUCCESS`,
                             message: 'You can now compute for the winnings and commissions of players and agents.',
@@ -695,7 +706,7 @@ export default {
             bet.status = 'ENDGAME'
             delete bet['.key']
             await this.$db.collection(`BetOptionsEndGames`).doc(options['.key']).set(bet)
-            .then(()=>{
+            .then( ()=>{
                 console.log('%c SUCCESS_SAVED_ENDGAME_OPTIONS','background: #222; color: #bada55') 
             }).catch(err=>{
                 console.log(err,'err')
@@ -703,10 +714,11 @@ export default {
         },
         async saveOptionsCancelledGame(options){
             let bet = {...options}
-            bet.status = 'ENDGAME'
+            bet.status = 'CANCELLED'
             delete bet['.key']
             await this.$db.collection(`BetOptionsCancelledGames`).doc(options['.key']).set(bet)
-            .then(()=>{
+            .then(async ()=>{
+                await this.AddGameNotifs(true,'CANCELLED',null,null,this.selectedOptions)
                 console.log('%c SUCCESS_SAVED_CANCELLEDGAME_OPTIONS','background: #222; color: #bada55') 
             }).catch(err=>{
                 console.log(err,'err')
@@ -723,7 +735,11 @@ export default {
                         options.status = 'ENDGAME'
                         delete options['.key']
                         await this.$db.collection(`BetOptionsEndGames`).doc(a['.key']).set(options)
-                        console.log('%c SUCCESS_BETOPTIONS_ENDGAME_SAVING','background: #222; color: #bada55')
+                        .then(async ()=>{
+                            await this.AddGameNotifs(true,'ENDGAME',null,null,this.selectedOptions)
+                            console.log('%c SUCCESS_BETOPTIONS_ENDGAME_SAVING','background: #222; color: #bada55')
+                        })
+                       
                     }).catch(err=>{
                         console.log(err,'BetOptionsLiveControl Update Error - End Game')
                     })
@@ -754,6 +770,9 @@ export default {
                 return true
             } 
             return false
+        },
+        async AddGameNotifs(ifOptions = null,status = null,teamWinnner = null,teamWinnerColor = null,selectedOptions = null){
+            await this.$store.dispatch('gameNotifications/addGameNotification',{status,ifOptions,teamWinnner,teamWinnerColor,selectedOptions})
         }
     }
 }

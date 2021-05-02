@@ -34,7 +34,7 @@
                     </q-card-section>
                     <q-separator  dark />
                     <q-card-actions align="center" v-show="live.length !== 0">
-                        <q-btn flat class="full-width" label="view Full Live Details" color="grey" @click="$router.push(`/live-games/${live.gameKey}/${live.scheduleKey}`)"/>
+                        <q-btn flat class="full-width" label="view Full Live Details" color="grey" @click="storeSelectedGame"/>
                     </q-card-actions>
                 </q-card>
             </div>
@@ -121,6 +121,9 @@ import { date } from 'quasar'
 import { firebase } from 'boot/firebase'
 export default {
     methods:{
+        created(){
+            
+        },
         gameStats(data) {
             this.$q.dialog({
                 title: data.gameStatus == false ? `Cancel This Game ??` : `Open This Game ??`,
@@ -345,6 +348,12 @@ export default {
             } else {
                 return 'green'
             }          
+        },
+        async storeSelectedGame(){
+            let liveGame = {...this.live}
+            delete liveGame['.key']
+            await this.$store.commit('gameNotifications/setSelectedGame', liveGame)
+            this.$router.push(`/live-games/${liveGame.gameKey}/${liveGame.scheduleKey}`)
         }
     },
     computed:{
@@ -463,6 +472,7 @@ export default {
         }
     },
     mounted () {
+        this.$store.commit('gameNotifications/unsetSelectedGame',null);
        this.$binding('GamesCategory', this.$db.collection('GamesCategory'))
         .then(GamesCategory => {
           console.log(GamesCategory, 'GamesCategory')

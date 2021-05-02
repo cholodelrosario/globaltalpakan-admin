@@ -126,7 +126,6 @@ export default {
 
           console.log(store)
 
-2
           self.$store.commit('useraccount/setDashboardUser', store)
           self.$router.push('/dashboard')
           // ...
