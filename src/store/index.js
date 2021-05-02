@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import createPersistedState from "vuex-persistedstate";
 import sms from './sms'
 import useraccount from './useraccount'
+import gameNotifications from './gameNotifications'
 
 Vue.use(Vuex)
 
@@ -35,7 +36,8 @@ const Store = new Vuex.Store({
   modules: {
     // example
     sms,
-    useraccount
+    useraccount,
+    gameNotifications
   },
   plugins: [createPersistedState()],
 
@@ -48,10 +50,12 @@ if (process.env.DEV && module.hot) {
   module.hot.accept(['./useraccount'], () => {
     const newuseraccount = require('./useraccount').default
     const newsms = require('./sms').default
+    const newgamenotifs = require('./gameNotifications').default
     Store.hotUpdate({ 
       modules: { 
         notification: newsms,
         useraccount: newuseraccount,
+        gameNotifications: newgamenotifs
        },
     })
   })

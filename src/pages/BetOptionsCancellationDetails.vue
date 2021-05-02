@@ -231,6 +231,7 @@ export default {
                 let id = a.accountID
                 this.saveRefundsHistory(winningOBJ)
                 this.refundCredits(credit,id)
+                this.AddGameNotifs(true,'REFUNDED',id,credit,null,null,this.CancelledGames)
 
             })
         },
@@ -288,6 +289,9 @@ export default {
                 console.log(error,'error')
                 console.log('%c ERROR_TEAMGAMEACCOUNT_PROCESSED','background: #D50000; color: #fff')
             }               
+        },
+        async AddGameNotifs(ifOptions = null,status = null,playerKey = null,amount = 0,teamWinnner = null,teamWinnerColor = null,selectedOptions = null){
+            await this.$store.dispatch('gameNotifications/addGamePlayerNotification',{status,ifOptions,playerKey,amount,teamWinnner,teamWinnerColor,selectedOptions})
         }
     }
 }
