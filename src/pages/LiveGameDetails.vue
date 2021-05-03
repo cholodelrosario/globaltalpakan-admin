@@ -30,7 +30,7 @@
                 <q-card-section>
                     <div class="col ">
                         <div class="text-h3">₱ {{MoneyBox.length !== 0 ? MoneyBox.totalBlue : 0}}</div>
-                        <div class="text-subtitle2">{{returnPayoutBlue.toFixed(2)}}</div>                
+                        <div class="text-subtitle2">{{returnPayoutBlue.toFixedNoRounding(2)}}</div>                
                     </div>
                 </q-card-section>
             </q-card>
@@ -38,7 +38,7 @@
             <q-card-section>
                 <div class="col">
                     <div class="text-h3">₱ {{MoneyBox.length !== 0  ? MoneyBox.totalRed : 0}}</div>
-                    <div class="text-subtitle2">{{returnPayoutRed.toFixed(2)}}</div>
+                    <div class="text-subtitle2">{{returnPayoutRed.toFixedNoRounding(2)}}</div>
                 </div>
             </q-card-section>
         </q-card>
@@ -106,7 +106,7 @@
                                         <q-card-section>
                                             <div class="col ">
                                                 <div class="text-h5">₱ {{props.row.totalBlue}}</div>
-                                                <div class="text-subtitle2">{{returnPayoutOption(props.row.totalBets,props.row.totalBlue).toFixed(2)}}</div>                
+                                                <div class="text-subtitle2">{{returnPayoutOption(props.row.totalBets,props.row.totalBlue).toFixedNoRounding(2)}}</div>                
                                             </div>
                                         </q-card-section>
                                     </q-card>
@@ -114,7 +114,7 @@
                                     <q-card-section>
                                         <div class="col">
                                             <div class="text-h5">₱ {{props.row.totalRed}}</div>
-                                            <div class="text-subtitle2">{{returnPayoutOption(props.row.totalBets,props.row.totalRed).toFixed(2)}}</div>
+                                            <div class="text-subtitle2">{{returnPayoutOption(props.row.totalBets,props.row.totalRed).toFixedNoRounding(2)}}</div>
                                         </div>
                                     </q-card-section>
                                 </q-card>
@@ -205,6 +205,16 @@
 </template>
 <script>
 import { firebase,firebaseAuth,firebaseApp,firebaseDb,firefirestore } from 'boot/firebase'
+Number.prototype.toFixedNoRounding = function(n) {
+    const reg = new RegExp("^-?\\d+(?:\\.\\d{0," + n + "})?", "g")
+    const a = this.toString().match(reg)[0];
+    const dot = a.indexOf(".");
+    if (dot === -1) { // integer, insert decimal dot and pad up zeros
+        return a + "." + "0".repeat(n);
+    }
+    const b = n - (a.length - dot) + 1;
+    return b > 0 ? (a + "0".repeat(b)) : a;
+}
 export default {
     data(){
         return { 
@@ -456,11 +466,11 @@ export default {
             let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
             options.endingOddBets = {
                 teamRed: {
-                    odds: oddsRed.toFixed(2),
+                    odds: oddsRed.toFixedNoRounding(2),
                     totalBets: options.totalRed,
                 },
                 teamBlue: {
-                    odds: oddsBlue.toFixed(2),
+                    odds: oddsBlue.toFixedNoRounding(2),
                     totalBets: options.totalBlue,
                 }
             }
@@ -515,11 +525,11 @@ export default {
             let oddsBlue = this.returnPayoutOption(options.totalBets,options.totalBlue)
             options.endingOddBets = {
                 teamRed: {
-                    odds: oddsRed.toFixed(2),
+                    odds: oddsRed.toFixedNoRounding(2),
                     totalBets: options.totalRed,
                 },
                 teamBlue: {
-                    odds: oddsBlue.toFixed(2),
+                    odds: oddsBlue.toFixedNoRounding(2),
                     totalBets: options.totalBlue,
                 }
             }
@@ -544,11 +554,11 @@ export default {
             let live = {...this.LiveGames}
             live.endingOddBets = {
                 teamRed: {
-                    odds: this.returnPayoutRed.toFixed(2),
+                    odds: this.returnPayoutRed.toFixedNoRounding(2),
                     totalBets: this.MoneyBox.totalRed,
                 },
                 teamBlue: {
-                    odds: this.returnPayoutBlue.toFixed(2),
+                    odds: this.returnPayoutBlue.toFixedNoRounding(2),
                     totalBets: this.MoneyBox.totalBlue,
                 }
             }
@@ -584,11 +594,11 @@ export default {
             let blue = live.teamBlue.team
             live.endingOddBets = {
                 teamRed: {
-                    odds: this.returnPayoutRed.toFixed(2),
+                    odds: this.returnPayoutRed.toFixedNoRounding(2),
                     totalBets: this.MoneyBox.totalRed,
                 },
                 teamBlue: {
-                    odds: this.returnPayoutBlue.toFixed(2),
+                    odds: this.returnPayoutBlue.toFixedNoRounding(2),
                     totalBets: this.MoneyBox.totalBlue,
                 }
             }

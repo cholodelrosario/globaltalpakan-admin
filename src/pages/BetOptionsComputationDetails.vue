@@ -169,7 +169,7 @@ export default {
 
                 return {
                     ...a,
-                    totalWinnings: a.totalBets * winOdds,
+                    totalWinnings: parseFloat((a.totalBets * parseFloat(winOdds))).toFixed(2),
                     Player: player,
                     PlayerName: player.accountName,
                     AccountPhone: player.accountPhone,
@@ -221,12 +221,12 @@ export default {
                     AgentNamePhone: agent ? agent.accountName +' / '+agent.accountPhone : null,
                     AgentKey: a.agentKey,
                     AgentPercent: agentPercent,
-                    AgentCommission: this.getAgentAndMAPercentCommission(agentPercent,a.totalBets),
+                    AgentCommission: parseFloat(this.getAgentAndMAPercentCommission(agentPercent,a.totalBets)).toFixed(2),
                     MasterAgent: master,
                     MasterKey: a.masterAgentKey,
                     MasterNamePhone: master ? master.accountFirstName + ' ' + master.accountLastName + ' / ' + master.accountPhone : null,
                     MasterPercent: masterPercent,
-                    MasterCommission:  this.getAgentAndMAPercentCommission(masterPercent,a.totalBets),
+                    MasterCommission:  parseFloat(this.getAgentAndMAPercentCommission(masterPercent,a.totalBets)).toFixed(2),
                 }
             })
 
@@ -488,7 +488,9 @@ export default {
 
             let agentData = this.$lodash.map(agents,(value,key)=>{
 
-                let sum  = this.$lodash.sumBy(value,'AgentCommission')
+                let sum  = this.$lodash.sumBy(value,A=>{
+                    return parseFloat(A.AgentCommission)
+                })
                 return {
                     accountID: key,
                     history: value,
@@ -498,7 +500,9 @@ export default {
 
             let masterData = this.$lodash.map(master,(value,key)=>{
 
-                let sum  = this.$lodash.sumBy(value,'MasterCommission')
+                let sum  = this.$lodash.sumBy(value,A=>{
+                    return parseFloat(A.MasterCommission)
+                })
 
                 return {
                     accountID: key,
@@ -506,7 +510,6 @@ export default {
                     totalCommission: sum
                 }
             })
-
             let concat = [...agentData,...masterData]
 
             concat.forEach(a=>{
@@ -523,7 +526,9 @@ export default {
 
             let agentData = this.$lodash.map(agents,(value,key)=>{
 
-                let sum  = this.$lodash.sumBy(value,'AgentCommission')
+                let sum  = this.$lodash.sumBy(value,A=>{
+                    return parseFloat(A.AgentCommission)
+                })
                 return {
                     playerID: value[0].accountID || null,
                     agentID: value[0].agentKey || null,
