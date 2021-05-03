@@ -1,66 +1,273 @@
 <template>
-    <q-page class="bg-dark text-white">
-        <div class="q-pa-md">
-            <div class="q-pa-md row q-gutter-md">
-                <strong>From:</strong><q-input dark v-model="fromdate" mask="YYYY/MM/DD" filled type="date"/>
-                <strong>To:</strong><q-input dark v-model="todate" mask="YYYY/MM/DD" filled type="date"/>
-                <q-card class="q-ma-md bg-secondary text-white" style="width: 300px; height: 50px">
-                    <q-item>
-                        <q-item-section>
-                        <q-item-label><strong>Total Comms. Amount:</strong></q-item-label>
-                        </q-item-section>
-                        <q-item-section side>
-                        <q-item-label><strong><b>php</b></strong></q-item-label>
-                        </q-item-section>
-                    </q-item>
-                </q-card>
-            </div>
-        </div>
-        <div class="q-pa-md">
-            <q-table title="Sales Reports" class="bg-secondary text-white" :data="Commission" :columns="columns" row-key="name">
-                <template v-slot:body="props">
-                    <q-tr>
-                        <q-td key="gameName" :props="props"></q-td>
-                        <q-td key="teamName" :props="props"></q-td>
-                        <q-td key="dateTime" :props="props"></q-td>
-                        <q-td key="totalBet" :props="props"></q-td>
-                        <q-td key="comms" :props="props"></q-td>
-                        <q-td key="addComms" :props="props"></q-td>
-                        <q-td key="totalComms" :props="props"></q-td>
-                    </q-tr>
-                </template>
-            </q-table>
-        </div>
-    </q-page>
+  <q-page class="container flex q-pa-lg bg-dark">
+      <div class="full-width">
+        <h5 class="text-primary text-weight-bolder q-mt-none">TOTAL SALES LESS AGENT AND MA COMMISSION</h5>
+        <q-list>
+            <!-- COMPUTED DAILY -->
+            <q-item dark>
+                <q-item-section>
+                    <q-item-label caption lines="2" >Computed Monthly/Yearly: </q-item-label>
+                </q-item-section>
+            </q-item>
+            <q-item class="text-black bg-primary text-center flex flex-center q-pa-md">
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.totalSalesLessCommsMonthly === null ? 0 : this.totalSalesLessCommsMonthly}}</q-item-label>
+                    <q-item-label caption lines="2">Total Monthly Sales <br>(Monthly Commission)</q-item-label>
+                </q-item-section>
+                <q-separator vertical inset/>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.totalSalesLessCommsYearly === null ? 0 : this.totalSalesLessCommsYearly}}</q-item-label>
+                    <q-item-label caption lines="2">Total Yearly Sales <br>(Yearly Commission)</q-item-label>
+                </q-item-section>
+            </q-item>
+        </q-list>
+        <br>
+        <br>
+        <br>  
+        <h5 class="text-primary text-weight-bolder q-mt-none">TOTAL SALES</h5>
+        <q-list>
+            <!-- COMPUTED DAILY -->
+            <q-item dark>
+                <q-item-section>
+                    <q-item-label caption lines="2" >Computed Daily: </q-item-label>
+                </q-item-section>
+            </q-item>
+            <q-item class="text-black bg-primary q-pa-md">
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.endGamesCommission === null ? 0 : this.endGamesCommission}}</q-item-label>
+                    <q-item-label caption lines="2">Per Games Commission Daily<br>(Company Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.betOptionsCommission === null ? 0 : this.betOptionsCommission}}</q-item-label>
+                    <q-item-label caption lines="2">Per Bet Options Commission Daily <br>(Company Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.overallDaily}}</q-item-label>
+                    <q-item-label caption lines="2">Overall Bet Options and Games Commission Daily <br>(Company Commission)</q-item-label>
+                </q-item-section>
+            </q-item>
+            <!-- COMPUTED MONTHLY -->
+            <q-item dark class="">
+                <q-item-section>
+                    <q-item-label caption lines="2">Computed Monthly: </q-item-label>
+                </q-item-section>
+            </q-item>
+            <q-item class="text-black bg-primary q-pa-md">
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.endGamesCommissionMonthly === null ? 0 : this.endGamesCommissionMonthly}}</q-item-label>
+                    <q-item-label caption lines="2">Per Games Commission Monthly<br>(Company Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.betOptionsCommissionMonthly === null ? 0 : this.betOptionsCommissionMonthly}}</q-item-label>
+                    <q-item-label caption lines="2">Per Bet Options Commission Monthly <br>(Company Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.overallMonthly}}</q-item-label>
+                    <q-item-label caption lines="2">Overall Bet Options and Games Commission Monthly<br>(Company Commission)</q-item-label>
+                </q-item-section>
+            </q-item>
+            <!-- COMPUTED YEARLY -->
+            <q-item dark class="">
+                <q-item-section>
+                    <q-item-label caption lines="2">Computed Yearly: </q-item-label>
+                </q-item-section>
+            </q-item>
+            <q-item class="text-black bg-primary q-pa-md">
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.endGamesCommissionYearly === null ? 0 : this.endGamesCommissionYearly}}</q-item-label>
+                    <q-item-label caption lines="2">Per Games Commission Yearly<br>(Company Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.betOptionsCommissionYearly === null ? 0 : this.betOptionsCommissionYearly}}</q-item-label>
+                    <q-item-label caption lines="2">Per Bet Options Commission Yearly <br>(Company Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.overallYearly}}</q-item-label>
+                    <q-item-label caption lines="2">Overall Bet Options and Games Commission Yearly<br>(Company Commission)</q-item-label>
+                </q-item-section>
+            </q-item>
+        </q-list>
+        <br>
+        <br>
+        <br>
+        <h5 class="text-primary text-weight-bolder q-mt-none">TOTAL COMMISSION OF AGENTS AND MASTER AGENTS</h5>
+        <q-list>
+            <!-- COMPUTED DAILY -->
+            <q-item dark>
+                <q-item-section>
+                    <q-item-label caption lines="2" >Computed Daily/Monthly/Yearly: </q-item-label>
+                </q-item-section>
+            </q-item>
+            <q-item class="text-black bg-primary q-pa-md">
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.agentMACommissionDaily === null ? 0 : this.agentMACommissionDaily}}</q-item-label>
+                    <q-item-label caption lines="2">Agents and Master Agents<br>(Daily Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.agentMACommissionMonthly === null ? 0 : this.agentMACommissionMonthly}}</q-item-label>
+                    <q-item-label caption lines="2">Agents and Master Agents <br>(Monthly Commission)</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-h6">
+                    <q-item-label>₱ {{this.agentMACommissionYearly === null ? 0 : this.agentMACommissionYearly}}</q-item-label>
+                    <q-item-label caption lines="2">Agents and Master Agents <br>(Yearly Commission)</q-item-label>
+                </q-item-section>
+            </q-item>
+        </q-list>
+        <br>
+        <br>
+        <br>
+    </div>
+  </q-page>
 </template>
+
 <script>
 import { date } from 'quasar'
+const { getDateDiff } = date
 export default {
-    methods: {
-        
-    },
     data(){
-        return{
-            fromdate:  '',
-            todate:  '',
-            Commission: [],
-            filter: '',
-            columns: [
-                { name: 'gameName', align: 'center', required: true, label: 'Games Name', field: 'gameName', sortable: true },
-                { name: 'teamName', align: 'center', required: true, label: 'Teams', field: 'teamName', sortable: true },
-                { name: 'dateTime', align: 'center', required: true, label: 'Date & Time', field: 'dateTime', sortable: true },
-                { name: 'totalBet', align: 'center', label: 'Total Bet', field: 'totalBet', sortable: true },
-                { name: 'comms', align: 'center', label: '5.5% Comms.', field: 'comms', sortable: true },
-                { name: 'addComms', align: 'center', label: 'Extra Add. Comms.', field: 'addComms', sortable: true },
-                { name: 'totalComms', align: 'center', label: 'Total Comms.', field: 'totalComms', sortable: true },
-            ]
+        return {
+            BetOptionsEndGames: [],
+            EndGames: [],
+            TotalMonthYearMTD: [],
+            CommissionHistory: [],
+            walletObj: null,
+            Wallet: [],
         }
     },
-    computed: {
+    mounted(){
+        this.$binding('CommissionHistory', this.$db.collection('CommissionHistory'))
+        .then(CommissionHistory => {
+          console.log(CommissionHistory, 'CommissionHistory')
+        })
+        this.$binding('TotalMonthYearMTD', this.$db.collection('TotalMonthYearMTD'))
+        .then(TotalMonthYearMTD => {
+          console.log(TotalMonthYearMTD, 'TotalMonthYearMTD')
+        })
+        this.$binding('EndGames', this.$db.collection('EndGames'))
+        .then(EndGames => {
+          console.log(EndGames, 'EndGames')
+        })
+        this.$binding('Wallet', this.$db.collection('Wallet'))
+        .then(Wallet => {
+          console.log(Wallet, 'Wallet')
+        })
+        this.$binding('BetOptionsEndGames', this.$db.collection('BetOptionsEndGames'))
+        .then(BetOptionsEndGames => {
+          console.log(BetOptionsEndGames, 'BetOptionsEndGames')
+        })
+    },
+    methods:{
         
     },
-    mounted() {
-      
+    computed: {
+        totalSalesLessCommsYearly(){
+            return parseFloat(this.overallYearly) - parseFloat(this.agentMACommissionYearly)
+        },
+        totalSalesLessCommsMonthly(){
+            return parseFloat(this.overallMonthly) - parseFloat(this.agentMACommissionMonthly)
+        },
+        agentMACommissionDaily(){
+            let todaysDate = this.$moment(new Date()).format('MM-DD-YYYY')
+            let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
+                    return this.$moment(p.timestamp.toDate()).format('MM-DD-YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.amount)
+            })
+                return totalComms
+        },
+        agentMACommissionMonthly(){
+            let todaysDate = this.$moment(new Date()).format('MM-YYYY')
+            let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
+                    return this.$moment(p.timestamp.toDate()).format('MM-YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.amount)
+            })
+                return totalComms
+        },
+        agentMACommissionYearly(){
+            let todaysDate = this.$moment(new Date()).format('YYYY')
+            let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
+                    return this.$moment(p.timestamp.toDate()).format('YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.amount)
+            })
+                return totalComms
+        },
+        // DAILY COMPUTATIONS
+        overallDaily(){
+            return parseFloat(this.endGamesCommission) + parseFloat(this.betOptionsCommission)
+        },
+        endGamesCommission(){
+            let todaysDate = this.$moment(new Date()).format('MM-DD-YYYY')
+            let filterToday = this.$lodash.filter(this.EndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('MM-DD-YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.companyCommission)
+            })
+                return totalComms
+        },
+        betOptionsCommission(){
+            let todaysDate = this.$moment(new Date()).format('MM-DD-YYYY')
+            let filterToday = this.$lodash.filter(this.BetOptionsEndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('MM-DD-YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.companyCommission)
+            })
+                return totalComms
+        },
+        // MONTHLY COMPUTATIONS
+        overallMonthly(){
+            return parseFloat(this.endGamesCommissionMonthly) + parseFloat(this.betOptionsCommissionMonthly)
+        },
+        endGamesCommissionMonthly(){
+            let todaysDate = this.$moment(new Date()).format('MM-YYYY')
+            let filterToday = this.$lodash.filter(this.EndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('MM-YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.companyCommission)
+            })
+                return totalComms
+        },
+        betOptionsCommissionMonthly(){
+            let todaysDate = this.$moment(new Date()).format('MM-YYYY')
+            let filterToday = this.$lodash.filter(this.BetOptionsEndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('MM-YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.companyCommission)
+            })
+                return totalComms
+        },
+        // YEARLY COMPUTATIONS
+        overallYearly(){
+            return parseFloat(this.endGamesCommissionYearly) + parseFloat(this.betOptionsCommissionYearly)
+        },
+        endGamesCommissionYearly(){
+            let todaysDate = this.$moment(new Date()).format('YYYY')
+            let filterToday = this.$lodash.filter(this.EndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.companyCommission)
+            })
+                return totalComms
+        },
+        betOptionsCommissionYearly(){
+            let todaysDate = this.$moment(new Date()).format('YYYY')
+            let filterToday = this.$lodash.filter(this.BetOptionsEndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('YYYY') === todaysDate
+              })
+            let totalComms = this.$lodash.sumBy(filterToday, a => { 
+                return parseFloat(a.companyCommission)
+            })
+                return totalComms
+        },
     }
 }
 </script>

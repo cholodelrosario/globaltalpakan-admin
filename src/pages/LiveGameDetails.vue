@@ -388,6 +388,7 @@ export default {
                 
                 if(optionskey){
                     if(tab == 'Close Betting'){
+                        console.log('here');
                         status = 'CLOSED'
                     } else if (tab == 'Open Betting') {
                         status = 'OPEN'
