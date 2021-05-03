@@ -542,10 +542,10 @@ export default {
         },        
         async updateTotalMTD(amount,accountID){
 
-            let sample = date.addToDate(new Date(), { days: 38})
-            let monthYear = date.formatDate(sample,'MM-YYYY');
+            // let sample = date.addToDate(new Date(), { days: 38})
+            // let monthYear = date.formatDate(sample,'MM-YYYY');
 
-            // let monthYear = date.formatDate(new Date(),'MM-YYYY');
+            let monthYear = date.formatDate(new Date(),'MM-YYYY');
             let key = monthYear+'-'+accountID
             const increment = firebase.firestore.FieldValue.increment(amount);
             try {
@@ -580,9 +580,9 @@ export default {
         async updateMTDHistory(amount,accountID){
 
             const increment = firebase.firestore.FieldValue.increment(amount);
-            let sample = date.addToDate(new Date(), { days: 38})
-            let guideDate = date.formatDate(sample,'MM-DD-YYYY');
-            // let guideDate = date.formatDate(new Date(),'MM-DD-YYYY');
+            // let sample = date.addToDate(new Date(), { days: 38})
+            // let guideDate = date.formatDate(sample,'MM-DD-YYYY');
+            let guideDate = date.formatDate(new Date(),'MM-DD-YYYY');
             let key = guideDate+'-'+accountID
 
             try {
