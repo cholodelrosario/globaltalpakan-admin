@@ -56,6 +56,16 @@
             <q-item-label class="text-weight-bold">Bets Management</q-item-label>
           </q-item-section>
         </q-item> -->
+
+        <q-item clickable v-ripple to="/end-game-history" active-class="text-black bg-primary">
+          <q-item-section avatar>
+            <q-avatar color="grey-1" text-color="dark" icon="help" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-weight-bold">End Game History</q-item-label>
+          </q-item-section>
+        </q-item>
+
         <q-separator inset  />
         <q-item-label
           header

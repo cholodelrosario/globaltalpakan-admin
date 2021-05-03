@@ -6,6 +6,8 @@ node_modules
 .firebase
 .quasar
 /dist
+.firebaserc
+firebase.json
 
 # Cordova related directories and files
 /src-cordova/node_modules
