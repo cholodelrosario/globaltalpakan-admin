@@ -76,7 +76,7 @@
             <q-avatar color="grey-1" text-color="dark" icon="money" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">MA Comms.</q-item-label>
+            <q-item-label class="text-weight-bold">MA Status.</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/agents" active-class="text-black bg-primary">
@@ -84,10 +84,10 @@
             <q-avatar color="grey-1" text-color="dark" icon="people" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-weight-bold">Agent Comms.</q-item-label>
+            <q-item-label class="text-weight-bold">Agent Status.</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/agents-ranking" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/agent-ranking" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="assessment" />
           </q-item-section>
