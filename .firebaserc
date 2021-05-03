@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "globaltalpakan"
+    "default": "globaltalpakandev"
   },
   "targets": {
     "globaltalpakan": {
@@ -9,7 +9,14 @@
           "globaltalpakan-agent"
         ],
         "admin": [
-          "globaltalpakan-admin"
+          "gbtjip"
+        ]
+      }
+    },
+    "globaltalpakandev": {
+      "hosting": {
+        "admin": [
+          "globaltalpakandev-admin"
         ]
       }
     }
