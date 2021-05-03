@@ -97,6 +97,19 @@ export default {
             return data.MTD
 
         },
+        // getMTDAgents(key){
+        //     let date = this.$moment(new Date()).format('MM-YYYY')
+        //     var docRef = null
+        //     docRef = this.CommissionHistory.filter(a=>{
+        //         return a.accountID === key && this.$moment(a.timestamp.toDate()).format('MM-YYYY') === date
+        //     })
+        //     let total = this.$lodash.sumBy(docRef, a => { 
+        //         return parseFloat(a.amount)
+        //     })
+        //     console.log(total, 'totalsss')
+        //     return total
+
+        // },
         getwalletDetails(key){
             var docRef = null
             var data = null
@@ -108,6 +121,19 @@ export default {
             return data
 
         },
+        // getMTD(key){
+        //     let date = this.$moment(new Date()).format('MM-YYYY')
+        //     var docRef = null
+        //     docRef = this.CommissionHistory.filter(a=>{
+        //         return a.accountID === key && this.$moment(a.timestamp.toDate()).format('MM-YYYY') === date
+        //     })
+        //     let total = this.$lodash.sumBy(docRef, a => { 
+        //         return parseFloat(a.amount)
+        //     })
+        //     console.log(total, 'totalsss')
+        //     return total
+
+        // },
         getMTD(key){
             let date = this.$moment(new Date()).format('MM-YYYY-')
             let filterKey = date + key
@@ -123,6 +149,16 @@ export default {
         },
     },
     computed: {
+        // comhistory(){
+        //     let docRef = this.$lodash.filter(this.CommissionHistory, b => {
+        //         return b.accountID === 'CqyMlXTR6xPB6nIokTmajivm87d2'
+        //     })
+        //     let total = this.$lodash.sumBy(docRef, a => { 
+        //         return parseFloat(a.amount)
+        //     })
+        //     console.log(total, 'AgentsComHistory')
+        //     return total
+        // },
         allAgents(){
           let allmyAgents = [...this.myAgents,...this.myMasterAgents]
           if(this.type === '' || this.type === null){
