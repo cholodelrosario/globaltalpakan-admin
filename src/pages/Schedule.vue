@@ -70,7 +70,9 @@
                                 <q-card-section>
                                     <div class="text-h6 ellipsis">
                                          GAME #{{props.row.gameNumber}}
-                                         
+                                        <q-btn icon="delete" dense class="float-right" flat color="grey" @click="openDeleteDialog(props.row)" v-show="props.row.showedLive == false">
+                                            <q-tooltip> Delete Event </q-tooltip>
+                                        </q-btn>
                                     </div>
                                     <span class="text-grey text-caption"> {{$moment(props.row.scheduledTime.from).calendar()}}</span>
 
