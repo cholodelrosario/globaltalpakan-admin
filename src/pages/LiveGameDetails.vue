@@ -3,6 +3,7 @@
         <q-card class="bg-secondary">
             <q-card-section class="text-center">
                 <b>Current Live For : <b class="text-h6">{{LiveGames.gameCategory}}</b></b>
+                <q-btn color="grey" class="absolute-right" size="" flat icon="settings" label="live game settings" @click="liveGameSettingsDialog = true" />
             </q-card-section>
             <div v-show="LiveGames.length == 0" class="q-pr-md q-pl-md q-pb-lg">
                 <div align="center" class="flex flex-center row q-gutter-md">
@@ -201,6 +202,30 @@
                 </q-card-actions>
             </q-card>
         </q-dialog>
+        <q-dialog v-model="liveGameSettingsDialog" persistent>
+            <q-card dark style="width:30em">
+                <q-card-section class="text-h6 text-white">
+                    Live Game Settings <q-btn color="grey" round size="sm" flat class="float-right" icon="close" @click="liveGameSettingsDialog = false,liveGameUrl = ''" />
+                </q-card-section>
+                <q-card-section>
+                    <template>
+                        <q-video :ratio="14/7" :src="LiveGames.videoLink"/>
+                    </template>
+                     <q-input dark outlined v-model="LiveGames.videoLink" label="Current video link" readonly/>
+                </q-card-section>
+                <q-card-section>
+                    <div class="text-caption q-my-sm" v-show="liveGameUrl !== ''">NEW URL LINK PREVIEW</div>
+                    <template>
+                        <q-video :ratio="14/7" :src="liveGameUrl" v-show="liveGameUrl !== ''"/>
+                    </template>
+                     <q-input dark outlined v-model="liveGameUrl" label="Enter New Video Url."/>
+                </q-card-section>
+                <q-card-actions align="right">
+                    <q-btn flat label="Cancel" color="grey" @click="liveGameSettingsDialog = false,liveGameUrl = ''"/>
+                    <q-btn flat label="Update Live Game Video" :disable="liveGameUrl == ''" color="primary" @click="confirmUpdate"/>
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </q-page>
 </template>
 <script>
@@ -225,7 +250,9 @@ export default {
             selectedOptionsKey: null,
             selectedOptions: null,
             selectedStatus: '',
-            TrendsHistory: []
+            TrendsHistory: [],
+            liveGameUrl: '',
+            liveGameSettingsDialog: false,
         }
     },
     firestore(){
@@ -285,6 +312,39 @@ export default {
         }
     },
     methods:{
+        confirmUpdate(){
+            try {
+                this.$q.dialog({
+                    title: `Do you confirm the updating of the videoURL link ?`,
+                    type: 'accent',
+                    color: 'accent',
+                    textColor: 'white',
+                    persistent: true,
+                    icon: 'warning',
+                    ok: 'Ok',
+                    cancel: {
+                        color: 'grey',
+                        flat:true
+                    }
+                }).onOk(()=> {
+                    this.updateVideo(this.$route.params.code)
+                    this.$q.dialog({
+                        title: `SUCCESS VIDEO LINK UPDATE.`
+                    })
+                    this.liveGameUrl = ''
+                    this.liveGameSettingsDialog = false
+                })               
+            } catch (error) {
+                console.log(error,'updateVideo')
+                this.liveGameSettingsDialog = true
+            }
+
+        },
+        updateVideo: function (liveKey) {
+            this.$db.collection('LiveGames').doc(liveKey).update({
+                videoLink: this.liveGameUrl,
+            })
+        },
         returnCompanyCommissionOptions(red = 0,blue = 0){
             let total = red + blue
             if(total == 0) return 0
