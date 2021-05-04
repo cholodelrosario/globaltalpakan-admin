@@ -286,7 +286,7 @@ export default {
         },
         async sendAccountMessage(mobile,password){
 
-        let message = `Welcome GT Partner, login to https://globaltalpakandev-masteragent.web.app/#/ with your mobile number and temporary password = ${password}. You can change your password once you logged in. Thanks. -globaltalpakan.admin`
+        let message = `Welcome GT Partner, login to https://globaltalpakan-masteragent.web.app/#/ with your mobile number and temporary password = ${password}. You can change your password once you logged in. Thanks. -globaltalpakan.admin`
         console.log(message,'message');
         await this.$store.dispatch('sms/sendSMS',{number: mobile, message: message})
         .then(()=>{
