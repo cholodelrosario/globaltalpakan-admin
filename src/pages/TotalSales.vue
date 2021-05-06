@@ -236,21 +236,17 @@ export default {
             let map = this.$lodash.map(filterMonthly,a=>{
                 return{
                     ['.key']: a['.key'],
-                    totalMoneboxLessComms:  a.totalMoneyBox - a.companyCommission,
-                    winningOddsandBet: a.winningTeam === "RED" ? parseFloat(a.endingOddBets.teamRed.totalBets) * parseFloat(a.endingOddBets.teamRed.odds) : parseFloat(a.endingOddBets.teamBlue.totalBets) * parseFloat(a.endingOddBets.teamBlue.odds),
+                    totalMoneyBox:  a.totalMoneyBox,
+                    companyCommission: a.companyCommission,
+                    endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
                     dateEnded: a.dateEnded 
                 }
             })
-            console.log(map, 'Betopts')
-            let totalMoneyBoxComms = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.totalMoneboxLessComms)
+            console.log(map, 'checkIndex')
+            let totalExtraCommss = this.$lodash.sumBy(map, a => { 
+                return parseFloat(a.totalMoneyBox - ((a.endingOddBets.totalBets * a.endingOddBets.odds) + a.companyCommission))
             })
-            let totalWinningOddsandBet = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.winningOddsandBet)
-            })
-            console.log(totalMoneyBoxComms, 'MoneyBox')
-            console.log(totalWinningOddsandBet, 'WinningOddBets')
-            return parseFloat(totalMoneyBoxComms) - parseFloat(totalWinningOddsandBet)
+            return totalExtraCommss
         },
         extraCommissionMonthlyBetOpt(){
             let monthlyDate = this.$moment(new Date()).format('MM-YYYY')
@@ -260,21 +256,17 @@ export default {
             let map = this.$lodash.map(filterMonthly,a=>{
                 return{
                     ['.key']: a['.key'],
-                    totalMoneboxLessComms:  a.totalMoneyBox - a.companyCommission,
-                    winningOddsandBet: a.winningTeam === "RED" ? parseFloat(a.endingOddBets.teamRed.totalBets) * parseFloat(a.endingOddBets.teamRed.odds) : parseFloat(a.endingOddBets.teamBlue.totalBets) * parseFloat(a.endingOddBets.teamBlue.odds),
+                    totalMoneyBox:  a.totalMoneyBox,
+                    companyCommission: a.companyCommission,
+                    endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
                     dateEnded: a.dateEnded 
                 }
             })
-            console.log(map, 'Betopts')
-            let totalMoneyBoxComms = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.totalMoneboxLessComms)
+            console.log(map, 'checkIndex')
+            let totalExtraCommss = this.$lodash.sumBy(map, a => { 
+                return parseFloat(a.totalMoneyBox - ((a.endingOddBets.totalBets * a.endingOddBets.odds) + a.companyCommission))
             })
-            let totalWinningOddsandBet = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.winningOddsandBet)
-            })
-            console.log(totalMoneyBoxComms, 'MoneyBox')
-            console.log(totalWinningOddsandBet, 'WinningOddBets')
-            return parseFloat(totalMoneyBoxComms) - parseFloat(totalWinningOddsandBet)
+            return totalExtraCommss
         },
         extraCommissionMonthly(){
             let monthlyDate = this.$moment(new Date()).format('MM-YYYY')
@@ -284,19 +276,17 @@ export default {
             let map = this.$lodash.map(filterMonthly,a=>{
                 return{
                     ['.key']: a['.key'],
-                    totalMoneboxLessComms:  a.totalMoneyBox - a.companyCommission,
-                    winningOddsandBet: a.winningTeam === "RED" ? parseFloat(a.endingOddBets.teamRed.totalBets) * parseFloat(a.endingOddBets.teamRed.odds) : parseFloat(a.endingOddBets.teamBlue.totalBets) * parseFloat(a.endingOddBets.teamBlue.odds),
+                    totalMoneyBox:  a.totalMoneyBox,
+                    companyCommission: a.companyCommission,
+                    endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
                     dateEnded: a.dateEnded 
                 }
             })
-            let totalMoneyBoxComms = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.totalMoneboxLessComms)
+            console.log(map, 'checkIndex')
+            let totalExtraCommss = this.$lodash.sumBy(map, a => { 
+                return parseFloat(a.totalMoneyBox - ((a.endingOddBets.totalBets * a.endingOddBets.odds) + a.companyCommission))
             })
-            let totalWinningOddsandBet = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.winningOddsandBet)
-            })
-            console.log(totalWinningOddsandBet, 'mappppp')
-            return parseFloat(totalMoneyBoxComms) - parseFloat(totalWinningOddsandBet)
+            return totalExtraCommss
         },
         extraCommissionYearly(){
             let monthlyDate = this.$moment(new Date()).format('YYYY')
@@ -306,19 +296,17 @@ export default {
             let map = this.$lodash.map(filterMonthly,a=>{
                 return{
                     ['.key']: a['.key'],
-                    totalMoneboxLessComms:  a.totalMoneyBox - a.companyCommission,
-                    winningOddsandBet: a.winningTeam === "RED" ? parseFloat(a.endingOddBets.teamRed.totalBets) * parseFloat(a.endingOddBets.teamRed.odds) : parseFloat(a.endingOddBets.teamBlue.totalBets) * parseFloat(a.endingOddBets.teamBlue.odds),
+                    totalMoneyBox:  a.totalMoneyBox,
+                    companyCommission: a.companyCommission,
+                    endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
                     dateEnded: a.dateEnded 
                 }
             })
-            let totalMoneyBoxComms = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.totalMoneboxLessComms)
+            console.log(map, 'checkIndex')
+            let totalExtraCommss = this.$lodash.sumBy(map, a => { 
+                return parseFloat(a.totalMoneyBox - ((a.endingOddBets.totalBets * a.endingOddBets.odds) + a.companyCommission))
             })
-            let totalWinningOddsandBet = this.$lodash.sumBy(map, a => { 
-                return parseFloat(a.winningOddsandBet)
-            })
-            console.log(totalWinningOddsandBet, 'mappppp')
-            return parseFloat(totalMoneyBoxComms) - parseFloat(totalWinningOddsandBet)
+            return totalExtraCommss
         },
         totalSalesLessCommsYearly(){
             return parseFloat(this.overallYearly) - parseFloat(this.agentMACommissionYearly)
@@ -326,36 +314,87 @@ export default {
         totalSalesLessCommsMonthly(){
             return parseFloat(this.overallMonthly) - parseFloat(this.agentMACommissionMonthly)
         },
+        // agentMACommissionDaily(){
+        //     let todaysDate = this.$moment(new Date()).format('MM-DD-YYYY')
+        //     let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
+        //             return this.$moment(p.timestamp.toDate()).format('MM-DD-YYYY') === todaysDate
+        //       })    
+        //     let totalComms = this.$lodash.sumBy(filterToday, a => { 
+        //         return parseFloat(a.amount)
+        //     })
+        //         return totalComms
+        // },
         agentMACommissionDaily(){
             let todaysDate = this.$moment(new Date()).format('MM-DD-YYYY')
-            let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
-                    return this.$moment(p.timestamp.toDate()).format('MM-DD-YYYY') === todaysDate
-              })
+            let filterToday = this.$lodash.filter(this.EndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('MM-DD-YYYY') === todaysDate
+              })    
             let totalComms = this.$lodash.sumBy(filterToday, a => { 
-                return parseFloat(a.amount)
+                return parseFloat(a.totalMoneyBox * 0.02)
             })
-                return totalComms
+            let filterTodays = this.$lodash.filter(this.BetOptionsEndGames, b => {
+                    return this.$moment(b.dateEnded.toDate()).format('MM-DD-YYYY') === todaysDate
+              })    
+            let totalCommss = this.$lodash.sumBy(filterTodays, f => { 
+                return parseFloat(f.totalMoneyBox * 0.02)
+            })
+            let TotalComms = parseFloat(totalComms + totalCommss)
+                return TotalComms
         },
         agentMACommissionMonthly(){
             let todaysDate = this.$moment(new Date()).format('MM-YYYY')
-            let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
-                    return this.$moment(p.timestamp.toDate()).format('MM-YYYY') === todaysDate
-              })
+            let filterToday = this.$lodash.filter(this.EndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('MM-YYYY') === todaysDate
+              })    
             let totalComms = this.$lodash.sumBy(filterToday, a => { 
-                return parseFloat(a.amount)
+                return parseFloat(a.totalMoneyBox * 0.02)
             })
-                return totalComms
+            let filterTodays = this.$lodash.filter(this.BetOptionsEndGames, b => {
+                    return this.$moment(b.dateEnded.toDate()).format('MM-YYYY') === todaysDate
+              })    
+            let totalCommss = this.$lodash.sumBy(filterTodays, f => { 
+                return parseFloat(f.totalMoneyBox * 0.02)
+            })
+            let TotalComms = parseFloat(totalComms + totalCommss)
+                return TotalComms
         },
+        // agentMACommissionMonthly(){
+        //     let todaysDate = this.$moment(new Date()).format('MM-YYYY')
+        //     let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
+        //             return this.$moment(p.timestamp.toDate()).format('MM-YYYY') === todaysDate
+        //       })
+        //     let totalComms = this.$lodash.sumBy(filterToday, a => { 
+        //         return parseFloat(a.amount)
+        //     })
+        //         return totalComms
+        // },
         agentMACommissionYearly(){
             let todaysDate = this.$moment(new Date()).format('YYYY')
-            let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
-                    return this.$moment(p.timestamp.toDate()).format('YYYY') === todaysDate
-              })
+            let filterToday = this.$lodash.filter(this.EndGames, p => {
+                    return this.$moment(p.dateEnded.toDate()).format('YYYY') === todaysDate
+              })    
             let totalComms = this.$lodash.sumBy(filterToday, a => { 
-                return parseFloat(a.amount)
+                return parseFloat(a.totalMoneyBox * 0.02)
             })
-                return totalComms
+            let filterTodays = this.$lodash.filter(this.BetOptionsEndGames, b => {
+                    return this.$moment(b.dateEnded.toDate()).format('YYYY') === todaysDate
+              })    
+            let totalCommss = this.$lodash.sumBy(filterTodays, f => { 
+                return parseFloat(f.totalMoneyBox * 0.02)
+            })
+            let TotalComms = parseFloat(totalComms + totalCommss)
+                return TotalComms
         },
+        // agentMACommissionYearly(){
+        //     let todaysDate = this.$moment(new Date()).format('YYYY')
+        //     let filterToday = this.$lodash.filter(this.CommissionHistory, p => {
+        //             return this.$moment(p.timestamp.toDate()).format('YYYY') === todaysDate
+        //       })
+        //     let totalComms = this.$lodash.sumBy(filterToday, a => { 
+        //         return parseFloat(a.amount)
+        //     })
+        //         return totalComms
+        // },
         // DAILY COMPUTATIONS
         overallDaily(){
             return parseFloat(this.endGamesCommission) + parseFloat(this.betOptionsCommission)

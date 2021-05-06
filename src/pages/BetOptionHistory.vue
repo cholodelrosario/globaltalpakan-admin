@@ -12,11 +12,12 @@
             </div>
         </div>
         <div class="q-pa-md">
-            <q-table title="End Game History" :filter="filter" :pagination.sync="pagination" :rows-per-page-options="[0]" class="bg-secondary text-white" :data="EndGamesThanos" :columns="columns" row-key="name">
+            <q-table title="End Bet Option History" :filter="filter" :pagination.sync="pagination" :rows-per-page-options="[0]" class="bg-secondary text-white" :data="EndGamesThanos" :columns="columns" row-key="name">
                 <template v-slot:body="props">
                     <q-tr>
                         <q-td key="gameNumber" :props="props">{{props.row.gameNumber}}</q-td>
                         <q-td key="gameCategory" :props="props">{{props.row.gameCategory}}</q-td>
+                        <q-td key="name" :props="props">{{props.row.betOptName}}</q-td>
                         <q-td key="teams" :props="props">{{props.row.teams}}</q-td>
                         <q-td key="totalMoneyBox" :props="props">{{props.row.totalMoneyBox}}</q-td>
                         <q-td key="endingOddBets" :props="props">{{props.row.endingOddBets.totalBets * props.row.endingOddBets.odds}}</q-td>
@@ -43,13 +44,14 @@
 export default {
     data(){
         return{
+            EndGames: [],
             type: '',
             option: [
                 {label: 'Daily', value: 'DD'},
                 {label: 'Monthly', value: 'MM'}, 
                 {label: 'Yearly', value: 'YYYY'},
             ],
-            EndGames: [],
+            BetOptionsEndGames: [],
             company: 0,
             extra: 0,
             total: 0,
@@ -58,6 +60,7 @@ export default {
             columns: [
                 { name: 'gameNumber', align: 'left', required: true, label: 'G-No.', field: 'gameNumber', sortable: true },
                 { name: 'gameCategory', align: 'left', required: true, label: 'Games', field: 'gameCategory', sortable: true },
+                { name: 'name', align: 'left', required: true, label: 'Bet Options', field: 'name', sortable: true },
                 { name: 'teams', align: 'left', required: true, label: 'Teams', field: 'teams', sortable: true },
                 { name: 'totalMoneyBox', align: 'center', label: 'Total Bets', field: 'totalMoneyBox', sortable: true },
                 { name: 'endingOddBets', align: 'center', label: 'Total Winnings(Players)', field: 'endingOddBets', sortable: true },    
@@ -68,7 +71,17 @@ export default {
         }
     },
     methods: {
-        
+        getGames(key){
+            var docRef = null
+            var data = null
+            docRef = this.EndGames.filter(a=>{
+                return a['.key'] == key
+            })[0]
+            data = {...docRef}
+            delete data['.key']
+            return data
+
+        },  
     },
     computed: {
         totalCompanyComms(){
@@ -93,13 +106,14 @@ export default {
         },
         EndGamesThanos(){
             if(this.type === '' || this.type === null){
-                let orderByP = this.$lodash.orderBy(this.EndGames, ['dateEnded'], ['desc']);
+                let orderByP = this.$lodash.orderBy(this.BetOptionsEndGames, ['dateEnded'], ['desc']);
                 let map = this.$lodash.map(orderByP,a=>{
+                    let games = this.getGames(a.scheduleKey)
                     return {
                             ['.key']: a['.key'],
                             scheduleKey: a.scheduleKey,
-                            gameNumber: a.gameNumber,
-                            gameCategory: a.gameCategory,
+                            gameNumber: games.gameNumber,
+                            gameCategory: games.gameCategory,
                             endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
                             companyCommission: a.companyCommission,
                             dateCreated: a.dateCreated,
@@ -107,23 +121,25 @@ export default {
                             betOptions: a.betOptions,
                             totalMoneyBox: a.totalMoneyBox,
                             teams: a.teamRed.team + ' vs ' + a.teamBlue.team,
-                            companyCommsLessAgent: a.totalMoneyBox * 0.02
+                            companyCommsLessAgent: a.totalMoneyBox * 0.02,
+                            betOptName: a.name
                         }
                 })
                 console.log(map, 'mappaaa')
                 return map
             }else{  
                 console.log(this.type, 'typetypetype')
-                let dateMMDDYYYY = this.$lodash.filter(this.EndGames, b => {
+                let dateMMDDYYYY = this.$lodash.filter(this.BetOptionsEndGames, b => {
                      return this.$moment(b.dateEnded.toDate()).format('DD') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('MM') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('YYYY') === this.$moment(new Date()).format(this.type)
                 })
                 let orderByP = this.$lodash.orderBy(dateMMDDYYYY, ['dateEnded'], ['desc']);
                 let map = this.$lodash.map(orderByP,a=>{
+                    let games = this.getGames(a.scheduleKey)
                     return {
                             ['.key']: a['.key'],
                             scheduleKey: a.scheduleKey,
-                            gameNumber: a.gameNumber,
-                            gameCategory: a.gameCategory,
+                            gameNumber: games.gameNumber,
+                            gameCategory: games.gameCategory,
                             endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
                             companyCommission: a.companyCommission,
                             dateCreated: a.dateCreated,
@@ -131,7 +147,8 @@ export default {
                             betOptions: a.betOptions,
                             totalMoneyBox: a.totalMoneyBox,
                             teams: a.teamRed.team + ' vs ' + a.teamBlue.team,
-                            companyCommsLessAgent: a.totalMoneyBox * 0.02
+                            companyCommsLessAgent: a.totalMoneyBox * 0.02,
+                            betOptName: a.name
                         }
                 })
                 console.log(map, 'mappaaa')
@@ -140,6 +157,10 @@ export default {
         },
     },
     mounted() {
+        this.$binding('BetOptionsEndGames', this.$db.collection('BetOptionsEndGames'))
+        .then(BetOptionsEndGames => {
+          console.log(BetOptionsEndGames, 'BetOptionsEndGames')
+        })
         this.$binding('EndGames', this.$db.collection('EndGames'))
         .then(EndGames => {
           console.log(EndGames, 'EndGames')
