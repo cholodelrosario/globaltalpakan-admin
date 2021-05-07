@@ -231,6 +231,8 @@
 <script>
 import { firebase,firebaseAuth,firebaseApp,firebaseDb,firefirestore } from 'boot/firebase'
 Number.prototype.toFixedNoRounding = function(n) {
+    
+
     const reg = new RegExp("^-?\\d+(?:\\.\\d{0," + n + "})?", "g")
     const a = this.toString().match(reg)[0];
     const dot = a.indexOf(".");
@@ -303,6 +305,8 @@ export default {
 
                 map.push({...row,...element})
             });
+
+            console.log(map,'mapp')
             return map.map(a=>{
                 return {
                     ...a,
@@ -352,7 +356,9 @@ export default {
             return minus
         },
         returnPayoutOption(total,bet){
-            if(total == 0) return 0
+
+            if(total == 0 || bet == 0) return 0
+            
             let companyCommision = this.returnOptionMinusCompanyComission(total)
             return companyCommision / bet            
         },
