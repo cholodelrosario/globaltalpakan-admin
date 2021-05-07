@@ -352,7 +352,7 @@ export default {
             return minus
         },
         returnPayoutOption(total,bet){
-            if(total == 0) return 0
+            if(total == 0 || bet == 0) return 0
             let companyCommision = this.returnOptionMinusCompanyComission(total)
             return companyCommision / bet            
         },
