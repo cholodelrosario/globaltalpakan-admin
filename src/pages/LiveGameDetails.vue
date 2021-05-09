@@ -303,12 +303,22 @@ export default {
 
                 map.push({...row,...element})
             });
-            return map.map(a=>{
+            let mapper = map.map(a=>{
                 return {
                     ...a,
-                    totalBets: parseFloat(a.totalRed) + parseFloat(a.totalBlue)
+                    totalBets: parseFloat(a.totalRed) + parseFloat(a.totalBlue),
                 }
             })
+            let betOptions = this.LiveGames.betOptions || []
+            let mapbetOptions = betOptions.map(a=>{
+            let mapperFilter = this.$lodash.filter(mapper,b=>{
+                return b.name == a.name && b.betOptionsKey == a.betOptionsKey
+            })[0]
+            return {
+                ...mapperFilter
+            }
+            })
+            return mapbetOptions
         }
     },
     methods:{
