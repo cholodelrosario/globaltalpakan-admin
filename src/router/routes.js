@@ -25,7 +25,9 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/Dashboard.vue'), beforeEnter: ifAuthenticated},
       { path: '/events', component: () => import('pages/Events.vue'), beforeEnter: ifAuthenticated},
+      { path: '/players', component: () => import('pages/Players.vue'), beforeEnter: ifAuthenticated},
       { path: '/end-game-history', component: () => import('pages/EndGameHistory.vue'), beforeEnter: ifAuthenticated},
+      { path: '/bet-option-history', component: () => import('pages/BetOptionHistory.vue'), beforeEnter: ifAuthenticated},
       { path: '/bets', component: () => import('pages/Bets.vue'),beforeEnter: ifAuthenticated },
       { path: '/agents', component: () => import('pages/Agents.vue'), beforeEnter: ifAuthenticated},
       { path: '/create-masteragent', component: () => import('pages/MasterAgentAccounts'), beforeEnter: ifAuthenticated},

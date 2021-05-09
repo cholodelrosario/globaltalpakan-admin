@@ -305,14 +305,22 @@ export default {
 
                 map.push({...row,...element})
             });
-
-            console.log(map,'mapp')
-            return map.map(a=>{
+            let mapper = map.map(a=>{
                 return {
                     ...a,
-                    totalBets: parseFloat(a.totalRed) + parseFloat(a.totalBlue)
+                    totalBets: parseFloat(a.totalRed) + parseFloat(a.totalBlue),
                 }
             })
+            let betOptions = this.LiveGames.betOptions || []
+            let mapbetOptions = betOptions.map(a=>{
+            let mapperFilter = this.$lodash.filter(mapper,b=>{
+                return b.name == a.name && b.betOptionsKey == a.betOptionsKey
+            })[0]
+            return {
+                ...mapperFilter
+            }
+            })
+            return mapbetOptions
         }
     },
     methods:{
@@ -356,9 +364,8 @@ export default {
             return minus
         },
         returnPayoutOption(total,bet){
-
             if(total == 0 || bet == 0) return 0
-            
+
             let companyCommision = this.returnOptionMinusCompanyComission(total)
             return companyCommision / bet            
         },

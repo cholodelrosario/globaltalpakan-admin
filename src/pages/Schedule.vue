@@ -70,7 +70,6 @@
                                 <q-card-section>
                                     <div class="text-h6 ellipsis">
                                          GAME #{{props.row.gameNumber}}
-                                         
                                     </div>
                                     <span class="text-grey text-caption"> {{$moment(props.row.scheduledTime.from).calendar()}}</span>
 
@@ -90,7 +89,7 @@
                                 <q-separator />
 
                                 <q-card-actions v-show="props.row.showedLive !== true">
-                                    <q-btn flat round icon="edit" color="grey"/>
+                                    <q-btn flat round icon="edit" @click="openEditDialog(props.row), openEditGames(props.row)" color="grey"/>
                                     <q-btn flat round icon="delete" color="grey" @click="openDeleteDialog(props.row)"/>
                                     <q-btn flat color="grey" size="sm" v-show="props.row.betOptions.length > 0" @click="viewBetOptionsDialog(props.row.betOptions)">
                                     view bet options list ({{props.row.betOptions.length}})
@@ -238,6 +237,140 @@
                 </q-card-actions>
             </q-card>
         </q-dialog>
+        <q-dialog v-model="updateScheduledGames" persistent>
+            <q-card class="column full-height bg-dark text-white" style="width: 700px">
+                <q-card-section>
+                    <div class="row items-start q-gutter-md">
+                        <div class="text-h6 col-7">Edit Game Schedule</div>
+                        <div class="col">
+                            <q-input dark outlined filled dense v-model="editGameNo" label="Enter Game Number"/>
+                        </div>
+                    </div>
+                </q-card-section>
+
+                <q-card-section class="col q-pt-none scroll q-gutter-md">
+                    <template>
+                        <q-video :ratio="14/7" :src="editVideoUrl"/>
+                    </template>
+
+                    <q-select dark outlined v-model="editSelectGame" @input="changeGames()" :options="gamesOption" emit-value map-options label="Select Game" class="q-pt-md" />
+
+                    <q-input dark outlined v-model="videoUrl" label="Enter Video Url."/>
+    
+                    <div class="row items-start">
+                        <div class="col column q-mr-md" >
+                            <q-input dark hint="Start of Event" outlined v-model="editdateFrom">
+                            <template v-slot:prepend>
+                                <q-icon name="event" class="cursor-pointer">
+                                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                                    <q-date v-model="editdateFrom" mask="YYYY-MM-DD HH:mm">
+                                    <div class="row items-center justify-end">
+                                        <q-btn v-close-popup label="Ok" color="primary" flat />
+                                    </div>
+                                    </q-date>
+                                </q-popup-proxy>
+                                </q-icon>
+                            </template>
+
+                            <template v-slot:append>
+                                <q-icon name="access_time" class="cursor-pointer">
+                                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                                    <q-time v-model="editdateFrom" mask="YYYY-MM-DD HH:mm" format24h>
+                                    <div class="row items-center justify-end">
+                                        <q-btn v-close-popup label="Ok" color="primary" flat />
+                                    </div>
+                                    </q-time>
+                                </q-popup-proxy>
+                                </q-icon>
+                            </template>
+                            </q-input>
+                        </div>
+                        <div class="col column" >
+                            <q-input dark hint="End of Event" outlined v-model="editdateTo">
+                            <template v-slot:prepend>
+                                <q-icon name="event" class="cursor-pointer">
+                                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                                    <q-date v-model="editdateTo" mask="YYYY-MM-DD HH:mm">
+                                    <div class="row items-center justify-end">
+                                        <q-btn v-close-popup label="Ok" color="primary" flat />
+                                    </div>
+                                    </q-date>
+                                </q-popup-proxy>
+                                </q-icon>
+                            </template>
+
+                            <template v-slot:append>
+                                <q-icon name="access_time" class="cursor-pointer">
+                                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                                    <q-time v-model="editdateTo" mask="YYYY-MM-DD HH:mm" format24h>
+                                    <div class="row items-center justify-end">
+                                        <q-btn v-close-popup label="Ok" color="primary" flat />
+                                    </div>
+                                    </q-time>
+                                </q-popup-proxy>
+                                </q-icon>
+                            </template>
+                            </q-input>
+                        </div>
+                    </div>
+                    <div class="row items-start">
+                        <div class="col column bg-red text-white q-mr-md">
+                            <div class="text-h6 text-center">
+                                <q-select class="col column justify-between" emit-value map-options v-model="selectTeamOne" outlined :options="teamOptionOne" label="Select Team" />
+                            </div>
+                        </div>
+                        <div class="col column bg-blue text-white">
+                            <div class="text-h6">
+                                <q-select class="col column justify-between" emit-value map-options v-model="selectTeamTwo" outlined :options="teamOptionTwo" label="Select Team" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row q-gutter-md">
+                        <div class="col column justify-between text-overline q-pa-sm">ADD ANOTHER BET OPTIONS</div>
+                        <div class="column q-pa-sm">
+                            <q-btn flat @click="editOptDialog = true" class="col column justify-between" label="Add Options" padding="none" style="width: 150px" color="grey" icon="add">
+                                <q-tooltip> Add Bet Options </q-tooltip>
+                            </q-btn>
+                        </div>
+                    </div>
+
+                    <div>
+                        <q-list v-for="(i, index) in this.editOptions" :key="index" bordered>
+                            <q-item class="bg-secondary text-white ">
+                                <q-item-section>
+                                    <q-item-label class="text-h6 q-pa-sm">{{i.name}}</q-item-label>
+                                </q-item-section>
+                                <q-item-section side>
+                                    <q-btn color="grey" flat size="sm"  icon="close" label="remove" @click="removeEditBetOptions(index)" />
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </div>
+                </q-card-section>
+                <q-separator  />
+                <q-card-actions align="right">
+                    <q-btn flat label="Cancel" @click="cancel()" v-close-popup />
+                    <q-btn flat label="Update Scheduled Games" @click="updateSchedEvents()" v-close-popup />
+                </q-card-actions>
+            </q-card>    
+        </q-dialog>
+        <q-dialog v-model="editOptDialog" persistent>
+            <q-card class="bg-secondary text-white" style="min-width: 350px">
+                <q-card-section>
+                <div class="text-h6">Select Bet Options</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    <q-select dark class="col column justify-between" emit-value map-options v-model="editBetOpt" outlined :options="editBetOptions" label="Select Options" />
+                </q-card-section>
+
+                <q-card-actions align="right" class="text-primary">
+                <q-btn flat label="Cancel" v-close-popup />
+                <q-btn flat label="Add Options" @click="addEditOptions()" v-close-popup />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
         <q-dialog v-model="optDialog" persistent>
             <q-card class="bg-secondary text-white" style="min-width: 350px">
                 <q-card-section>
@@ -282,6 +415,81 @@
 import { date } from 'quasar'
 export default {
     methods:{
+        changeGames(){
+            if(this.selectGameEdit !== this.editSelectGame.games){
+                this.selectTeamOne = ''
+                this.selectTeamTwo = ''
+                this.editOptions = []
+                this.selectGameEdit = this.editSelectGame.games
+            }
+        },
+        openEditGames(task){
+            this.selectGameEdit = task.gameCategory
+        },
+        updateSchedEvents(){
+            var updateEvents = {
+                bettingStatus: true,
+                gameStatus: true,
+                gameCategory: this.editSelectGame.games === undefined ? this.editSelectGame : this.editSelectGame.games,
+                gameKey: this.editSelectGame.games === undefined ? this.editGameKey : this.editSelectGame['.key'],
+                betOptions: this.editOptions,
+                gameNumber: this.editGameNo,
+                scheduledTime: {
+                    from: date.formatDate(this.editdateFrom, 'YYYY-MM-DD HH:mm'),
+                    to: date.formatDate(this.editdateTo, 'YYYY-MM-DD HH:mm'),
+                },
+                status: 'OPEN',
+                tag: 'MIRROR',
+                teamBlue: {
+                    team: this.selectTeamOne.team === undefined ? this.selectTeamOne : this.selectTeamOne.team,
+                },
+                teamBlueKey: this.selectTeamOne.team === undefined ? this.teamOneKey : this.selectTeamOne['.key'],
+                teamRed: {
+                     team: this.selectTeamTwo.team === undefined ? this.selectTeamTwo : this.selectTeamTwo.team,
+                },
+                teamRedKey: this.selectTeamTwo.team === undefined ? this.teamTwoKey : this.selectTeamTwo['.key'],
+                dateCreated: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
+                trends: this.editTrends,
+                videoLink: this.editVideoUrl,
+            }
+            this.$q.dialog({
+                title: 'Update This Events',
+                message: 'Update This Events?',
+                ok: 'Yes',
+                cancel: 'Cancel'
+            }).onOk(() => { 
+                this.$db.collection('ScheduledGames').doc(this.schedID).set(updateEvents)
+                this.$q.notify({
+                        message: 'Events! Updated!',
+                        icon: 'mdi-update',
+                        color: 'positive',
+                        textColor: 'white',
+                        position: 'center'
+                })
+                this.updateScheduledGames = false  
+            })
+        },
+        cancel(){
+            this.selectTeamOne = ''
+            this.selectTeamTwo = ''
+            this.updateScheduledGames = false
+        },
+        openEditDialog (task) {
+            this.schedID = task['.key']
+            this.editGameNo = task.gameNumber
+            this.editVideoUrl = task.videoLink
+            this.editSelectGame = task.gameCategory
+            this.editGameKey = task.gameKey
+            this.editdateFrom = task.scheduledTime.from
+            this.editdateTo = task.scheduledTime.to
+            this.selectTeamOne = task.teamBlue.team
+            this.teamOneKey = task.teamBlueKey
+            this.teamTwoKey = task.teamRedKey
+            this.selectTeamTwo = task.teamRed.team
+            this.editOptions = task.betOptions
+            this.editTrends = task.trends
+            this.updateScheduledGames = true
+        },
         openDeleteDialog (task) {
           var id = task['.key']
           this.$q.dialog({
@@ -373,6 +581,10 @@ export default {
         removeBetOptions(index){
             this.Options.splice(index,1)
         },
+        removeEditBetOptions(index){
+            this.editOptions.splice(index,1)
+            console.log(this.editOptions, 'sadsadasdasdas')
+        },
         addOptions(){
             var OptionBet  = {
                 name: this.betOpt.betsopt,
@@ -401,6 +613,35 @@ export default {
                     this.betOpt = ''
             })
             console.log(this.Options, 'options')
+        },
+        addEditOptions(){
+            var OptionBet  = {
+                name: this.editBetOpt.betsopt,
+                betOptionsKey: this.editBetOpt['.key']
+            }
+            if(this.editBetOpt === '') {
+              this.$q.dialog({
+              title: 'Field Required!',
+              message: 'Fill all Requirements?',
+              ok: 'Ok',
+            })
+            }else
+                this.$q.dialog({
+                title: 'Add Options',
+                message: 'Add This Options?',
+                ok: 'Yes',
+            }).onOk(() => { 
+                this.editOptions.push(OptionBet)
+                this.$q.notify({
+                        message: 'Option Added!',
+                        icon: 'mdi-folder-plus-outline',
+                        color: 'positive',
+                        textColor: 'white',
+                        position: 'center'
+                    })
+                    this.editBetOpt = ''
+            })
+            console.log(this.editOptions, 'optionss')
         },
         viewBetOptionsDialog(array){
             this.viewBetOptions = array
@@ -456,11 +697,43 @@ export default {
             }) 
                 return newBetsOpt
         },
+        editBetOptions(){
+            let betsopts = this.$lodash.filter(this.BetOptions, m => {
+                if(m.games === this.editSelectGame){
+                    return m.betsopt
+                }
+            })
+
+            let map = betsopts.map(a=>{
+                return {
+                    ...a,
+                    name: a.betsopt
+                }
+            })
+
+            let diff = this.$lodash.differenceBy(map,this.editOptions, 'name')
+            console.log(diff,'ffd')
+            let newBetsOpt = diff.map(betsopts => {
+                return {
+                    label: betsopts.betsopt,
+                    value: betsopts
+                }
+            }) 
+                return newBetsOpt
+        },
         teamOptionOne(){
             let teams = this.$lodash.filter(this.Team, m => {
-                if(m.game === this.selectGame.games){
-                    return m.team
+                if(this.updateScheduledGames === true){
+                    console.log(this.editSelectGame, 'editSelectGame')
+                    if(m.game === this.editSelectGame || m.game === this.editSelectGame.games){
+                        return m.team
+                    }
+                }else{
+                    if(m.game === this.selectGame.games){
+                        return m.team
+                    }
                 }
+                    
             })
             let diff = this.$lodash.differenceBy(teams,this.selectTeamTwo == '' ? [] : [{...this.selectTeamTwo}], 'team')
 
@@ -476,8 +749,14 @@ export default {
         },
         teamOptionTwo(){
             let teams = this.$lodash.filter(this.Team, m => {
-                if(m.game === this.selectGame.games){
-                    return m.team
+                if(this.updateScheduledGames === true){
+                    if(m.game === this.editSelectGame || m.game === this.editSelectGame.games){
+                        return m.team
+                    }
+                }else{
+                    if(m.game === this.selectGame.games){
+                        return m.team
+                    }
                 }
             })
 
@@ -497,6 +776,15 @@ export default {
     },
     data(){
         return {
+            selectGameEdit: '',
+            editTrends: [],
+            editBetOpt: '',
+            editOptDialog: false,
+            editOptions: [],
+            editGameNo: '',
+            editVideoUrl: '',
+            editSelectGame: '',
+            updateScheduledGames: false,
             initialPagination: {
                 sortBy: 'showedLive',
                 descending: false,
@@ -513,6 +801,8 @@ export default {
             gameNo: 0,
             gameCategory: 'ALL',
             splitterModel: 20,
+            editdateFrom: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
+            editdateTo: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             dateTo: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             dateFrom: date.formatDate(new Date(), 'YYYY-MM-DD HH:mm'),
             Options: [],
@@ -524,6 +814,8 @@ export default {
             BetOptions: [],
             Team: [],
             ScheduledGames: [],
+            editselectTeamOne: '',
+            editselectTeamTwo:  '',
             selectTeamTwo: '',
             selectTeamOne: '',
             schedDialog: false,
