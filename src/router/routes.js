@@ -40,6 +40,7 @@ const routes = [
       { path: '/games', component: () => import('pages/Games.vue'),beforeEnter: ifAuthenticated },
       { path: '/useraccounts', component: () => import('pages/UserAccounts.vue'),beforeEnter: ifAuthenticated },
       { path: '/betsopt', component: () => import('pages/Betsopt.vue'),beforeEnter: ifAuthenticated },
+      { path: '/index', component: () => import('pages/Index.vue'),beforeEnter: ifAuthenticated },
       { path: '/schedule', component: () => import('pages/Schedule.vue'),beforeEnter: ifAuthenticated },
       { path: '/credits', component: () => import('pages/Credits.vue'),beforeEnter: ifAuthenticated },
       { path: '/gcashbank', component: () => import('pages/GcashBank.vue'),beforeEnter: ifAuthenticated },

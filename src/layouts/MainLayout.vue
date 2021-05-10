@@ -32,7 +32,7 @@
             <q-item-label overline class="text-white">{{returnUser.phone}}</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/dashboard" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="dashboard" />
           </q-item-section>
@@ -57,7 +57,7 @@
           </q-item-section>
         </q-item> -->
 
-        <q-item clickable v-ripple to="/end-game-history" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="help" />
           </q-item-section>
@@ -66,7 +66,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/bet-option-history" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="help" />
           </q-item-section>
@@ -90,7 +90,7 @@
             <q-item-label class="text-weight-bold">Master Agent Accounts</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/commisions" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="money" />
           </q-item-section>
@@ -98,7 +98,7 @@
             <q-item-label class="text-weight-bold">MA Status.</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/agents" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="people" />
           </q-item-section>
@@ -106,7 +106,7 @@
             <q-item-label class="text-weight-bold">Agent Status.</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/players" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="mdi-account" />
           </q-item-section>
@@ -114,7 +114,7 @@
             <q-item-label class="text-weight-bold">Player Status.</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/agent-ranking" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="assessment" />
           </q-item-section>
@@ -137,7 +137,7 @@
             <q-item-label class="text-weight-bold">Transactions</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/total-sales" active-class="text-black bg-primary">
+        <q-item clickable v-ripple to="/index" active-class="text-black bg-primary">
           <q-item-section avatar>
             <q-avatar color="grey-1" text-color="dark" icon="request_page" />
           </q-item-section>
