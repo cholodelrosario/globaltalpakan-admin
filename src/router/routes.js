@@ -23,7 +23,7 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     beforeEnter: ifAuthenticated,
     children: [
-      { path: '', component: () => import('pages/Dashboard.vue'), beforeEnter: ifAuthenticated},
+      { path: '', component: () => import('pages/Index.vue'), beforeEnter: ifAuthenticated},
       { path: '/events', component: () => import('pages/Events.vue'), beforeEnter: ifAuthenticated},
       { path: '/players', component: () => import('pages/Players.vue'), beforeEnter: ifAuthenticated},
       { path: '/end-game-history', component: () => import('pages/EndGameHistory.vue'), beforeEnter: ifAuthenticated},
@@ -40,6 +40,7 @@ const routes = [
       { path: '/games', component: () => import('pages/Games.vue'),beforeEnter: ifAuthenticated },
       { path: '/useraccounts', component: () => import('pages/UserAccounts.vue'),beforeEnter: ifAuthenticated },
       { path: '/betsopt', component: () => import('pages/Betsopt.vue'),beforeEnter: ifAuthenticated },
+      { path: '/index', component: () => import('pages/Index.vue'),beforeEnter: ifAuthenticated },
       { path: '/schedule', component: () => import('pages/Schedule.vue'),beforeEnter: ifAuthenticated },
       { path: '/credits', component: () => import('pages/Credits.vue'),beforeEnter: ifAuthenticated },
       { path: '/gcashbank', component: () => import('pages/GcashBank.vue'),beforeEnter: ifAuthenticated },

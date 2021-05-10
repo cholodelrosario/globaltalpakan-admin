@@ -1,12 +1,13 @@
 <template>
   <q-page class="bg-dark text-white">
       <div>
-          <div full-width>
+          <div class="container">
             <q-tabs v-model="gameCategory" inline-label class="bg-secondary text-white shadow-2 col-12" >
                 <div class="row">
                     <q-tab :name="i.games" :label="i.games" v-for="(i, index) in GamesCategory" :key="index" />
                 </div>        
             </q-tabs>
+
             <div class="q-pa-md">
                 <q-card class="bg-secondary">
                     <q-card-section class="text-center">
@@ -87,8 +88,7 @@
                         </div>
                     </template>
                 </q-table>
-            </div>
-            
+            </div>         
           </div>
       </div>
 
@@ -469,6 +469,7 @@ export default {
             schedDialog: false,
             betOptionsDialog: false,
             TrendsHistory: null,
+            splitterModel: 20,
         }
     },
     mounted () {
