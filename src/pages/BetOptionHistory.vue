@@ -44,6 +44,7 @@
 export default {
     data(){
         return{
+            EndGamesThanos: [],
             EndGames: [],
             type: '',
             option: [
@@ -71,6 +72,130 @@ export default {
         }
     },
     methods: {
+        async searchAll(){
+            this.type = null
+            if(this.filter === ''){
+                this.$q.dialog({
+                title: 'Please Enter Game Title!',
+                message: 'Fill Search Bar?',
+                ok: 'Ok',
+                cancel: 'Cancel',
+                dark: true
+                })
+                this.EndGamesThanos = []
+            }else{
+                if(this.filter === 'All'){
+                    await this.endGameDetails()
+                    await this.betOptEndGameDetails()
+                    .then(() => {
+                        let map = this.$lodash.map(this.BetOptionsEndGames,a=>{
+                            let games = this.getGames(a.scheduleKey)
+                            return {
+                                    ['.key']: a['.key'],
+                                    scheduleKey: a.scheduleKey,
+                                    gameNumber: games.gameNumber,
+                                    gameCategory: games.gameCategory,
+                                    endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
+                                    companyCommission: a.companyCommission,
+                                    dateCreated: a.dateCreated,
+                                    dateEnded: this.$moment(a.dateEnded.toDate()).format('MM-DD-YYYY hh:mm A'),
+                                    betOptions: a.betOptions,
+                                    totalMoneyBox: a.totalMoneyBox,
+                                    teams: a.teamRed.team + ' vs ' + a.teamBlue.team,
+                                    companyCommsLessAgent: a.totalMoneyBox * 0.02,
+                                    betOptName: a.name
+                            }
+                        })
+                        console.log(map, 'AgentsAccount')
+                        let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
+                        this.EndGamesThanos = orderByP
+                    }).catch(err => {
+                        console.error(err)
+                    })
+                }else{
+                    await this.endGameDetails()
+                    await this.betOptEndGameDetails()
+                    .then(() => {
+                        let map = this.$lodash.map(this.BetOptionsEndGames,a=>{
+                            let games = this.getGames(a.scheduleKey)
+                            return {
+                                    ['.key']: a['.key'],
+                                    scheduleKey: a.scheduleKey,
+                                    gameNumber: games.gameNumber,
+                                    gameCategory: games.gameCategory,
+                                    endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
+                                    companyCommission: a.companyCommission,
+                                    dateCreated: a.dateCreated,
+                                    dateEnded: this.$moment(a.dateEnded.toDate()).format('MM-DD-YYYY hh:mm A'),
+                                    betOptions: a.betOptions,
+                                    totalMoneyBox: a.totalMoneyBox,
+                                    teams: a.teamRed.team + ' vs ' + a.teamBlue.team,
+                                    companyCommsLessAgent: a.totalMoneyBox * 0.02,
+                                    betOptName: a.name
+                            }
+                        })
+                        let filterSearch = this.$lodash.filter(map, p => {
+                                return p.gameCategory === this.filter
+                        })
+                        let orderByP = this.$lodash.orderBy(filterSearch, ['dateEnded'], ['desc']);
+                        this.EndGamesThanos = orderByP
+                    }).catch(err => {
+                        console.error(err)
+                    })
+                }
+            }
+        },
+        async myEndGame(){
+            this.filter = ''
+            if(this.type === null){
+                this.EndGamesThanos = []
+            }else{
+                await this.endGameDetails()
+                await this.betOptEndGameDetails()
+                .then(() => {
+                    let dateMMDDYYYY = this.$lodash.filter(this.BetOptionsEndGames, b => {
+                        return this.$moment(b.dateEnded.toDate()).format('DD') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('MM') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('YYYY') === this.$moment(new Date()).format(this.type)
+                    })
+                    let orderByP = this.$lodash.orderBy(dateMMDDYYYY, ['dateEnded'], ['desc']);
+                    let map = this.$lodash.map(orderByP,a=>{
+                        let games = this.getGames(a.scheduleKey)
+                        return {
+                                ['.key']: a['.key'],
+                                scheduleKey: a.scheduleKey,
+                                gameNumber: games.gameNumber,
+                                gameCategory: games.gameCategory,
+                                endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
+                                companyCommission: a.companyCommission,
+                                dateCreated: a.dateCreated,
+                                dateEnded: this.$moment(a.dateEnded.toDate()).format('MM-DD-YYYY hh:mm A'),
+                                betOptions: a.betOptions,
+                                totalMoneyBox: a.totalMoneyBox,
+                                teams: a.teamRed.team + ' vs ' + a.teamBlue.team,
+                                companyCommsLessAgent: a.totalMoneyBox * 0.02,
+                                betOptName: a.name
+                        }
+                    })
+                    console.log(map, 'mappaaa')
+                    this.EndGamesThanos = map
+                }).catch(err => {
+                    console.error(err)
+                })
+            }
+        },
+        async endGameDetails(){
+            await this.$binding("EndGames", this.$db.collection("EndGames"))
+            .then((EndGames) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async betOptEndGameDetails(){
+            await this.$binding("BetOptionsEndGames", this.$db.collection("BetOptionsEndGames"))
+            .then((BetOptionsEndGames) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
         getGames(key){
             var docRef = null
             var data = null
@@ -104,67 +229,9 @@ export default {
             let totalSales = parseFloat(this.totalCompanyComms) + parseFloat(this.totalExtraComms) 
             return this.total = totalSales
         },
-        EndGamesThanos(){
-            if(this.type === '' || this.type === null){
-                let orderByP = this.$lodash.orderBy(this.BetOptionsEndGames, ['dateEnded'], ['desc']);
-                let map = this.$lodash.map(orderByP,a=>{
-                    let games = this.getGames(a.scheduleKey)
-                    return {
-                            ['.key']: a['.key'],
-                            scheduleKey: a.scheduleKey,
-                            gameNumber: games.gameNumber,
-                            gameCategory: games.gameCategory,
-                            endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
-                            companyCommission: a.companyCommission,
-                            dateCreated: a.dateCreated,
-                            dateEnded: this.$moment(a.dateEnded.toDate()).format('MM-DD-YYYY hh:mm A'),
-                            betOptions: a.betOptions,
-                            totalMoneyBox: a.totalMoneyBox,
-                            teams: a.teamRed.team + ' vs ' + a.teamBlue.team,
-                            companyCommsLessAgent: a.totalMoneyBox * 0.02,
-                            betOptName: a.name
-                        }
-                })
-                console.log(map, 'mappaaa')
-                return map
-            }else{  
-                console.log(this.type, 'typetypetype')
-                let dateMMDDYYYY = this.$lodash.filter(this.BetOptionsEndGames, b => {
-                     return this.$moment(b.dateEnded.toDate()).format('DD') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('MM') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('YYYY') === this.$moment(new Date()).format(this.type)
-                })
-                let orderByP = this.$lodash.orderBy(dateMMDDYYYY, ['dateEnded'], ['desc']);
-                let map = this.$lodash.map(orderByP,a=>{
-                    let games = this.getGames(a.scheduleKey)
-                    return {
-                            ['.key']: a['.key'],
-                            scheduleKey: a.scheduleKey,
-                            gameNumber: games.gameNumber,
-                            gameCategory: games.gameCategory,
-                            endingOddBets: a.winningTeam === 'Red' ? a.endingOddBets.teamRed : a.endingOddBets.teamBlue,
-                            companyCommission: a.companyCommission,
-                            dateCreated: a.dateCreated,
-                            dateEnded: this.$moment(a.dateEnded.toDate()).format('MM-DD-YYYY hh:mm A'),
-                            betOptions: a.betOptions,
-                            totalMoneyBox: a.totalMoneyBox,
-                            teams: a.teamRed.team + ' vs ' + a.teamBlue.team,
-                            companyCommsLessAgent: a.totalMoneyBox * 0.02,
-                            betOptName: a.name
-                        }
-                })
-                console.log(map, 'mappaaa')
-                return map
-            }
-        },
     },
     mounted() {
-        this.$binding('BetOptionsEndGames', this.$db.collection('BetOptionsEndGames'))
-        .then(BetOptionsEndGames => {
-          console.log(BetOptionsEndGames, 'BetOptionsEndGames')
-        })
-        this.$binding('EndGames', this.$db.collection('EndGames'))
-        .then(EndGames => {
-          console.log(EndGames, 'EndGames')
-        })
+        
     }
 }
 </script>
