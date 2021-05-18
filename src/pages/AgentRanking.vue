@@ -8,16 +8,11 @@
                 <q-input class="col" readonly dark outlined v-model="credits" type="number" label="Overall Credits Balance of Coordinator" />
                 <q-input class="col" readonly dark outlined v-model="comms" type="number" label="Overall Commission Balance of Coordinator" />
                 <q-input class="col" readonly dark outlined v-model="mtd" type="number" label="Overall MTD of Coordinator" />
-                <q-select class="col column" clearable emit-value map-options dark v-model="type" :options="option" label="Select Coordinator" outlined/>
+                <q-select @input="myCoordinatorsRanking()" class="col column" clearable emit-value map-options dark v-model="type" :options="option" label="Select Coordinator" outlined/>
             </div>
-            <!-- <div class="q-pa-md row q-gutter-md">
-                <strong>From:</strong><q-input dark v-model="fromdate" mask="YYYY/MM/DD" filled type="date"/>
-                <strong>To:</strong><q-input dark v-model="todate" mask="YYYY/MM/DD" filled type="date"/>
-                <q-btn class="col column" color="accent" label="Create MA Account" @click="$router.push('/create-masteragent')"/>
-            </div> -->
         </div>
         <div class="q-pa-md">
-            <q-table title="Top MTD Coordinator" :filter="filter" :pagination.sync="pagination" :rows-per-page-options="[0]" class="bg-secondary text-white" :data="allAgents" :columns="columns" row-key="name">
+            <q-table title="Top MTD Coordinator" :filter="filter" :pagination.sync="pagination" :rows-per-page-options="[0]" class="bg-secondary text-white" :data="myRanking" :columns="columns" row-key="name">
                 <template v-slot:body="props">
                     <q-tr>
                         <q-td key="accountName" :props="props">{{props.row.accountName}}</q-td>
@@ -44,6 +39,10 @@
 export default {
     data(){
         return{
+            AgentRanking: [],
+            MARanking: [],
+            AllRanking: [],
+            myRanking: [],
             credits: 0,
             comms: 0,
             mtd: 0,
@@ -51,13 +50,11 @@ export default {
             type: '',
             option: [
               'Agent',
-              'Master Agent'
-            ],
+              'Master Agent',
+              'ALL'
+            ],  
             TotalMonthYearMTD: [],
             Wallet: [],
-            CommissionHistory: [],
-            fromdate:  '',
-            todate:  '',
             MasterAgents: [],
             filter: '',
             pagination: { page: 1, rowsPerPage: 20},
@@ -73,6 +70,159 @@ export default {
         }
     },
     methods: {
+        async myCoordinatorsRanking(){
+            // this.filter = ''
+            if(this.type === ''){
+                this.myRanking = []
+            }else if(this.type === 'ALL'){
+                await this.myAgentsDetails()
+                await this.checkWalletBalance()
+                await this.checkMTDBalance()
+                await this.myMasterAgentsDetails()
+                .then(() => {
+                    let map = this.$lodash.map(this.Agents,a=>{
+                    let wallet = this.getwalletDetailsAgents(a['.key'])
+                    let MTDs = this.getMTDAgents(a['.key'])
+                    return {
+                            ['.key']: a['.key'],
+                            accountID: a['.key'],
+                            type: 'Agent',
+                            accountName: a.accountName,
+                            accountPhone: a.accountPhone,
+                            lastTransaction: a.lastTransaction === undefined ? 'No Transaction Yet' : this.$moment(a.lastTransaction.toDate()).format('MM-DD-YYYY') + ' at ' + this.$moment(a.lastTransaction.toDate()).format('hh:ss A'),
+                            MTD: MTDs === undefined || MTDs === null ? 0 : MTDs,
+                            creditsAmount: wallet.creditsAmount === undefined || wallet.creditsAmount === null ? 0 : wallet.creditsAmount,
+                            commisionBalance: wallet.commisionBalance === undefined || wallet.commisionBalance === null ? 0 : wallet.commisionBalance
+                        }
+                })
+                console.log(map, 'AgentsAccount')
+                let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
+                this.AgentRanking = orderByP
+                }).catch(err => {
+                    console.error(err)
+                })
+                .then(() => {
+                    let map = this.$lodash.map(this.MasterAgents,a=>{
+                        let wallet = this.getwalletDetails(a['.key'])
+                        let MTDs = this.getMTD(a['.key'])
+                        return {
+                                ['.key']: a['.key'],
+                                accountID: a['.key'],
+                                type: 'Master Agent',
+                                accountName: a.accountFirstName + ' ' + a.accountLastName,
+                                accountPhone: a.accountPhone,
+                                lastTransaction: a.lastTransaction === undefined ? 'No Transaction Yet' : this.$moment(a.lastTransaction.toDate()).format('MM-DD-YYYY') + ' at ' + this.$moment(a.lastTransaction.toDate()).format('hh:ss A'),
+                                MTD: MTDs === undefined || MTDs === null ? 0 : MTDs,
+                                creditsAmount: wallet.creditsAmount,
+                                commisionBalance: wallet.commisionBalance === undefined || wallet.commisionBalance === null ? 0 : wallet.commisionBalance
+                            }
+                    })
+                    let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
+                    this.MARanking = orderByP
+                }).catch(err => {
+                    console.error(err)
+                })
+                .then(() => {
+                    this.myNewRanking = [...this.AgentRanking,...this.MARanking]
+                    let orderByP = this.$lodash.orderBy(this.myNewRanking, ['MTD'], ['desc']);
+                    this.myRanking = orderByP
+                })
+                .catch(err => {
+                    console.error(err)
+                })
+            }else{
+                await this.myAgentsDetails()
+                await this.checkWalletBalance()
+                await this.checkMTDBalance()
+                await this.myMasterAgentsDetails()
+                .then(() => {
+                    let map = this.$lodash.map(this.Agents,a=>{
+                    let wallet = this.getwalletDetailsAgents(a['.key'])
+                    let MTDs = this.getMTDAgents(a['.key'])
+                    return {
+                            ['.key']: a['.key'],
+                            accountID: a['.key'],
+                            type: 'Agent',
+                            accountName: a.accountName,
+                            accountPhone: a.accountPhone,
+                            lastTransaction: a.lastTransaction === undefined ? 'No Transaction Yet' : this.$moment(a.lastTransaction.toDate()).format('MM-DD-YYYY') + ' at ' + this.$moment(a.lastTransaction.toDate()).format('hh:ss A'),
+                            MTD: MTDs === undefined || MTDs === null ? 0 : MTDs,
+                            creditsAmount: wallet.creditsAmount === undefined || wallet.creditsAmount === null ? 0 : wallet.creditsAmount,
+                            commisionBalance: wallet.commisionBalance === undefined || wallet.commisionBalance === null ? 0 : wallet.commisionBalance
+                        }
+                })
+                console.log(map, 'AgentsAccount')
+                let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
+                this.AgentRanking = orderByP
+                }).catch(err => {
+                    console.error(err)
+                })
+                .then(() => {
+                    let map = this.$lodash.map(this.MasterAgents,a=>{
+                        let wallet = this.getwalletDetails(a['.key'])
+                        let MTDs = this.getMTD(a['.key'])
+                        return {
+                                ['.key']: a['.key'],
+                                accountID: a['.key'],
+                                type: 'Master Agent',
+                                accountName: a.accountFirstName + ' ' + a.accountLastName,
+                                accountPhone: a.accountPhone,
+                                lastTransaction: a.lastTransaction === undefined ? 'No Transaction Yet' : this.$moment(a.lastTransaction.toDate()).format('MM-DD-YYYY') + ' at ' + this.$moment(a.lastTransaction.toDate()).format('hh:ss A'),
+                                MTD: MTDs === undefined || MTDs === null ? 0 : MTDs,
+                                creditsAmount: wallet.creditsAmount,
+                                commisionBalance: wallet.commisionBalance === undefined || wallet.commisionBalance === null ? 0 : wallet.commisionBalance
+                            }
+                    })
+                    let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
+                    this.MARanking = orderByP
+                }).catch(err => {
+                    console.error(err)
+                })
+                .then(() => {
+                    this.myNewRanking = [...this.AgentRanking,...this.MARanking]
+                    let orderByP = this.$lodash.orderBy(this.myNewRanking, ['MTD'], ['desc']);
+                    let withType = this.$lodash.filter(orderByP, p => {
+                        return p.type === this.type
+                    })
+                    this.myRanking = withType
+                })
+                .catch(err => {
+                    console.error(err)
+                })
+            }
+        },
+        async myMasterAgentsDetails(){
+            await this.$binding("MasterAgents", this.$db.collection("MasterAgents"))
+            .then((MasterAgents) => {
+                // console.log(wallet,'wallet') // => __ob__: Observer
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async myAgentsDetails(){
+            await this.$binding("Agents", this.$db.collection("Agents"))
+            .then((Agents) => {
+                // console.log(wallet,'wallet') // => __ob__: Observer
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async checkWalletBalance(){
+            await this.$binding("Wallet", this.$db.collection("Wallet"))
+            .then((wallet) => {
+                // console.log(wallet,'wallet') // => __ob__: Observer
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async checkMTDBalance(){
+            await this.$binding('TotalMonthYearMTD', this.$db.collection('TotalMonthYearMTD'))
+            .then(TotalMonthYearMTD => {
+            // console.log(TotalMonthYearMTD, 'TotalMonthYearMTD')
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
         getwalletDetailsAgents(key){
             var docRef = null
             var data = null
@@ -97,19 +247,6 @@ export default {
             return data.MTD
 
         },
-        // getMTDAgents(key){
-        //     let date = this.$moment(new Date()).format('MM-YYYY')
-        //     var docRef = null
-        //     docRef = this.CommissionHistory.filter(a=>{
-        //         return a.accountID === key && this.$moment(a.timestamp.toDate()).format('MM-YYYY') === date
-        //     })
-        //     let total = this.$lodash.sumBy(docRef, a => { 
-        //         return parseFloat(a.amount)
-        //     })
-        //     console.log(total, 'totalsss')
-        //     return total
-
-        // },
         getwalletDetails(key){
             var docRef = null
             var data = null
@@ -121,19 +258,6 @@ export default {
             return data
 
         },
-        // getMTD(key){
-        //     let date = this.$moment(new Date()).format('MM-YYYY')
-        //     var docRef = null
-        //     docRef = this.CommissionHistory.filter(a=>{
-        //         return a.accountID === key && this.$moment(a.timestamp.toDate()).format('MM-YYYY') === date
-        //     })
-        //     let total = this.$lodash.sumBy(docRef, a => { 
-        //         return parseFloat(a.amount)
-        //     })
-        //     console.log(total, 'totalsss')
-        //     return total
-
-        // },
         getMTD(key){
             let date = this.$moment(new Date()).format('MM-YYYY-')
             let filterKey = date + key
@@ -149,59 +273,14 @@ export default {
         },
     },
     computed: {
-        // comhistory(){
-        //     let docRef = this.$lodash.filter(this.CommissionHistory, b => {
-        //         return b.accountID === 'CqyMlXTR6xPB6nIokTmajivm87d2'
-        //     })
-        //     let total = this.$lodash.sumBy(docRef, a => { 
-        //         return parseFloat(a.amount)
-        //     })
-        //     console.log(total, 'AgentsComHistory')
-        //     return total
-        // },
-        allAgents(){
-          let allmyAgents = [...this.myAgents,...this.myMasterAgents]
-          if(this.type === '' || this.type === null){
-            let orderByP = this.$lodash.orderBy(allmyAgents, ['MTD'], ['desc']);
-            return orderByP
-          }else{
-            let withType = this.$lodash.filter(allmyAgents, p => {
-                return p.type === this.type
-            })
-              return withType
-          }
-        },
-        myAgents(){
-              let map = this.$lodash.map(this.Agents,a=>{
-                  let wallet = this.getwalletDetailsAgents(a['.key'])
-                  let MTDs = this.getMTDAgents(a['.key'])
-                  return {
-                          ['.key']: a['.key'],
-                          accountID: a['.key'],
-                          type: 'Agent',
-                          accountName: a.accountName,
-                          accountPhone: a.accountPhone,
-                          lastTransaction: a.lastTransaction === undefined ? 'No Transaction Yet' : this.$moment(a.lastTransaction.toDate()).format('MM-DD-YYYY') + ' at ' + this.$moment(a.lastTransaction.toDate()).format('hh:ss A'),
-                          MTD: MTDs === undefined || MTDs === null ? 0 : MTDs,
-                          creditsAmount: wallet.creditsAmount === undefined || wallet.creditsAmount === null ? 0 : wallet.creditsAmount,
-                          commisionBalance: wallet.commisionBalance === undefined || wallet.commisionBalance === null ? 0 : wallet.commisionBalance
-                      }
-              })
-              console.log(map, 'AgentsAccount')
-              // let downliness = map.filter(p => {
-              //     return p.masterAgentKey === this.user.uid 
-              // })
-              let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
-              return orderByP
-        },
         totalBalanceCredit(){
-            if(this.type === '' || this.type === null){
-                let total = this.$lodash.sumBy(this.allAgents, a => { 
+            if(this.type === 'ALL'){
+                let total = this.$lodash.sumBy(this.myRanking, a => { 
                     return parseInt(a.creditsAmount)
                 })
                 return this.credits = total
             }else{
-                let total = this.$lodash.filter(this.allAgents, p => {
+                let total = this.$lodash.filter(this.myRanking, p => {
                     return p.type === this.type
                 })
                 let totals = this.$lodash.sumBy(total, a => { 
@@ -211,13 +290,13 @@ export default {
             }       
         },
         totalBalanceComms(){
-            if(this.type === '' || this.type === null){
-              let total = this.$lodash.sumBy(this.allAgents, a => { 
+            if(this.type === 'ALL'){
+              let total = this.$lodash.sumBy(this.myRanking, a => { 
                     return parseInt(a.commisionBalance)
               })
                 return this.comms = total
             }else{
-              let total = this.$lodash.filter(this.allAgents, p => {
+              let total = this.$lodash.filter(this.myRanking, p => {
                     return p.type === this.type
               })
               let totals = this.$lodash.sumBy(total, a => { 
@@ -227,13 +306,13 @@ export default {
             }
         },
         totalBalanceMTD(){
-            if(this.type === '' || this.type === null){
-              let total = this.$lodash.sumBy(this.allAgents, a => { 
+            if(this.type === 'ALL'){
+              let total = this.$lodash.sumBy(this.myRanking, a => { 
                     return parseInt(a.MTD)
               })
                 return this.mtd = total
             }else{
-              let total = this.$lodash.filter(this.allAgents, p => {
+              let total = this.$lodash.filter(this.myRanking, p => {
                     return p.type === this.type
               })
               let totals = this.$lodash.sumBy(total, a => { 
@@ -243,50 +322,9 @@ export default {
             }
                        
         },
-        myMasterAgents(){
-            let map = this.$lodash.map(this.MasterAgents,a=>{
-                let wallet = this.getwalletDetails(a['.key'])
-                let MTDs = this.getMTD(a['.key'])
-                return {
-                        ['.key']: a['.key'],
-                        accountID: a['.key'],
-                        type: 'Master Agent',
-                        accountName: a.accountFirstName + ' ' + a.accountLastName,
-                        accountPhone: a.accountPhone,
-                        lastTransaction: a.lastTransaction === undefined ? 'No Transaction Yet' : this.$moment(a.lastTransaction.toDate()).format('MM-DD-YYYY') + ' at ' + this.$moment(a.lastTransaction.toDate()).format('hh:ss A'),
-                        MTD: MTDs === undefined || MTDs === null ? 0 : MTDs,
-                        creditsAmount: wallet.creditsAmount,
-                        commisionBalance: wallet.commisionBalance === undefined || wallet.commisionBalance === null ? 0 : wallet.commisionBalance
-                    }
-            })
-            let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
-            return orderByP
-        },
     },
     mounted() {
-        // this.$db.collection('TeamGameAccountBets').where('gameKey',"==",this.$route.params.schedule),
-        this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
-            .then(MasterAgents => {
-            console.log(MasterAgents, 'MasterAgents')
-        })
-        this.$binding('CommissionHistory', this.$db.collection('CommissionHistory'))
-            .then(CommissionHistory => {
-            console.log(CommissionHistory, 'CommissionHistory')
-        })
-        this.$binding("Wallet", this.$db.collection("Wallet"))
-        .then((wallet) => {
-            console.log(wallet,'wallet') // => __ob__: Observer
-        }).catch(err => {
-            console.error(err)
-        })
-        this.$binding('TotalMonthYearMTD', this.$db.collection('TotalMonthYearMTD'))
-        .then(TotalMonthYearMTD => {
-          console.log(TotalMonthYearMTD, 'TotalMonthYearMTD')
-        })
-        this.$binding('Agents', this.$db.collection('Agents'))
-        .then(Agents => {
-          console.log(Agents, 'Agents')
-        })
+
     }
 }
 </script>
