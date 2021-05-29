@@ -11,12 +11,12 @@ a<template>
             </div>
             <div class="row q-pa-sm q-gutter-sm">
                 <q-select class="col column" dense @input="myAgentsNew()" clearable emit-value map-options dark v-model="type" :options="MAOption" label="Search By Master Agents" outlined/>
-                <q-input style="width: 430px" borderless type="number" dense outlined placeholder="Enter '000'/Three Zero's to search ALL Agents" color="primary" debounce="300" v-model="filter" dark>
+                <q-input style="width: 430px" borderless dense outlined placeholder="Enter '000'/Three Zero's to search ALL Agents" color="primary" debounce="300" v-model="filter" dark>
                     <template v-slot:append>
                         <q-icon name="search" />
                     </template>
                 </q-input>
-                <q-btn label="Search by Number" class="text-black" borderless @click="searchAll()" dense outlined color="primary"/>
+                <q-btn label="Search by UserName" class="text-black" borderless @click="searchAll()" dense outlined color="primary"/>
             </div>
             
         </div>
@@ -83,10 +83,10 @@ export default {
                     await this.checkMTDBalance()
                     await this.masterAgents()
                     .then(() => {
-                        let filterSearch = this.$lodash.filter(this.Agents, p => {
-                                return p.accountPhone === this.filter
-                        })
-                        let map = this.$lodash.map(filterSearch,a=>{
+                        // let filterSearch = this.$lodash.filter(this.Agents, p => {
+                        //         return p.accountPhone === this.filter
+                        // })
+                        let map = this.$lodash.map(this.Agents,a=>{
                             let wallet = this.getwalletDetails(a['.key'])
                             let MTDs = this.getMTD(a['.key'])
                             return {
@@ -119,10 +119,10 @@ export default {
                 await this.checkMTDBalance()
                 await this.masterAgents()
                 .then(() => {
-                    let filterSearch = this.$lodash.filter(this.Agents, p => {
-                            return p.masterAgentKey === this.type['.key']
-                    })
-                    let map = this.$lodash.map(filterSearch,a=>{
+                    // let filterSearch = this.$lodash.filter(this.Agents, p => {
+                    //         return p.masterAgentKey === this.type['.key']
+                    // })
+                    let map = this.$lodash.map(this.Agents,a=>{
                         let wallet = this.getwalletDetails(a['.key'])
                         let MTDs = this.getMTD(a['.key'])
                         return {
@@ -146,12 +146,28 @@ export default {
             }
         },
         async masterAgents(){
-            await this.$binding("Agents", this.$db.collection("Agents"))
-            .then((Agents) => {
-                // console.log(wallet,'wallet') // => __ob__: Observer
-            }).catch(err => {
-                console.error(err)
-            })             
+            if(this.filter === "000"){
+                await this.$binding("Agents", this.$db.collection("Agents"))
+                .then((Agents) => {
+                    // console.log(wallet,'wallet') // => __ob__: Observer
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else if(this.type !== null){
+                await this.$binding("Agents", this.$db.collection("Agents").where("masterAgentKey","==",this.type['.key'] ))
+                .then((Agents) => {
+                    // console.log(wallet,'wallet') // => __ob__: Observer
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else{
+                await this.$binding("Agents", this.$db.collection("Agents").where("accountPhone","==",this.filter))
+                .then((Agents) => {
+                    // console.log(wallet,'wallet') // => __ob__: Observer
+                }).catch(err => {
+                    console.error(err)
+                })
+            }             
         },
         async checkWalletBalance(){
             await this.$binding("Wallet", this.$db.collection("Wallet"))
@@ -212,7 +228,7 @@ export default {
             filter: '',
             columns: [
                 { name: 'accountName', align: 'left', required: true, label: 'Agent Name', field: 'accountName', sortable: true },
-                { name: 'accountPhone', align: 'center', required: true, label: 'Number', field: 'accountPhone', sortable: true },
+                { name: 'accountPhone', align: 'center', required: true, label: 'User Name', field: 'accountPhone', sortable: true },
                 { name: 'creditsAmount', align: 'center', label: 'Credit Balance', field: 'creditsAmount', sortable: true },
                 { name: 'commisionBalance', align: 'center', label: 'Commission Balance', field: 'commisionBalance', sortable: true },
                 { name: 'MTD', align: 'center', label: 'MTD.', field: 'MTD', sortable: true },

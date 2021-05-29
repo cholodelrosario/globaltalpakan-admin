@@ -8,12 +8,12 @@ a<template>
         </div>
         <b v-show="false">{{totalBalanceCredit}}</b>
         <div class="row q-pa-md q-gutter-sm">
-            <q-input style="width: 430px" borderless type="number" dense outlined placeholder="Enter '000'/Three Zero's to search ALL Master Agents" color="primary" debounce="300" v-model="filter" dark>
+            <q-input style="width: 430px" borderless dense outlined placeholder="Enter '000'/Three Zero's to search ALL Master Agents" color="primary" debounce="300" v-model="filter" dark>
                 <template v-slot:append>
                     <q-icon name="search" />
                 </template>
             </q-input>
-            <q-btn label="Search by Number" class="text-black" borderless @click="searchAll()" dense outlined color="primary"/>
+            <q-btn label="Search by UserName" class="text-black" borderless @click="searchAll()" dense outlined color="primary"/>
         </div>
         <div class="q-pa-md">
             <q-table title="Players" :pagination.sync="pagination" :rows-per-page-options="[0]" class="bg-secondary text-white" :data="myAgentsPlayers" :columns="columns" row-key="name">
@@ -25,6 +25,7 @@ a<template>
                         <q-td key="lastTransaction" :props="props">{{props.row.lastTransaction}}</q-td>
                         <q-td key="action" :props="props">
                             <q-btn flat color="primary" @click="editAgent(props.row)" label="Move Player" />
+                            <q-btn flat color="primary" @click="viewBetHistory(props.row)" label="View Bet History" />
                         </q-td>
                     </q-tr>
                 </template>  
@@ -53,6 +54,60 @@ a<template>
                 </q-card-actions>
             </q-card>
         </q-dialog>
+        <q-dialog v-model="myPlayersBetHistory" persistent>
+            <q-card style="width: 550px" class="bg-dark text-white">
+                <q-card-section>
+                <h5 class="text-primary text-weight-bolder q-mt-none">BET HISTORY</h5>
+                    <q-tabs
+                        v-model="tab"
+                        inline-label
+                        class="bg-secondary text-white shadow-2 col-12"
+                    >
+                        <q-tab class="col-6" name="bet" label="Game Bet History" />
+                        <q-tab class="col-6" name="option" label="Bet Option History" />
+                        
+                    </q-tabs>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    <h6 class="text-secondary flex flex-center text-white q-ma-none">{{this.tab == 'bet' ? 'BET HISTORY' : 'BET OPTIONS HISTORY'}}</h6>
+                    <q-list v-for="(p, index) in this.getData" :key="index" bordered separator>
+                        <!-- <br> -->
+                        <q-item>
+                            <q-item-section caption top>
+                                <q-item-label overline class="text-white">P&nbsp;{{p.totalBets}} &nbsp;&nbsp;&nbsp;<b :class="p.betStatus === 'LOSE' || p.betStatus === 'CANCELLED' ? 'text-red' : 'text-primary'">{{p.betStatus}}</b></q-item-label>
+                                <q-item-label overline class="text-white">{{p.team.team}}</q-item-label>
+                                <q-item-label v-if="tab == 'option'" caption class="text-white">{{p.betOptions.name}}</q-item-label>
+                                <q-item-label caption class="text-white"></q-item-label>
+                                <q-item-label overline class="text-white">Total Winnings: &nbsp;{{p.betStatus == 'LOSE' || p.betStatus == 'CANCELLED' ? 'NONE' : parseFloat(p.totalBets) * parseFloat(p.endingOdds)}}</q-item-label>
+                                <!-- <q-item-label v-else overline class="text-white">Total Winnings: &nbsp;{{p.betStatus == 'LOSE' || p.betStatus == 'CANCELLED' ? 'NONE' : parseFloat(p.totalBets) * parseFloat(p.endingOdds)}}</q-item-label> -->
+                            </q-item-section>
+
+                            <q-item-section top>
+                            <q-item-label overline class="text-white">{{p.timestamp.toDate('MM-DD-YYYY')}}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                    </q-list>
+                    <div class="q-pa-lg flex flex-center">
+                        <q-pagination
+                            v-model="page"
+                            :min="currentPage"
+                            :max="Math.ceil(this.bethistory.length/totalPages)"
+                            direction-links
+                            unelevated
+                            color="black"
+                            active-color="yellow"
+                            active-text-color="black"
+                        />
+                    </div>
+                </q-card-section>
+
+                <q-card-actions align="right" class="text-primary">
+                <!-- <q-btn flat label="Cancel" v-close-popup /> -->
+                <q-btn flat label="Ok" v-close-popup />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </q-page>
 </template>
 <script>
@@ -60,6 +115,15 @@ import { date } from 'quasar'
 export default {
     data(){
         return{
+            page: 1,
+            currentPage:1,
+            nextPage: null,
+            totalPages:10,
+            TeamGameAccountOptionsBets: [],
+            BettorsPlayerID: '',
+            tab: 'bet',
+            myPlayersBetHistory: false,
+            TeamGameAccountBets: [],
             myAgentsPlayers: [],
             Movements: [],
             playerName: '',
@@ -77,19 +141,25 @@ export default {
             filter: '',
             columns: [
                 { name: 'accountName', align: 'left', required: true, label: 'Agent Name', field: 'accountName', sortable: true },
-                { name: 'accountPhone', align: 'center', required: true, label: 'Number', field: 'accountPhone', sortable: true },
+                { name: 'accountPhone', align: 'center', required: true, label: 'User Name', field: 'accountPhone', sortable: true },
                 { name: 'creditsAmount', align: 'center', label: 'Credit Balance', field: 'creditsAmount', sortable: true },
                 { name: 'lastTransaction', align: 'center', label: 'Last Transaction.', field: 'lastTransaction', sortable: true },
-                { name: 'action', align: 'right', label: 'Action', sortable: true },
+                { name: 'action', align: 'center', label: 'Action', sortable: true },
             ]
         }
     },
     methods: {
+        async viewBetHistory(task){
+            this.BettorsPlayerID = task['.key']
+            this.myPlayersBetHistory = true
+            await this.playersBetHistory()
+            await this.playersBetOptionsHistory()
+        },
         async searchAll(){
             this.type = null
             if(this.filter === ''){
                 this.$q.dialog({
-                title: 'Please Enter Players Number to Search!',
+                title: 'Please Enter Players UserName to Search!',
                 message: 'Fill Search Bar?',
                 ok: 'Ok',
                 cancel: 'Cancel',
@@ -125,10 +195,11 @@ export default {
                     await this.checkWalletBalance()
                     await this.myPlayersDetails()
                     .then(() => {
-                        let filterSearch = this.$lodash.filter(this.Players, p => {
-                                return p.accountPhone === this.filter
-                        })
-                        let map = this.$lodash.map(filterSearch,a=>{
+                        // let filterSearch = this.$lodash.filter(this.Players, p => {
+                        //         return p.accountPhone === this.filter
+                        // })
+                        // console.log(filterSearch, 'filtersearch')
+                        let map = this.$lodash.map(this.Players,a=>{
                         let wallet = this.getwalletDetails(a['.key'])
                             return {
                                 ['.key']: a['.key'],
@@ -144,7 +215,7 @@ export default {
                             }
                         })
                         let orderByP = this.$lodash.orderBy(map, ['creditsAmount'], ['desc']);
-                        this.MymasterAgents = orderByP
+                        this.myAgentsPlayers = orderByP
                     }).catch(err => {
                         console.error(err)
                     })
@@ -159,10 +230,10 @@ export default {
                 await this.checkWalletBalance()
                 await this.myPlayersDetails()
                 .then(() => {
-                    let filterSearch = this.$lodash.filter(this.Players, p => {
-                            return p.agentKey === this.type['.key']
-                    })
-                    let map = this.$lodash.map(filterSearch,a=>{
+                    // let filterSearch = this.$lodash.filter(this.Players, p => {
+                    //         return p.agentKey === this.type['.key']
+                    // })
+                    let map = this.$lodash.map(this.Players,a=>{
                         let wallet = this.getwalletDetails(a['.key'])
                         return {
                             ['.key']: a['.key'],
@@ -192,15 +263,43 @@ export default {
             })             
         },
         async myPlayersDetails(){
-            await this.$binding("Players", this.$db.collection("Players"))
-            .then((Players) => {
-            }).catch(err => {
-                console.error(err)
-            })             
+            if(this.filter === '000'){
+                await this.$binding("Players", this.$db.collection("Players"))
+                .then((Players) => {
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else if(this.type !== null){
+                await this.$binding("Players", this.$db.collection("Players").where("agentKey","==",this.type['.key']))
+                .then((Players) => {
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else{
+                await this.$binding("Players", this.$db.collection("Players").where("accountPhone","==",this.filter))
+                .then((Players) => {
+                }).catch(err => {
+                    console.error(err)
+                })
+            }             
         },
         async myMovements(){
             await this.$binding("Movements", this.$db.collection("Movements"))
             .then((Movements) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async playersBetHistory(){
+            await this.$binding("TeamGameAccountBets", this.$db.collection("TeamGameAccountBets").where("accountID","==",this.BettorsPlayerID))
+            .then((TeamGameAccountBets) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async playersBetOptionsHistory(){
+            await this.$binding("TeamGameAccountOptionsBets", this.$db.collection("TeamGameAccountOptionsBets").where("accountID","==",this.BettorsPlayerID))
+            .then((TeamGameAccountOptionsBets) => {
             }).catch(err => {
                 console.error(err)
             })             
@@ -289,6 +388,16 @@ export default {
         },
     },
     computed: {
+        getData(){
+			return 	this.bethistory.slice((this.page-1)*this.totalPages,(this.page-1)*this.totalPages+this.totalPages)
+        },
+        bethistory(){
+            if(this.tab === 'bet'){  
+                return this.TeamGameAccountBets
+            }else {
+                return this.TeamGameAccountOptionsBets
+            }
+        },
         totalBalanceCredit(){
             if(this.type === '' || this.type === null){
                 let total = this.$lodash.sumBy(this.myAgentsPlayers, a => { 

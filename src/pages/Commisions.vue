@@ -102,10 +102,10 @@ export default {
                     await this.checkMTDBalance()
                     await this.masterAgents()
                     .then(() => {
-                        let filterSearch = this.$lodash.filter(this.MasterAgents, p => {
-                                return p.accountPhone === this.filter
-                        })
-                        let map = this.$lodash.map(filterSearch,a=>{
+                        // let filterSearch = this.$lodash.filter(this.MasterAgents, p => {
+                        //         return p.accountPhone === this.filter
+                        // })
+                        let map = this.$lodash.map(this.MasterAgents,a=>{
                         let wallet = this.getwalletDetails(a['.key'])
                         let MTDs = this.getMTD(a['.key'])
                             return {
@@ -130,12 +130,21 @@ export default {
             }
         },
         async masterAgents(){
-            await this.$binding("MasterAgents", this.$db.collection("MasterAgents"))
-            .then((MasterAgents) => {
-                // console.log(wallet,'wallet') // => __ob__: Observer
-            }).catch(err => {
-                console.error(err)
-            })             
+            if(this.filter === "000"){
+                await this.$binding("MasterAgents", this.$db.collection("MasterAgents"))
+                .then((MasterAgents) => {
+                    // console.log(wallet,'wallet') // => __ob__: Observer
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else{
+                await this.$binding("MasterAgents", this.$db.collection("MasterAgents").where("accountPhone","==",this.filter))
+                .then((MasterAgents) => {
+                    // console.log(wallet,'wallet') // => __ob__: Observer
+                }).catch(err => {
+                    console.error(err)
+                })
+            }             
         },
         async checkWalletBalance(){
             await this.$binding("Wallet", this.$db.collection("Wallet"))

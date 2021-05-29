@@ -79,7 +79,7 @@ export default {
                 })
                 this.EndGamesThanos = []
             }else{
-                if(this.filter === 'All'){
+                if(this.filter === 'All' || this.filter === 'ALL'){
                     await this.endGameDetails()
                     .then(() => {
                         let map = this.$lodash.map(this.EndGames,a=>{
@@ -107,10 +107,10 @@ export default {
                 }else{
                     await this.endGameDetails()
                     .then(() => {
-                        let filterSearch = this.$lodash.filter(this.EndGames, p => {
-                                return p.gameCategory === this.filter
-                        })
-                        let map = this.$lodash.map(filterSearch,a=>{
+                        // let filterSearch = this.$lodash.filter(this.EndGames, p => {
+                        //         return p.gameCategory === this.filter
+                        // })
+                        let map = this.$lodash.map(this.EndGames,a=>{
                             return {
                                 ['.key']: a['.key'],
                                 scheduleKey: a.scheduleKey,
@@ -169,11 +169,27 @@ export default {
             }
         },
         async endGameDetails(){
-            await this.$binding("EndGames", this.$db.collection("EndGames"))
-            .then((EndGames) => {
-            }).catch(err => {
-                console.error(err)
-            })             
+            if(this.type !== null){
+                await this.$binding("EndGames", this.$db.collection("EndGames"))
+                .then((EndGames) => {
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else if(this.filter !== ''){
+                if(this.filter === 'All'){
+                    await this.$binding("EndGames", this.$db.collection("EndGames"))
+                    .then((EndGames) => {
+                    }).catch(err => {
+                        console.error(err)
+                    })  
+                }else{
+                    await this.$binding("EndGames", this.$db.collection("EndGames").where("gameCategory","==",this.filter))
+                    .then((EndGames) => {
+                    }).catch(err => {
+                        console.error(err)
+                    })
+                }
+            }       
         },
     },
     computed: {

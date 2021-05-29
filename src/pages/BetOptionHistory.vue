@@ -8,11 +8,19 @@
                 <q-input class="col" readonly dark outlined v-model="company" type="number" label="Company Comms. Less Agent Comms." />
                 <q-input class="col" readonly dark outlined v-model="extra" type="number" label="Extra Add. Comms." />
                 <q-input class="col" readonly dark outlined v-model="total" type="number" label="Total Sales of Company for Games" />
-                <q-select class="col column" clearable emit-value map-options dark v-model="type" :options="option" label="Select Date" outlined/>
+                <q-select class="col column" @input="myEndGame()" clearable emit-value map-options dark v-model="type" :options="option" label="Select Date" outlined/>
             </div>
         </div>
+        <div class="row q-pa-md q-gutter-sm">
+            <q-input style="width: 430px" borderless dense outlined placeholder="Enter 'All' to search ALL Games" color="primary" debounce="300" v-model="filter" dark>
+                <template v-slot:append>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+            <q-btn label="Search by Games" class="text-black" borderless @click="searchAll()" dense outlined color="primary"/>
+        </div>
         <div class="q-pa-md">
-            <q-table title="End Bet Option History" :filter="filter" :pagination.sync="pagination" :rows-per-page-options="[0]" class="bg-secondary text-white" :data="EndGamesThanos" :columns="columns" row-key="name">
+            <q-table title="End Bet Option History" :pagination.sync="pagination" :rows-per-page-options="[0]" class="bg-secondary text-white" :data="EndGamesThanos" :columns="columns" row-key="name">
                 <template v-slot:body="props">
                     <q-tr>
                         <q-td key="gameNumber" :props="props">{{props.row.gameNumber}}</q-td>
@@ -29,13 +37,13 @@
                         </q-td> -->
                     </q-tr>
                 </template>
-                <template v-slot:top-right>
+                <!-- <template v-slot:top-right>
                     <q-input borderless dense outlined color="primary" debounce="300" v-model="filter" dark placeholder="Search">
                         <template v-slot:append>
                             <q-icon name="search" />
                         </template>
                     </q-input>
-                </template>
+                </template> -->
             </q-table>
         </div>
     </q-page>
@@ -84,7 +92,7 @@ export default {
                 })
                 this.EndGamesThanos = []
             }else{
-                if(this.filter === 'All'){
+                if(this.filter === 'All' || this.filter === 'ALL'){
                     await this.endGameDetails()
                     await this.betOptEndGameDetails()
                     .then(() => {
@@ -156,6 +164,7 @@ export default {
                     let dateMMDDYYYY = this.$lodash.filter(this.BetOptionsEndGames, b => {
                         return this.$moment(b.dateEnded.toDate()).format('DD') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('MM') === this.$moment(new Date()).format(this.type) || this.$moment(b.dateEnded.toDate()).format('YYYY') === this.$moment(new Date()).format(this.type)
                     })
+                    console.log(dateMMDDYYYY, 'dateMMDDYYYY')
                     let orderByP = this.$lodash.orderBy(dateMMDDYYYY, ['dateEnded'], ['desc']);
                     let map = this.$lodash.map(orderByP,a=>{
                         let games = this.getGames(a.scheduleKey)
@@ -190,11 +199,25 @@ export default {
             })             
         },
         async betOptEndGameDetails(){
-            await this.$binding("BetOptionsEndGames", this.$db.collection("BetOptionsEndGames"))
-            .then((BetOptionsEndGames) => {
-            }).catch(err => {
-                console.error(err)
-            })             
+            if(this.filter !== null){
+                await this.$binding("BetOptionsEndGames", this.$db.collection("BetOptionsEndGames"))
+                .then((BetOptionsEndGames) => {
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else if(this.type !== null){
+                await this.$binding("BetOptionsEndGames", this.$db.collection("BetOptionsEndGames").where("gameCategory","==",this.filter))
+                .then((BetOptionsEndGames) => {
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else if(this.type === 'All'){
+                await this.$binding("BetOptionsEndGames", this.$db.collection("BetOptionsEndGames"))
+                .then((BetOptionsEndGames) => {
+                }).catch(err => {
+                    console.error(err)
+                })
+            }
         },
         getGames(key){
             var docRef = null
