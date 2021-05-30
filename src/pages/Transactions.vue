@@ -19,11 +19,19 @@
                  <strong class="text-white">{{this.tab == 'withdraw' ? 'Total Credits Withdraw' : this.tab == 'credit' ? 'Total Credits Sold' : 'Total Comms Converted'}}</strong><q-input dark  outlined v-model="amountWithdraw" type="number" label="Credits" />
             </div>
             <div class="col text-white">
-                <strong class="text-white">By:</strong><q-select emit-value map-options dark v-model="type" :options="MAOption" label="Select Admin" outlined/>
+                <strong class="text-white">By:</strong><q-select @input="openMounted()" clearable emit-value map-options dark v-model="type" :options="MAOption" label="Select Admin" outlined/>
             </div>
         </div>
+        <div class="row q-pa-md q-gutter-sm">
+            <!-- <q-input style="width: 430px" borderless dense outlined placeholder="Enter 'All' to search ALL Games" color="primary" debounce="300" v-model="filter" dark>
+                <template v-slot:append>
+                    <q-icon name="search" />
+                </template>
+            </q-input> -->
+            <q-btn label="Search All History" class="text-black" borderless @click="searchAll()" dense outlined color="primary"/>
+        </div>
         <div class="q-pa-md">
-            <q-table class="bg-secondary text-white" :title="this.tab == 'withdraw' ? 'Withdrawal History' : this.tab == 'credit' ? 'Crediting History' : 'Convertion History' " :data="this.returnMAwithdrwals" :columns="this.tab == 'withdraw' ? columns : this.tab == 'credit' ? col : colcol" :filter="filter" row-key="name">
+            <q-table class="bg-secondary text-white" :title="this.tab == 'withdraw' ? 'Withdrawal History' : this.tab == 'credit' ? 'Crediting History' : 'Convertion History' " :data="returnMAwithdrwals" :columns="this.tab == 'withdraw' ? columns : this.tab == 'credit' ? col : colcol" :filter="filter" row-key="name">
                 <template v-if="this.tab == 'withdraw'" v-slot:body="props">
                     <q-tr :props="props">
                         <q-td key="accountFirstName" :props="props">{{props.row.withdrawBy.accountFirstName + ' ' + props.row.withdrawBy.accountLastName}}</q-td>
@@ -69,6 +77,9 @@ import { date } from 'quasar'
 export default {
     data(){
         return {
+            searchALLwithdraw: false,
+            searchALLconvert: false,
+            searchALLcredit: false,
             adminConvertObj: [],
             Accounts: [],
             amountWithdraw: 0,
@@ -78,10 +89,8 @@ export default {
             CreditHistory: [],
             AdminApprovalHistory: [],
             filter: '',
-            accountObj: null,
+            // accountObj: null,
             tab: 'withdraw',
-            MasterAgents: [],
-            MasterAgentsWithdrawal: [],
             columns: [
                 { name: 'accountFirstName', required: true, label: 'Full Name', align: 'left', field: 'accountFirstName', sortable: true },
                 { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
@@ -106,66 +115,38 @@ export default {
         }
     },
     mounted() {
-        let user = this.$store.getters['useraccount/isAuthenticated']
-        console.log(user,'user')
-        this.$binding("accountObj", this.$db.collection("Accounts").doc(user.userDBKey))
-        .then((account) => {
-            console.log(account,'account') // => __ob__: Observer
-        }).catch(err => {
-            console.error(err)
-        })
         this.$binding('Accounts', this.$db.collection('Accounts'))
             .then(Accounts => {
             console.log(Accounts, 'Accounts')
-        })
-        this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
-            .then(MasterAgents => {
-            console.log(MasterAgents, 'MasterAgents')
-        })
-        this.$binding('MasterAgentsWithdrawal', this.$db.collection('MasterAgentsWithdrawal'))
-            .then(MasterAgentsWithdrawal => {
-            console.log(MasterAgentsWithdrawal, 'MasterAgentsWithdrawal')
-        })
-        this.$binding('AdminApprovalHistory', this.$db.collection('AdminApprovalHistory'))
-            .then(AdminApprovalHistory => {
-            console.log(AdminApprovalHistory, 'AdminApprovalHistory')
-        })
-        this.$binding('CreditHistory', this.$db.collection('CreditHistory'))
-            .then(CreditHistory => {
-            console.log(CreditHistory, 'CreditHistory')
-        })
-        this.$binding('adminConvertObj', this.$db.collection("AdminConvertionApprovalHistory"))
-            .then(adminConvertObj => {
-            console.log(adminConvertObj, 'adminConvertObj')
         })
     },
     computed: {
         withdrawalAmount(){
             if(this.tab == 'withdraw'){
-                let totalWithdraw = this.$lodash.filter(this.AdminApprovalHistory, p => {
-                    return p.approveByID === this.type['.key'] 
-                })
-                let sumWithdraw = this.$lodash.sumBy(totalWithdraw, a => { 
+                // let totalWithdraw = this.$lodash.filter(this.AdminApprovalHistory, p => {
+                //     return p.approveByID === this.type['.key'] 
+                // })
+                let sumWithdraw = this.$lodash.sumBy(this.AdminApprovalHistory, a => { 
                     return parseInt(a.withdrawAmount)
                     })
                 console.log(sumWithdraw, 'sum')
                 return this.amountWithdraw = sumWithdraw
             }else if(this.tab == 'credit'){
-                let totalCredit = this.$lodash.filter(this.CreditHistory, p => {
-                    return p.from.accountID === this.type['.key'] 
-                })
-                console.log(totalCredit, 'totalCredit')
-                let sumCredit = this.$lodash.sumBy(totalCredit, a => { 
+                // let totalCredit = this.$lodash.filter(this.CreditHistory, p => {
+                //     return p.from.accountID === this.type['.key'] 
+                // })
+                // console.log(totalCredit, 'totalCredit')
+                let sumCredit = this.$lodash.sumBy(this.CreditHistory, a => { 
                     return parseInt(a.amount)
                     })
                 console.log(sumCredit, 'sum')
                 return this.amountWithdraw = sumCredit
             }else{
-                let totalConvert = this.$lodash.filter(this.adminConvertObj, p => {
-                    return p.approveByID === this.type['.key'] 
-                })
-                console.log(totalConvert, 'totalCredit')
-                let sumConvert = this.$lodash.sumBy(totalConvert, a => { 
+                // let totalConvert = this.$lodash.filter(this.adminConvertObj, p => {
+                //     return p.approveByID === this.type['.key'] 
+                // })
+                // console.log(totalConvert, 'totalCredit')
+                let sumConvert = this.$lodash.sumBy(this.adminConvertObj, a => { 
                     return parseInt(a.convertedAmount)
                     })
                 console.log(sumConvert, 'sum')
@@ -183,47 +164,105 @@ export default {
         },
         returnMAwithdrwals () {
           if(this.tab == 'withdraw'){
-              let orderBy = this.$lodash.orderBy(this.AdminApprovalHistory, ['timestamp'], ['desc']);
-              if(this.type === ''){
-                    return orderBy
-              }else{
-                    let byMasterAgent = this.$lodash.filter(orderBy, m => {
-                            return m.approveByID === this.type['.key']
-                    })
-                    console.log(byMasterAgent, 'byMasterAgent')
-                    return byMasterAgent
-              }
+                return this.AdminApprovalHistory  
           }else if(this.tab == 'credit'){
-                let creditH = this.$lodash.filter(this.CreditHistory, m => {
-                return m.from.accountPosition == 'Admin' || m.from.accountPosition == 'Developer'
-                })
-              if(this.type === ''){
-                  let orderByCreditHistory = this.$lodash.orderBy(creditH, ['timestamp'], ['desc']);
-                    console.log(orderByCreditHistory, 'orderByCredit')
-                    return orderByCreditHistory
-              }else{
-                let creditH2wo = this.$lodash.filter(creditH, m => {
-                return m.from.accountID == this.type['.key']
-                })
-                let orderByCredit = this.$lodash.orderBy(creditH2wo, ['timestamp'], ['desc']);
-                console.log(orderByCredit, 'orderByCredit')
-                return orderByCredit
-              }
+            //   if(this.type === null){
+                    return this.CreditHistory
+            //   }else{
+                // let creditH2wo = this.$lodash.filter(this.CreditHistory, m => {
+                // return m.from.accountID == this.type['.key']
+                // })
+            //     let orderByCredit = this.$lodash.orderBy(this.CreditHistory, ['timestamp'], ['desc']);
+            //     console.log(orderByCredit, 'orderByCredit')
+            //     return orderByCredit
+            //   }
           }else{
-              let convert = this.$lodash.filter(this.adminConvertObj, m => {
-                return m.approveByID == this.type['.key']
-                })
-              if(this.type == ''){
-                  let adminConvertObj = this.$lodash.orderBy(this.adminConvertObj, ['timestamp'], ['desc']);
-                  return adminConvertObj
-              }else{
-                  let adminConvert = this.$lodash.orderBy(convert, ['timestamp'], ['desc']);
-                  return adminConvert
-              }
+            //   if(this.type == null){
+            //     return []
+            //   }else{
+                return this.adminConvertObj
+            //   }
           }
         }
     },
     methods:{
+        async searchAll(){
+            this.type = null
+            this.$q.dialog({
+            title: 'Search All' + ' ' + this.tab,
+            // message: 'Fill Search Bar?',
+            ok: 'Ok',
+            cancel: 'Cancel',
+            dark: true
+            }).onOk(async () => {
+                if(this.tab === 'withdraw'){
+                    this.searchALLwithdraw = true
+                    await this.approvalHistoryAdmin()
+                }else if(this.tab === 'credit'){
+                    this.searchALLcredit = true
+                    await this.creditHistoryAdmin()
+                }else{
+                    await this.convertionHistoryAdmin()
+                }
+            })
+        },
+        async openMounted(){
+            this.amountWithdraw = 0
+            await this.convertionHistoryAdmin()
+            await this.creditHistoryAdmin()
+            await this.approvalHistoryAdmin()
+        },
+        async convertionHistoryAdmin(){
+            if(this.type !== null){
+                await this.$binding('adminConvertObj', this.$db.collection("AdminConvertionApprovalHistory").where("approveByID","==",this.type['.key']))
+                .then(adminConvertObj => {
+                    console.log(adminConvertObj, 'adminConvertObj')
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else{
+                await this.$binding('adminConvertObj', this.$db.collection("AdminConvertionApprovalHistory"))
+                .then(adminConvertObj => {
+                    console.log(adminConvertObj, 'adminConvertObj')
+                }).catch(err => {
+                    console.error(err)
+                })
+            }             
+        },
+        async creditHistoryAdmin(){
+            if(this.type !== null){
+                await this.$binding('CreditHistory', this.$db.collection('CreditHistory').where("from.accountID","==",this.type['.key']))
+                .then(CreditHistory => {
+                    console.log(CreditHistory, 'CreditHistory')
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else if(this.searchALLcredit === true){
+                await this.$binding('CreditHistory', this.$db.collection('CreditHistory').where("from.accountPosition","==",'Admin'))
+                .then(CreditHistory => {
+                    console.log(CreditHistory, 'CreditHistory')
+                }).catch(err => {
+                    console.error(err)
+                })
+            }             
+        },
+        async approvalHistoryAdmin(){
+            if(this.type !== null){
+                await this.$binding('AdminApprovalHistory', this.$db.collection('AdminApprovalHistory').where("approveByID","==",this.type['.key']))
+                .then(AdminApprovalHistory => {
+                    console.log(AdminApprovalHistory, 'AdminApprovalHistory')
+                }).catch(err => {
+                    console.error(err)
+                })
+            }else if(this.searchALLwithdraw === true){
+                await this.$binding('AdminApprovalHistory', this.$db.collection('AdminApprovalHistory'))
+                .then(AdminApprovalHistory => {
+                    console.log(AdminApprovalHistory, 'AdminApprovalHistory')
+                }).catch(err => {
+                    console.error(err)
+                })
+            }        
+        },  
         clear(){
             this.amountWithdraw = 0
             this.type = ''
