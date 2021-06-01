@@ -393,9 +393,12 @@ export default {
         },
         bethistory(){
             if(this.tab === 'bet'){  
-                return this.TeamGameAccountBets
+                let orderByP = this.$lodash.orderBy(this.TeamGameAccountBets, ['timestamp'], ['desc']);
+                return orderByP
             }else {
-                return this.TeamGameAccountOptionsBets
+                let orderByP = this.$lodash.orderBy(this.TeamGameAccountOptionsBets, ['timestamp'], ['desc']);
+                return orderByP
+                // return this.TeamGameAccountOptionsBets
             }
         },
         totalBalanceCredit(){
