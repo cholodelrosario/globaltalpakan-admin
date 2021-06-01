@@ -30,6 +30,7 @@
                         <q-td key="totalMoneyBox" :props="props">{{props.row.totalMoneyBox}}</q-td>
                         <q-td key="endingOddBets" :props="props">{{props.row.endingOddBets.totalBets * props.row.endingOddBets.odds}}</q-td>
                         <q-td key="companyCommission" :props="props">{{props.row.companyCommission}}</q-td>
+                        <q-td key="compCommsLessAgentComms" :props="props">{{props.row.companyCommission - props.row.companyCommsLessAgent}}</q-td>
                         <q-td key="extraAddComms" :props="props">{{props.row.totalMoneyBox - ((props.row.endingOddBets.totalBets * props.row.endingOddBets.odds) + props.row.companyCommission) }}</q-td>
                         <q-td key="dateEnded" :props="props">{{props.row.dateEnded}}</q-td>
                         <!-- <q-td key="action" :props="props">
@@ -56,8 +57,8 @@ export default {
             EndGames: [],
             type: '',
             option: [
-                {label: 'Daily', value: 'DD'},
-                {label: 'Monthly', value: 'MM'}, 
+                {label: 'Daily', value: 'MM-DD-YYYY'},
+                {label: 'Monthly', value: 'MM-YYYY'}, 
                 {label: 'Yearly', value: 'YYYY'},
             ],
             BetOptionsEndGames: [],
@@ -74,6 +75,7 @@ export default {
                 { name: 'totalMoneyBox', align: 'center', label: 'Total Bets', field: 'totalMoneyBox', sortable: true },
                 { name: 'endingOddBets', align: 'center', label: 'Total Winnings(Players)', field: 'endingOddBets', sortable: true },    
                 { name: 'companyCommission', align: 'center', required: true, label: 'Company Comms', field: 'companyCommission', sortable: true },
+                { name: 'compCommsLessAgentComms', align: 'center', required: true, label: 'Comp. Comms. Less Agent Comms', field: 'compCommsLessAgentComms', sortable: true },
                 { name: 'extraAddComms', align: 'center', required: true, label: 'Extra Add. Comms.', sortable: true },
                 { name: 'dateEnded', align: 'center', label: 'Date Ended', field: 'dateEnded', sortable: true },
             ]
