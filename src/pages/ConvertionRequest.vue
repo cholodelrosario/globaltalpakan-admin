@@ -52,8 +52,6 @@ export default {
             filter: '',
             accountObj: null,
             tab: 'magents',
-            MasterAgents: [],
-            MasterAgentsWithdrawal: [],
             Wallet: [],
             column: [
                 { name: 'accountFirstName', required: true, label: 'Full Name', align: 'left', field: 'accountFirstName', sortable: true },
@@ -65,18 +63,6 @@ export default {
         }
     },
     mounted() {
-        let user = this.$store.getters['useraccount/isAuthenticated']
-        console.log(user,'user')
-        this.$binding("accountObj", this.$db.collection("Accounts").doc(user.userDBKey))
-        .then((account) => {
-            console.log(account,'account') // => __ob__: Observer
-        }).catch(err => {
-            console.error(err)
-        })
-        this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
-            .then(MasterAgents => {
-            console.log(MasterAgents, 'MasterAgents')
-        })
         this.$binding('agentConvertion', this.$db.collection('AgentConvertion'))
             .then(agentConvertion => {
             console.log(agentConvertion, 'agentConvertion')
@@ -84,14 +70,6 @@ export default {
         this.$binding('MAConvertion', this.$db.collection('MasterAgentConvertion'))
             .then(MAConvertion => {
             console.log(MAConvertion, 'MAConvertion')
-        })
-        this.$binding('MasterAgentsWithdrawal', this.$db.collection('MasterAgentsWithdrawal'))
-            .then(MasterAgentsWithdrawal => {
-            console.log(MasterAgentsWithdrawal, 'MasterAgentsWithdrawal')
-        })
-        this.$binding('Wallet', this.$db.collection('Wallet'))
-            .then(Wallet => {
-            console.log(Wallet, 'Wallet')
         })
     },
     computed: {
@@ -106,6 +84,23 @@ export default {
         }
     },
     methods:{
+        async currentUsers(){
+            let user = this.$store.getters['useraccount/isAuthenticated']
+            await this.$binding("accountObj", this.$db.collection("Accounts").doc(user.userDBKey))
+            .then((account) => {
+                // console.log(account,'account') // => __ob__: Observer
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async walletDetails(){
+            await this.$binding("Wallet", this.$db.collection("Wallet"))
+            .then((Wallet) => {
+                // console.log(Wallet,'wallet') // => __ob__: Observer
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
         async approveWithdrawal(agent){
             console.log(agent, 'agent')
             this.$q.dialog({
@@ -117,7 +112,9 @@ export default {
                     flat: true,
                 },
                 persistent: true
-            }).onOk(() =>{
+            }).onOk( async () =>{
+                 await this.currentUsers()
+                 await this.walletDetails()
                  if(this.tab == 'magents'){
                     let converterID = agent.masterAgentKey
                     let credits = this.$lodash.filter(this.Wallet, m => {

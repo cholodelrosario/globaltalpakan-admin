@@ -12,7 +12,7 @@
             
         </q-tabs>
             <div class="q-pa-md">
-                <q-table class="bg-secondary text-white" title="Send Credits to Master Agents" :data="getUsers" :columns="columns" :filter="filter" row-key="name">
+                <q-table class="bg-secondary text-white" title="Send Credits to Master Agents" :data="MasterAgents" :columns="columnsMA" :filter="filter" row-key="name">
                     <template v-slot:body="props">
                         <q-tr :props="props">
                             <q-td v-if="tab == 'players' || tab == 'agents'" key="accountName" :props="props">{{props.row.accountName}}</q-td>
@@ -75,8 +75,6 @@ import { Dialog } from 'quasar'
 export default {
     data(){
         return {
-            withdrawTab: 'mails',
-            table: false,
             selectNumber: 0,
             name: '',
             number: 0,
@@ -84,20 +82,7 @@ export default {
             sendCredits: false,
             filter: '',
             MasterAgents: [],
-            CreditHistory: [],
             Wallet: [],
-            Players: [],
-            Agents: [],
-            columnsP: [
-                { name: 'accountName', required: true, label: 'Full Name', align: 'left', field: 'accountName', sortable: true },
-                { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
-                { name: 'action', align: 'right', label: 'Action' }
-            ],
-            columnsA: [
-                { name: 'accountName', required: true, label: 'Full Name', align: 'left', field: 'accountName', sortable: true },
-                { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
-                { name: 'action', align: 'right', label: 'Action' }
-            ],
             columnsMA: [
                 { name: 'accountFirstName', required: true, label: 'Full Name', align: 'left', field: 'accountFirstName', sortable: true },
                 { name: 'accountPhone', required: true, label: 'Phone Number', align: 'left', field: 'accountPhone', sortable: true },
@@ -108,75 +93,25 @@ export default {
         }
     },
     mounted() {
-        let user = this.$store.getters['useraccount/isAuthenticated']
-        console.log(user,'user')
-        this.$binding("accountObj", this.$db.collection("Accounts").doc(user.userDBKey))
-        .then((account) => {
-            console.log(account,'account') // => __ob__: Observer
-        }).catch(err => {
-            console.error(err)
-        })
         this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
             .then(MasterAgents => {
             console.log(MasterAgents, 'MasterAgents')
         })
-        this.$binding('Agents', this.$db.collection('Agents'))
-            .then(Agents => {
-            console.log(Agents, 'Agents')
-        })
-        this.$binding('Players', this.$db.collection('Players'))
-            .then(Players => {
-            console.log(Players, 'Players')
-        })
-        this.$binding('CreditHistory', this.$db.collection('CreditHistory'))
-            .then(CreditHistory => {
-            console.log(CreditHistory, 'CreditHistory')
-        })
-        this.$binding('Wallet', this.$db.collection('Wallet'))
-            .then(Wallet => {
-            console.log(Wallet, 'Wallet')
-        })
     },
     computed: {
-        getUsers () {
-			try {
-                if(this.tab === 'players'){
-                    return this.Players
-                }else if(this.tab === 'agents'){
-                    return this.Agents
-                }else{
-                    return this.MasterAgents
-                }
-			} catch {
-				return []
-			}
-		},
-        columns(){
-            try {
-                if(this.tab === 'players'){
-                    return this.columnsP
-                }else if(this.tab === 'agents'){
-                    return this.columnsA
-                }else{
-                    return this.columnsMA
-                }
-			} catch {
-				return []
-			}
-        },
-        phoneOption(){
-            let optionss = this.MasterAgents.map(MasterAgents => {
-                return {
-                    label: MasterAgents.accountPhone,
-                    value: MasterAgents.accountPhone
-                }
-            })
-            console.log(optionss, 'opt')
-            return optionss
-        }
+        
     },
     methods:{
-        sendCreditsToPlayer(){
+        async usersWallet(){
+            await this.$binding("Wallet", this.$db.collection("Wallet"))
+            .then((Wallet) => {
+                // console.log(Wallet,'Wallet') // => __ob__: Observer
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async sendCreditsToPlayer(){
+            await this.usersWallet()
             let recieverID = this.coinsID
             let credits = this.$lodash.filter(this.Wallet, m => {
                     return m['.key'] == recieverID
@@ -200,8 +135,8 @@ export default {
                     })
                 }else
                 this.$q.dialog({
-                    title: 'Update Games',
-                    message: 'Update This Games?',
+                    title: 'Send Credits',
+                    message: 'Send Credits?',
                     ok: 'Yes',
                     cancel: 'Cancel'
                 }).onOk(() => { 
@@ -256,22 +191,10 @@ export default {
         },
         openEditDialog (task) {
             console.log(task, 'task')
-            if(this.tab === 'players'){
-                this.coinsID = task['.key']
-                this.number = task.accountPhone
-                this.name = task.accountName
-                this.sendCredits = true
-            }else if(this.tab === 'agents'){
-                this.coinsID = task['.key']
-                this.number = task.accountPhone
-                this.name = task.accountName
-                this.sendCredits = true
-            }else{
                 this.coinsID = task['.key']
                 this.number = task.accountPhone
                 this.name = task.accountFirstName + ' ' + task.accountLastName
                 this.sendCredits = true
-            }  
         },
     }
 }

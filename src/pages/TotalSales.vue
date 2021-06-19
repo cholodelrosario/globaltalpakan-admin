@@ -2,6 +2,13 @@
   <q-page class="container flex q-pa-lg bg-dark">
       <div class="full-width">
         <h5 class="text-primary text-weight-bolder q-mt-none">TOTAL SALES OF AGENTS AND COMPANY</h5>
+        <!--FLOATING BUTTON-->
+        <q-page-sticky position="top-right" :offset="[20, 20]">
+                <q-btn label="Generate Reports" class="text-black" color="primary" @click="GenerateReports()" />
+                <q-tooltip>
+                    Generate Reports
+                </q-tooltip>
+        </q-page-sticky>
         <q-list>
             <!-- COMPUTED DAILY -->
             <q-item dark>
@@ -197,28 +204,42 @@ export default {
         }
     },
     mounted(){
-        this.$binding('CommissionHistory', this.$db.collection('CommissionHistory'))
-        .then(CommissionHistory => {
-          console.log(CommissionHistory, 'CommissionHistory')
-        })
-        this.$binding('TotalMonthYearMTD', this.$db.collection('TotalMonthYearMTD'))
-        .then(TotalMonthYearMTD => {
-          console.log(TotalMonthYearMTD, 'TotalMonthYearMTD')
-        })
-        this.$binding('EndGames', this.$db.collection('EndGames'))
-        .then(EndGames => {
-          console.log(EndGames, 'EndGames')
-        })
-        this.$binding('Wallet', this.$db.collection('Wallet'))
-        .then(Wallet => {
-          console.log(Wallet, 'Wallet')
-        })
-        this.$binding('BetOptionsEndGames', this.$db.collection('BetOptionsEndGames'))
-        .then(BetOptionsEndGames => {
-          console.log(BetOptionsEndGames, 'BetOptionsEndGames')
-        })
     },
     methods:{
+        async GenerateReports(){
+            await this.TotalMTD()
+            await this.endGamesEnd()
+            await this.betOptionEnd()
+            await this.walletDetails()
+        },
+        async TotalMTD(){
+            await this.$binding("TotalMonthYearMTD", this.$db.collection("TotalMonthYearMTD"))
+            .then((TotalMonthYearMTD) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async endGamesEnd(){
+            await this.$binding("EndGames", this.$db.collection("EndGames"))
+            .then((EndGames) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async betOptionEnd(){
+            await this.$binding("BetOptionsEndGames", this.$db.collection("BetOptionsEndGames"))
+            .then((BetOptionsEndGames) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
+        async walletDetails(){
+            await this.$binding("Wallet", this.$db.collection("Wallet"))
+            .then((Wallet) => {
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
         
     },
     computed: {

@@ -49,7 +49,6 @@ export default {
             filter: '',
             accountObj: null,
             tab: 'magents',
-            MasterAgents: [],
             MasterAgentsWithdrawal: [],
             columns: [
                 { name: 'accountFirstName', required: true, label: 'Full Name', align: 'left', field: 'accountFirstName', sortable: true },
@@ -61,18 +60,6 @@ export default {
         }
     },
     mounted() {
-        let user = this.$store.getters['useraccount/isAuthenticated']
-        console.log(user,'user')
-        this.$binding("accountObj", this.$db.collection("Accounts").doc(user.userDBKey))
-        .then((account) => {
-            console.log(account,'account') // => __ob__: Observer
-        }).catch(err => {
-            console.error(err)
-        })
-        this.$binding('MasterAgents', this.$db.collection('MasterAgents'))
-            .then(MasterAgents => {
-            console.log(MasterAgents, 'MasterAgents')
-        })
         this.$binding('MasterAgentsWithdrawal', this.$db.collection('MasterAgentsWithdrawal'))
             .then(MasterAgentsWithdrawal => {
             console.log(MasterAgentsWithdrawal, 'MasterAgentsWithdrawal')
@@ -85,6 +72,15 @@ export default {
         }
     },
     methods:{
+        async currentUsers(){
+            let user = this.$store.getters['useraccount/isAuthenticated']
+            await this.$binding("accountObj", this.$db.collection("Accounts").doc(user.userDBKey))
+            .then((account) => {
+                console.log(account,'account') // => __ob__: Observer
+            }).catch(err => {
+                console.error(err)
+            })             
+        },
         async approveWithdrawal(agent){
             this.$q.dialog({
                 dark: true,
@@ -95,7 +91,8 @@ export default {
                     flat: true,
                 },
                 persistent: true
-            }).onOk(() =>{
+            }).onOk( async () =>{
+                await this.currentUsers()
                 let user = this.$store.getters['useraccount/isAuthenticated']
                 console.log(user,'user')
                 let masterAgentID = agent.masterAgentKey
