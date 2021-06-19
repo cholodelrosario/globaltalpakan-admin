@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "globaltalpakan"
+    "default": "globaltalpakandev"
   },
   "targets": {
     "globaltalpakan": {
